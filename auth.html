@@ -21,7 +21,7 @@
 
     <div class="text-center mb-8">
       <a href="index.html" class="text-2xl font-bold accent-teal">TripLens</a>
-      <p class="text-gray-500 text-sm mt-2">Login to continue your journey</p>
+      <p id="authSubtitle" class="text-gray-500 text-sm mt-2">Login to continue your journey</p>
     </div>
 
     <form id="loginForm" class="space-y-5">
@@ -35,15 +35,36 @@
 
       <div>
         <label class="block text-sm mb-2">Password</label>
-        <input type="password" required
-          class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-600"
-          placeholder="••••••••" />
+        <div class="relative">
+          <input id="passwordInput" type="password" required
+            class="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-teal-600"
+            placeholder="••••••••" />
+
+          <button type="button" id="togglePassword"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 hover:text-gray-700">
+            Show
+          </button>
+        </div>
       </div>
 
-      <button type="submit"
+      <div id="confirmPasswordWrapper" class="hidden">
+        <label class="block text-sm mb-2">Confirm Password</label>
+        <input id="confirmPassword" type="password"
+          class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-600"
+          placeholder="Re-enter password" />
+      </div>
+
+      <button id="authButton" type="submit"
         class="w-full bg-accent text-white py-3 rounded-lg font-medium hover:opacity-90 transition">
         Sign In
       </button>
+
+      <p class="text-sm text-center text-gray-500 mt-4">
+        <span id="toggleAuthText">Don't have an account?</span>
+        <button type="button" id="toggleAuthMode" class="text-[#0a8574] font-medium ml-1">
+          Create one
+        </button>
+      </p>
 
     </form>
 
@@ -52,9 +73,55 @@
   <script>
     const form = document.getElementById("loginForm");
 
+    const toggleAuthMode = document.getElementById("toggleAuthMode");
+    const toggleAuthText = document.getElementById("toggleAuthText");
+    const authButton = document.getElementById("authButton");
+    const confirmWrapper = document.getElementById("confirmPasswordWrapper");
+    const authSubtitle = document.getElementById("authSubtitle");
+
+    let isSignup = false;
+
+    toggleAuthMode.addEventListener("click", function() {
+      isSignup = !isSignup;
+
+      if (isSignup) {
+        confirmWrapper.classList.remove("hidden");
+        authButton.textContent = "Create Account";
+        toggleAuthText.textContent = "Already have an account?";
+        toggleAuthMode.textContent = "Sign in";
+        authSubtitle.textContent = "Create your TripLens account";
+        document.getElementById("confirmPassword").setAttribute("required", true);
+      } else {
+        confirmWrapper.classList.add("hidden");
+        authButton.textContent = "Sign In";
+        toggleAuthText.textContent = "Don't have an account?";
+        toggleAuthMode.textContent = "Create one";
+        authSubtitle.textContent = "Login to continue your journey";
+        document.getElementById("confirmPassword").removeAttribute("required");
+      }
+    });
+
+    const passwordInput = document.getElementById("passwordInput");
+    const togglePassword = document.getElementById("togglePassword");
+
+    togglePassword.addEventListener("click", function () {
+      const isPassword = passwordInput.getAttribute("type") === "password";
+
+      passwordInput.setAttribute("type", isPassword ? "text" : "password");
+      togglePassword.textContent = isPassword ? "Hide" : "Show";
+    });
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+
       const email = form.querySelector('input[type="email"]').value;
+      const password = document.getElementById("passwordInput").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (isSignup && password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+      }
 
       localStorage.setItem("triplensUser", email);
       window.location.href = "dashboard.html";
