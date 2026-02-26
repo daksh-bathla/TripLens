@@ -67,29 +67,87 @@
       <h2 class="font-bold text-lg mb-6">Log New Trip</h2>
 
       <form id="tripForm" class="grid md:grid-cols-2 gap-4">
-        <input type="text" id="source" placeholder="Source" required
-          class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
 
-        <input type="text" id="destination" placeholder="Destination" required
-          class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+        <!-- Entry Mode Selection -->
+        <div class="md:col-span-2 mb-2">
+          <p class="text-sm font-medium mb-2">How would you like to add trip details?</p>
+          <div class="flex gap-6 text-sm">
+            <label class="flex items-center gap-2">
+              <input type="radio" name="entryMode" value="manual" checked onclick="toggleEntryMode('manual')">
+              Enter Manually
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="radio" name="entryMode" value="ticket" onclick="toggleEntryMode('ticket')">
+              Upload Departure & Return Tickets
+            </label>
+          </div>
+        </div>
 
-        <input type="number" id="budget" placeholder="Budget (₹)" required
-          class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+        <!-- Manual Fields -->
+        <div id="manualFields" class="contents">
 
-        <select id="mode" required
-          class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
-          <option value="">Travel Mode</option>
-          <option>Flight</option>
-          <option>Train</option>
-          <option>Car</option>
-        </select>
+          <input type="text" id="source" placeholder="Source" required
+            class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+
+          <input type="text" id="destination" placeholder="Destination" required
+            class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+
+          <input type="number" id="budget" placeholder="Budget (₹)" required
+            class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+
+          <select id="mode" required
+            class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+            <option value="">Travel Mode</option>
+            <option>Flight</option>
+            <option>Train</option>
+            <option>Car</option>
+          </select>
+
+          <!-- Manual PNR Field (kept) -->
+          <div id="pnrField" class="hidden md:col-span-2">
+            <input type="text" id="pnr" placeholder="Enter PNR / Booking Reference"
+              class="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+          </div>
+
+        </div>
+
+        <!-- Ticket Upload Fields -->
+        <div id="ticketFields" class="hidden md:col-span-2 grid md:grid-cols-2 gap-4">
+
+          <div>
+            <label class="block text-sm mb-2">Departure Ticket</label>
+            <input type="file" id="departureTicket" accept=".txt,.pdf,image/*"
+              class="border border-gray-300 p-3 rounded-lg w-full">
+          </div>
+
+          <div>
+            <label class="block text-sm mb-2">Return Ticket</label>
+            <input type="file" id="returnTicket" accept=".txt,.pdf,image/*"
+              class="border border-gray-300 p-3 rounded-lg w-full">
+          </div>
+
+        </div>
 
         <div class="md:col-span-2">
           <button type="submit" class="btn-primary px-6 py-3 rounded-lg font-medium w-full md:w-auto">
             Analyze Trip
           </button>
         </div>
+
       </form>
+    </div>
+
+    <!-- Itinerary + Reminders -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+      <h2 class="font-bold text-lg mb-4">Smart Itinerary</h2>
+      <div id="itineraryOutput" class="text-sm text-gray-600 mb-6">
+        Generate a trip to see your AI itinerary.
+      </div>
+
+      <h2 class="font-bold text-lg mb-4">Smart Reminders</h2>
+      <div id="reminderOutput" class="text-sm text-gray-600">
+        No active reminders.
+      </div>
     </div>
 
     <!-- Insights -->
@@ -185,6 +243,45 @@
     loadTrips();
   }
 
+  function toggleEntryMode(mode) {
+    const manual = document.getElementById("manualFields");
+    const ticket = document.getElementById("ticketFields");
+
+    if (mode === "ticket") {
+      manual.classList.add("hidden");
+      ticket.classList.remove("hidden");
+
+      document.getElementById("source").removeAttribute("required");
+      document.getElementById("destination").removeAttribute("required");
+      document.getElementById("budget").removeAttribute("required");
+      document.getElementById("mode").removeAttribute("required");
+      document.getElementById("pnr").removeAttribute("required");
+    } else {
+      manual.classList.remove("hidden");
+      ticket.classList.add("hidden");
+
+      document.getElementById("source").setAttribute("required", true);
+      document.getElementById("destination").setAttribute("required", true);
+      document.getElementById("budget").setAttribute("required", true);
+      document.getElementById("mode").setAttribute("required", true);
+    }
+  }
+
+  const modeSelect = document.getElementById("mode");
+
+  modeSelect.addEventListener("change", function() {
+    const pnrField = document.getElementById("pnrField");
+    const selectedMode = this.value;
+
+    if (selectedMode === "Flight" || selectedMode === "Train") {
+      pnrField.classList.remove("hidden");
+      document.getElementById("pnr").setAttribute("required", true);
+    } else {
+      pnrField.classList.add("hidden");
+      document.getElementById("pnr").removeAttribute("required");
+    }
+  });
+
   form.addEventListener("submit", function(e){
     e.preventDefault();
 
@@ -192,6 +289,13 @@
     const destination = document.getElementById("destination").value;
     const budget = document.getElementById("budget").value;
     const mode = document.getElementById("mode").value;
+
+    const departureTicket = document.getElementById("departureTicket")?.files[0];
+    const returnTicket = document.getElementById("returnTicket")?.files[0];
+
+    if (departureTicket || returnTicket) {
+      console.log("Mock extracting ticket details...");
+    }
 
     const numericBudget = Number(budget);
 
@@ -209,6 +313,24 @@
     document.getElementById("risk").textContent = risk;
     document.getElementById("savings").textContent = `₹${savings}`;
     document.getElementById("carbon").textContent = `${carbon}kg CO₂`;
+
+    // Basic itinerary generator (mock)
+    const itineraryText = `
+      Day 1: Travel from ${source} to ${destination}
+      Day 2: Explore local attractions
+      Day 3: Return / buffer day
+    `;
+
+    document.getElementById("itineraryOutput").textContent = itineraryText;
+
+    // Smart reminders system (mock)
+    const reminderText = `
+      • Pack essentials 24 hrs before departure
+      • Reach departure point 2 hrs early
+      • Monitor weather updates
+    `;
+
+    document.getElementById("reminderOutput").textContent = reminderText;
 
     const trips = JSON.parse(localStorage.getItem("triplensTrips")) || [];
 
