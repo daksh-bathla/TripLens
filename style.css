@@ -1,0 +1,96 @@
+/* ===== TripLens Global Styles ===== */
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: #fafaf8;
+  color: #2a2a28;
+}
+
+/* Accent Utilities */
+.accent-teal {
+  color: #0a8574;
+}
+
+.bg-accent {
+  background-color: #0a8574;
+}
+
+.border-accent {
+  border-color: #0a8574;
+}
+
+/* Primary Button */
+.btn-primary {
+  background: #0a8574;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #067d63;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(10, 133, 116, 0.25);
+}
+
+/* Card Base */
+.card {
+  background: white;
+  border: 1px solid #e8e6e1;
+  border-radius: 1rem;
+  padding: 2rem;
+}
+
+.card-hover:hover {
+  border-color: #0a8574;
+  box-shadow: 0 12px 32px rgba(10, 133, 116, 0.08);
+  transform: translateY(-4px);
+  transition: all 0.3s ease;
+}
+
+/* Sidebar */
+.sidebar {
+  background: white;
+  border-right: 1px solid #e8e6e1;
+}
+
+.sidebar-link {
+  display: block;
+  font-size: 0.875rem;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.sidebar-link:hover {
+  color: #0a8574;
+}
+
+.logout-btn {
+  font-size: 0.875rem;
+  color: #dc2626;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  text-decoration: underline;
+}
+
+/* Metrics */
+.metric-card {
+  background: white;
+  border: 1px solid #e8e6e1;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #0a8574;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}

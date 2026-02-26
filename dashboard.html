@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TripLens – Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background:#fafaf8; color:#2a2a28; }
+    .accent-teal { color:#0a8574; }
+    .btn-primary { background:#0a8574; color:white; transition:all .3s ease; }
+    .btn-primary:hover { background:#067d63; }
+  </style>
+</head>
+
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white border-r border-gray-200 p-6 hidden md:flex md:flex-col justify-between">
+    <div>
+        <a href="index.html" class="font-bold text-lg accent-teal">TripLens</a>
+      <nav class="space-y-4 text-sm">
+        <a href="dashboard.html" class="block font-medium text-gray-800">Dashboard</a>
+        <a href="analytics.html" class="block text-gray-600 hover:text-[#0a8574]">Analytics</a>
+        <a href="index.html" class="block text-gray-600 hover:text-[#0a8574]">Home</a>
+      </nav>
+    </div>
+
+    <button id="logoutBtn" class="text-sm text-red-600 hover:underline">Logout</button>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 p-8">
+
+    <div class="mb-10">
+      <h1 class="text-4xl font-bold mb-2">Intelligent Travel Dashboard</h1>
+      <p class="text-gray-500">Monitor your trips, risk patterns, spending behavior and sustainability impact in real-time.</p>
+    </div>
+
+    <!-- Summary Metrics -->
+    <div class="grid md:grid-cols-4 gap-6 mb-12">
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+        <p class="text-xs text-gray-500 mb-1">Total Trips</p>
+        <p id="summaryTrips" class="text-2xl font-bold accent-teal">0</p>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+        <p class="text-xs text-gray-500 mb-1">Total Spending</p>
+        <p id="summarySpending" class="text-2xl font-bold accent-teal">₹0</p>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+        <p class="text-xs text-gray-500 mb-1">High Risk Trips</p>
+        <p id="summaryHighRisk" class="text-2xl font-bold text-red-600">0</p>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+        <p class="text-xs text-gray-500 mb-1">Total Carbon</p>
+        <p id="summaryCarbon" class="text-2xl font-bold accent-teal">0kg</p>
+      </div>
+    </div>
+
+    <!-- Trip Form -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+      <h2 class="font-bold text-lg mb-6">Log New Trip</h2>
+
+      <form id="tripForm" class="grid md:grid-cols-2 gap-4">
+        <input type="text" id="source" placeholder="Source" required
+          class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+
+        <input type="text" id="destination" placeholder="Destination" required
+          class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+
+        <input type="number" id="budget" placeholder="Budget (₹)" required
+          class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+
+        <select id="mode" required
+          class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+          <option value="">Travel Mode</option>
+          <option>Flight</option>
+          <option>Train</option>
+          <option>Car</option>
+        </select>
+
+        <div class="md:col-span-2">
+          <button type="submit" class="btn-primary px-6 py-3 rounded-lg font-medium w-full md:w-auto">
+            Analyze Trip
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Insights -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+      <h2 class="font-bold text-lg mb-6">AI Insights</h2>
+
+      <div class="grid md:grid-cols-3 gap-6 text-center">
+        <div class="p-6 bg-gray-50 rounded-xl">
+          <p class="text-sm text-gray-500">Risk Level</p>
+          <p id="risk" class="text-lg font-bold text-green-600">Low</p>
+        </div>
+        <div class="p-6 bg-gray-50 rounded-xl">
+          <p class="text-sm text-gray-500">Estimated Savings</p>
+          <p id="savings" class="text-lg font-bold accent-teal">₹0</p>
+        </div>
+        <div class="p-6 bg-gray-50 rounded-xl">
+          <p class="text-sm text-gray-500">Carbon Impact</p>
+          <p id="carbon" class="text-lg font-bold accent-teal">0kg CO₂</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Trips -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+      <h2 class="font-bold text-lg mb-6">Recent Trips</h2>
+      <div id="tripList" class="space-y-4 text-sm"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Protect route
+  if (!localStorage.getItem("triplensUser")) {
+    window.location.href = "auth.html";
+  }
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  logoutBtn.addEventListener("click", function() {
+    localStorage.removeItem("triplensUser");
+    window.location.href = "index.html";
+  });
+
+  const form = document.getElementById("tripForm");
+  const tripList = document.getElementById("tripList");
+
+  function loadTrips() {
+    const trips = JSON.parse(localStorage.getItem("triplensTrips")) || [];
+
+    // Update summary metrics
+    const totalTrips = trips.length;
+    const totalSpending = trips.reduce((sum, t) => sum + Number(t.budget || 0), 0);
+    const highRiskCount = trips.filter(t => t.risk === "High Risk").length;
+    const totalCarbon = trips.reduce((sum, t) => sum + Number(t.carbon || 0), 0);
+
+    document.getElementById("summaryTrips").textContent = totalTrips;
+    document.getElementById("summarySpending").textContent = `₹${totalSpending}`;
+    document.getElementById("summaryHighRisk").textContent = highRiskCount;
+    document.getElementById("summaryCarbon").textContent = `${totalCarbon}kg`;
+
+    tripList.innerHTML = "";
+
+    trips.forEach(trip => {
+      const div = document.createElement("div");
+      div.className = "flex justify-between items-center p-4 bg-gray-50 rounded-lg";
+
+      const riskColor =
+        trip.risk === "High Risk"
+          ? "text-red-600"
+          : trip.risk === "Medium Risk"
+          ? "text-yellow-600"
+          : "text-green-600";
+
+      div.innerHTML = `
+        <div>
+          <p class="font-medium">${trip.source} → ${trip.destination}</p>
+          <p class="text-gray-500 text-xs">${trip.mode} • ₹${trip.budget} • ${trip.date}</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="${riskColor} font-medium">${trip.risk}</span>
+          <button onclick="deleteTrip(${trip.id})" class="text-xs text-red-500 hover:underline">Delete</button>
+        </div>
+      `;
+
+      tripList.appendChild(div);
+    });
+  }
+
+  function deleteTrip(id) {
+    const trips = JSON.parse(localStorage.getItem("triplensTrips")) || [];
+    const updated = trips.filter(t => t.id !== id);
+    localStorage.setItem("triplensTrips", JSON.stringify(updated));
+    loadTrips();
+  }
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const source = document.getElementById("source").value;
+    const destination = document.getElementById("destination").value;
+    const budget = document.getElementById("budget").value;
+    const mode = document.getElementById("mode").value;
+
+    const numericBudget = Number(budget);
+
+    // Smarter risk logic
+    let risk = "Low Risk";
+    if (numericBudget > 15000 || mode === "Flight") {
+      risk = "High Risk";
+    } else if (numericBudget > 8000) {
+      risk = "Medium Risk";
+    }
+
+    const savings = Math.floor(numericBudget * 0.18);
+    const carbon = mode === "Flight" ? 6 : mode === "Train" ? 2 : 1;
+
+    document.getElementById("risk").textContent = risk;
+    document.getElementById("savings").textContent = `₹${savings}`;
+    document.getElementById("carbon").textContent = `${carbon}kg CO₂`;
+
+    const trips = JSON.parse(localStorage.getItem("triplensTrips")) || [];
+
+    trips.unshift({
+      id: Date.now(),
+      source,
+      destination,
+      budget: numericBudget,
+      mode,
+      risk,
+      carbon,
+      date: new Date().toLocaleDateString()
+    });
+
+    localStorage.setItem("triplensTrips", JSON.stringify(trips));
+
+    loadTrips();
+    form.reset();
+  });
+
+  loadTrips();
+</script>
+
+</body>
+</html>
