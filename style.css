@@ -6,6 +6,10 @@ body {
   color: #2a2a28;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* Accent Utilities */
 .accent-teal {
   color: #0a8574;
@@ -38,6 +42,7 @@ body {
   border: 1px solid #e8e6e1;
   border-radius: 1rem;
   padding: 2rem;
+  transition: all 0.3s ease;
 }
 
 .card-hover:hover {
@@ -93,4 +98,66 @@ body {
   font-size: 0.75rem;
   color: #6b7280;
   margin-bottom: 0.5rem;
+}
+
+/* Glass Effect */
+.glass {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Hero Gradient */
+.hero-gradient {
+  background: linear-gradient(135deg, #e6f7f4 0%, #ffffff 50%, #e6f7f4 100%);
+}
+
+/* Risk Bar Colors */
+.risk-low {
+  background-color: #16a34a;
+}
+
+.risk-medium {
+  background-color: #f59e0b;
+}
+
+.risk-high {
+  background-color: #dc2626;
+}
+
+/* Fade In Animation */
+.fade-in {
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Button Secondary Style */
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #0a8574;
+  color: #0a8574;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: #0a8574;
+  color: white;
+}
+
+/* Subtle Section Spacing Utility */
+.section-padding {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
 }

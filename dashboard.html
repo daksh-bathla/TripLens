@@ -16,16 +16,16 @@
   </style>
 </head>
 
-<body class="min-h-screen">
+<body class="min-h-screen bg-gradient-to-br from-[#f4f7f6] via-white to-[#f4f7f6]">
 
 <div class="flex min-h-screen">
 
   <!-- Sidebar -->
-  <aside class="w-64 bg-white border-r border-gray-200 p-6 hidden md:flex md:flex-col justify-between">
+  <aside class="w-64 bg-white/90 backdrop-blur-md border-r border-gray-200 p-8 hidden md:flex md:flex-col justify-between shadow-sm">
     <div>
-        <a href="index.html" class="font-bold text-lg accent-teal">TripLens</a>
-      <nav class="space-y-4 text-sm">
-        <a href="dashboard.html" class="block font-medium text-gray-800">Dashboard</a>
+        <a href="index.html" class="font-extrabold text-2xl accent-teal tracking-tight">TripLens</a>
+      <nav class="space-y-5 text-sm mt-10">
+        <a href="dashboard.html" class="block font-semibold text-[#0a8574] bg-[#e6f7f4] px-3 py-2 rounded-lg">Dashboard</a>
         <a href="analytics.html" class="block text-gray-600 hover:text-[#0a8574]">Analytics</a>
         <a href="index.html" class="block text-gray-600 hover:text-[#0a8574]">Home</a>
       </nav>
@@ -35,35 +35,35 @@
   </aside>
 
   <!-- Main -->
-  <main class="flex-1 p-8">
+  <main class="flex-1 p-10 md:p-14">
 
-    <div class="mb-10">
-      <h1 class="text-4xl font-bold mb-2">Intelligent Travel Dashboard</h1>
-      <p class="text-gray-500">Monitor your trips, risk patterns, spending behavior and sustainability impact in real-time.</p>
+    <div class="mb-14">
+      <h1 class="text-4xl md:text-5xl font-extrabold mb-3 tracking-tight">Intelligent Travel Dashboard</h1>
+      <p class="text-gray-500 text-lg max-w-3xl">Monitor your trips, risk patterns, spending behavior and sustainability impact in real-time.</p>
     </div>
 
     <!-- Summary Metrics -->
     <div class="grid md:grid-cols-4 gap-6 mb-12">
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
         <p class="text-xs text-gray-500 mb-1">Total Trips</p>
         <p id="summaryTrips" class="text-2xl font-bold accent-teal">0</p>
       </div>
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
         <p class="text-xs text-gray-500 mb-1">Total Spending</p>
         <p id="summarySpending" class="text-2xl font-bold accent-teal">₹0</p>
       </div>
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
         <p class="text-xs text-gray-500 mb-1">High Risk Trips</p>
         <p id="summaryHighRisk" class="text-2xl font-bold text-red-600">0</p>
       </div>
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
         <p class="text-xs text-gray-500 mb-1">Total Carbon</p>
         <p id="summaryCarbon" class="text-2xl font-bold accent-teal">0kg</p>
       </div>
     </div>
 
     <!-- Trip Form -->
-    <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+    <div class="bg-white rounded-3xl p-10 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300 mb-12">
       <h2 class="font-bold text-lg mb-6">Log New Trip</h2>
 
       <form id="tripForm" class="grid md:grid-cols-2 gap-4">
@@ -103,6 +103,9 @@
             <option>Car</option>
           </select>
 
+          <input type="datetime-local" id="departureTime" required
+            class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574] md:col-span-2">
+
           <!-- Manual PNR Field (kept) -->
           <div id="pnrField" class="hidden md:col-span-2">
             <input type="text" id="pnr" placeholder="Enter PNR / Booking Reference"
@@ -138,7 +141,7 @@
     </div>
 
     <!-- Itinerary + Reminders -->
-    <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+    <div class="bg-white rounded-3xl p-10 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300 mb-12">
       <h2 class="font-bold text-lg mb-4">Smart Itinerary</h2>
       <div id="itineraryOutput" class="text-sm text-gray-600 mb-6">
         Generate a trip to see your AI itinerary.
@@ -151,27 +154,83 @@
     </div>
 
     <!-- Insights -->
-    <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+    <div class="bg-white rounded-3xl p-10 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300 mb-12">
       <h2 class="font-bold text-lg mb-6">AI Insights</h2>
 
-      <div class="grid md:grid-cols-3 gap-6 text-center">
+      <div class="grid md:grid-cols-4 gap-6 text-center">
         <div class="p-6 bg-gray-50 rounded-xl">
           <p class="text-sm text-gray-500">Risk Level</p>
           <p id="risk" class="text-lg font-bold text-green-600">Low</p>
         </div>
         <div class="p-6 bg-gray-50 rounded-xl">
-          <p class="text-sm text-gray-500">Estimated Savings</p>
-          <p id="savings" class="text-lg font-bold accent-teal">₹0</p>
+          <p class="text-sm text-gray-500">Risk Score</p>
+          <p id="riskScore" class="text-lg font-bold accent-teal">0 / 100</p>
+          <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+            <div id="riskBar" class="bg-[#0a8574] h-2 rounded-full" style="width:0%"></div>
+          </div>
         </div>
         <div class="p-6 bg-gray-50 rounded-xl">
-          <p class="text-sm text-gray-500">Carbon Impact</p>
-          <p id="carbon" class="text-lg font-bold accent-teal">0kg CO₂</p>
+          <p class="text-sm text-gray-500">Delay Probability</p>
+          <p id="delay" class="text-lg font-bold accent-teal">0%</p>
+        </div>
+        <div class="p-6 bg-gray-50 rounded-xl">
+          <p class="text-sm text-gray-500">Confidence Score</p>
+          <p id="confidence" class="text-lg font-bold accent-teal">100%</p>
+        </div>
+      </div>
+
+      <!-- Risk Breakdown -->
+      <div class="mt-8 bg-gray-50 rounded-xl p-6">
+        <h3 class="text-sm font-semibold mb-4 text-gray-700">Why this risk score?</h3>
+
+        <div class="space-y-4 text-sm text-gray-600">
+
+          <div>
+            <div class="flex justify-between mb-1">
+              <span>Transport Volatility</span>
+              <span id="bdTransport" class="font-medium">0</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div id="barTransport" class="bg-red-400 h-2 rounded-full transition-all duration-700" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between mb-1">
+              <span>Financial Exposure</span>
+              <span id="bdFinancial" class="font-medium">0</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div id="barFinancial" class="bg-yellow-400 h-2 rounded-full transition-all duration-700" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between mb-1">
+              <span>Timing Risk</span>
+              <span id="bdTiming" class="font-medium">0</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div id="barTiming" class="bg-blue-400 h-2 rounded-full transition-all duration-700" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between mb-1">
+              <span>External Uncertainty</span>
+              <span id="bdExternal" class="font-medium">0</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div id="barExternal" class="bg-purple-400 h-2 rounded-full transition-all duration-700" style="width:0%"></div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
 
     <!-- Recent Trips -->
-    <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+    <div class="bg-white rounded-3xl p-10 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
       <h2 class="font-bold text-lg mb-6">Recent Trips</h2>
       <div id="tripList" class="space-y-4 text-sm"></div>
     </div>
@@ -194,54 +253,69 @@
   const form = document.getElementById("tripForm");
   const tripList = document.getElementById("tripList");
 
-  function loadTrips() {
-    const trips = JSON.parse(localStorage.getItem("triplensTrips")) || [];
+  async function loadTrips() {
+    try {
+      const res = await fetch("http://localhost:5000/trips");
+      const trips = await res.json();
 
-    // Update summary metrics
-    const totalTrips = trips.length;
-    const totalSpending = trips.reduce((sum, t) => sum + Number(t.budget || 0), 0);
-    const highRiskCount = trips.filter(t => t.risk === "High Risk").length;
-    const totalCarbon = trips.reduce((sum, t) => sum + Number(t.carbon || 0), 0);
+      const totalTrips = trips.length;
+      const totalSpending = trips.reduce((sum, t) => sum + Number(t.budget || 0), 0);
+      const highRiskCount = trips.filter(t => t.riskLevel === "High Risk").length;
+      const totalCarbon = trips.reduce((sum, t) => sum + Number(t.carbon || 0), 0);
 
-    document.getElementById("summaryTrips").textContent = totalTrips;
-    document.getElementById("summarySpending").textContent = `₹${totalSpending}`;
-    document.getElementById("summaryHighRisk").textContent = highRiskCount;
-    document.getElementById("summaryCarbon").textContent = `${totalCarbon}kg`;
+      document.getElementById("summaryTrips").textContent = totalTrips;
+      document.getElementById("summarySpending").textContent = `₹${totalSpending}`;
+      document.getElementById("summaryHighRisk").textContent = highRiskCount;
+      document.getElementById("summaryCarbon").textContent = `${totalCarbon}kg`;
 
-    tripList.innerHTML = "";
+      tripList.innerHTML = "";
 
-    trips.forEach(trip => {
-      const div = document.createElement("div");
-      div.className = "flex justify-between items-center p-4 bg-gray-50 rounded-lg";
+      trips.forEach(trip => {
+        const div = document.createElement("div");
+        div.className = "flex justify-between items-center p-5 bg-gray-50 rounded-xl border border-gray-100 hover:shadow-md transition duration-200";
 
-      const riskColor =
-        trip.risk === "High Risk"
-          ? "text-red-600"
-          : trip.risk === "Medium Risk"
-          ? "text-yellow-600"
-          : "text-green-600";
+        const riskColor =
+          trip.riskLevel === "High Risk"
+            ? "text-red-600"
+            : trip.riskLevel === "Medium Risk"
+            ? "text-yellow-600"
+            : "text-green-600";
 
-      div.innerHTML = `
-        <div>
-          <p class="font-medium">${trip.source} → ${trip.destination}</p>
-          <p class="text-gray-500 text-xs">${trip.mode} • ₹${trip.budget} • ${trip.date}</p>
-        </div>
-        <div class="flex items-center gap-4">
-          <span class="${riskColor} font-medium">${trip.risk}</span>
-          <button onclick="deleteTrip(${trip.id})" class="text-xs text-red-500 hover:underline">Delete</button>
-        </div>
-      `;
+        div.innerHTML = `
+          <div>
+            <p class="font-medium">${trip.source} → ${trip.destination}</p>
+            <p class="text-gray-500 text-xs">${trip.mode} • ₹${trip.budget} • ${new Date(trip.createdAt).toLocaleDateString()}</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="${riskColor} font-medium">${trip.riskLevel}</span>
+            <button data-id="${trip._id}" class="deleteBtn text-xs text-red-500 hover:text-red-700">Delete</button>
+          </div>
+        `;
 
-      tripList.appendChild(div);
-    });
+        tripList.appendChild(div);
+      });
+
+      // Attach delete handlers
+      document.querySelectorAll(".deleteBtn").forEach(btn => {
+        btn.addEventListener("click", async function() {
+          const id = this.getAttribute("data-id");
+
+          try {
+            await fetch(`http://localhost:5000/trips/${id}`, {
+              method: "DELETE"
+            });
+
+            loadTrips();
+          } catch (err) {
+            console.error("Failed to delete trip:", err);
+          }
+        });
+      });
+    } catch (err) {
+      console.error("Failed to load trips:", err);
+    }
   }
 
-  function deleteTrip(id) {
-    const trips = JSON.parse(localStorage.getItem("triplensTrips")) || [];
-    const updated = trips.filter(t => t.id !== id);
-    localStorage.setItem("triplensTrips", JSON.stringify(updated));
-    loadTrips();
-  }
 
   function toggleEntryMode(mode) {
     const manual = document.getElementById("manualFields");
@@ -256,6 +330,7 @@
       document.getElementById("budget").removeAttribute("required");
       document.getElementById("mode").removeAttribute("required");
       document.getElementById("pnr").removeAttribute("required");
+      document.getElementById("departureTime").removeAttribute("required");
     } else {
       manual.classList.remove("hidden");
       ticket.classList.add("hidden");
@@ -264,6 +339,7 @@
       document.getElementById("destination").setAttribute("required", true);
       document.getElementById("budget").setAttribute("required", true);
       document.getElementById("mode").setAttribute("required", true);
+      document.getElementById("departureTime").setAttribute("required", true);
     }
   }
 
@@ -282,74 +358,76 @@
     }
   });
 
-  form.addEventListener("submit", function(e){
-    e.preventDefault();
+form.addEventListener("submit", async function(e){
+  e.preventDefault();
 
-    const source = document.getElementById("source").value;
-    const destination = document.getElementById("destination").value;
-    const budget = document.getElementById("budget").value;
-    const mode = document.getElementById("mode").value;
+  const source = document.getElementById("source").value;
+  const destination = document.getElementById("destination").value;
+  const budget = Number(document.getElementById("budget").value);
+  const mode = document.getElementById("mode").value;
+  const departureTime = document.getElementById("departureTime").value;
 
-    const departureTicket = document.getElementById("departureTicket")?.files[0];
-    const returnTicket = document.getElementById("returnTicket")?.files[0];
-
-    if (departureTicket || returnTicket) {
-      console.log("Mock extracting ticket details...");
-    }
-
-    const numericBudget = Number(budget);
-
-    // Smarter risk logic
-    let risk = "Low Risk";
-    if (numericBudget > 15000 || mode === "Flight") {
-      risk = "High Risk";
-    } else if (numericBudget > 8000) {
-      risk = "Medium Risk";
-    }
-
-    const savings = Math.floor(numericBudget * 0.18);
-    const carbon = mode === "Flight" ? 6 : mode === "Train" ? 2 : 1;
-
-    document.getElementById("risk").textContent = risk;
-    document.getElementById("savings").textContent = `₹${savings}`;
-    document.getElementById("carbon").textContent = `${carbon}kg CO₂`;
-
-    // Basic itinerary generator (mock)
-    const itineraryText = `
-      Day 1: Travel from ${source} to ${destination}
-      Day 2: Explore local attractions
-      Day 3: Return / buffer day
-    `;
-
-    document.getElementById("itineraryOutput").textContent = itineraryText;
-
-    // Smart reminders system (mock)
-    const reminderText = `
-      • Pack essentials 24 hrs before departure
-      • Reach departure point 2 hrs early
-      • Monitor weather updates
-    `;
-
-    document.getElementById("reminderOutput").textContent = reminderText;
-
-    const trips = JSON.parse(localStorage.getItem("triplensTrips")) || [];
-
-    trips.unshift({
-      id: Date.now(),
-      source,
-      destination,
-      budget: numericBudget,
-      mode,
-      risk,
-      carbon,
-      date: new Date().toLocaleDateString()
+  try {
+    const res = await fetch("http://localhost:5000/trips", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        source,
+        destination,
+        budget,
+        mode,
+        departureTime
+      })
     });
 
-    localStorage.setItem("triplensTrips", JSON.stringify(trips));
+    const savedTrip = await res.json();
+
+    // Use backend-calculated values
+    document.getElementById("risk").textContent = savedTrip.riskLevel;
+    document.getElementById("riskScore").textContent = `${savedTrip.riskScore} / 100`;
+
+    const bar = document.getElementById("riskBar");
+    bar.style.transition = "width 0.5s ease";
+    bar.style.width = `${savedTrip.riskScore}%`;
+
+    document.getElementById("delay").textContent = `${savedTrip.delayProbability}%`;
+    document.getElementById("confidence").textContent = `${savedTrip.confidenceScore}%`;
+
+    // Display risk breakdown with animated progress bars
+    if (savedTrip.breakdown) {
+      const { transportVolatility, financialExposure, timingRisk, externalUncertainty } = savedTrip.breakdown;
+
+      document.getElementById("bdTransport").textContent = transportVolatility;
+      document.getElementById("bdFinancial").textContent = financialExposure;
+      document.getElementById("bdTiming").textContent = timingRisk;
+      document.getElementById("bdExternal").textContent = externalUncertainty;
+
+      document.getElementById("barTransport").style.width = `${transportVolatility * 2}%`;
+      document.getElementById("barFinancial").style.width = `${financialExposure * 4}%`;
+      document.getElementById("barTiming").style.width = `${timingRisk * 6}%`;
+      document.getElementById("barExternal").style.width = `${externalUncertainty * 6}%`;
+    }
+
+    const itineraryText = `
+      Travel from ${source} to ${destination}
+      Smart buffer included based on transport mode
+    `;
+    document.getElementById("itineraryOutput").textContent = itineraryText;
+
+    const reminderText = `
+      • Pack essentials 24 hrs before departure
+      • Leave ${mode === "Flight" ? "2 hours" : "1 hour"} before departure
+      • Backend-calculated delay probability: ${savedTrip.delayProbability}%
+    `;
+    document.getElementById("reminderOutput").textContent = reminderText;
 
     loadTrips();
     form.reset();
-  });
+
+  } catch (err) {
+    console.error("Failed to save trip:", err);
+  }
+});
 
   loadTrips();
 </script>

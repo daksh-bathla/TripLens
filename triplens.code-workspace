@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../../../Applications/XAMPP/htdocs"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "VS code"
+	}
+}

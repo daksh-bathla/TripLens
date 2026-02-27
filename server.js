@@ -3,22 +3,19 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const OpenAI = require("openai");
+const mongoose = require("mongoose");
+
+const tripRoutes = require("./routes/tripRoutes");
 
 console.log("Starting TripLens server...");
 
 const app = express();
 
+
 app.use(cors());
 app.use(express.json());
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// Health check route
-app.get("/", (req, res) => {
-  res.send("TripLens API is running");
-});
+app.use("/trips", tripRoutes);
 
 // Generate itinerary route
 app.post("/generate-itinerary", async (req, res) => {
@@ -61,6 +58,29 @@ Include:
   }
 });
 
-app.listen(5000, () => {
-  console.log("Server running on http://localhost:5000");
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
+
+// Health check route
+app.get("/", (req, res) => {
+  res.send("TripLens API is running");
+});
+
+const PORT = process.env.PORT || 5000;
+
+async function startServer() {
+  try {
+    console.log("Connecting to MongoDB...");
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("MongoDB connected");
+
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error("MongoDB connection failed:", error);
+  }
+}
+
+startServer();
