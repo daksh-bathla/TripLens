@@ -1,3 +1,76 @@
+<script>
+async function loadAnalytics() {
+  try {
+    const res = await fetch("http://localhost:5000/trips");
+    const trips = await res.json();
+
+    // Totals
+    const totalTrips = trips.length;
+    const totalSpending = trips.reduce((sum, t) => sum + Number(t.budget || 0), 0);
+    const totalCarbon = trips.reduce((sum, t) => sum + Number(t.carbon || 0), 0);
+
+    document.getElementById("totalTrips").textContent = totalTrips;
+    document.getElementById("totalSpending").textContent = `₹${totalSpending}`;
+    document.getElementById("totalCarbon").textContent = `${totalCarbon}kg`;
+
+    // Mode Count
+    const modeCounts = { Flight: 0, Train: 0, Car: 0 };
+    trips.forEach(t => {
+      if (modeCounts[t.mode] !== undefined) modeCounts[t.mode]++;
+    });
+
+    new Chart(document.getElementById("modeChart"), {
+      type: "doughnut",
+      data: {
+        labels: Object.keys(modeCounts),
+        datasets: [{
+          data: Object.values(modeCounts),
+          backgroundColor: ["#0a8574", "#94a3b8", "#fbbf24"]
+        }]
+      },
+      options: {
+        animation: {
+          duration: 1000,
+          easing: 'easeOutQuart'
+        },
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+
+    new Chart(document.getElementById("budgetChart"), {
+      type: "bar",
+      data: {
+        labels: trips.map((t, i) => `Trip ${i + 1}`),
+        datasets: [{
+          label: "Budget (₹)",
+          data: trips.map(t => t.budget),
+          backgroundColor: "#0a8574"
+        }]
+      },
+      options: {
+        animation: {
+          duration: 1000,
+          easing: 'easeOutQuart'
+        },
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Failed to load analytics:", error);
+  }
+}
+
+loadAnalytics();
+</script>
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -5,51 +78,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TripLens – Analytics</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background:#fafaf8; color:#2a2a28; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
     .accent-teal { color:#0a8574; }
   </style>
 </head>
 
-<body class="min-h-screen">
+<body class="min-h-screen bg-gradient-to-br from-[#f4f7f6] via-white to-[#f4f7f6]">
 
 <div class="flex min-h-screen">
 
   <!-- Sidebar -->
-  <aside class="w-64 bg-white border-r border-gray-200 p-6 hidden md:flex md:flex-col justify-between">
+  <aside class="w-64 bg-white/90 backdrop-blur-md border-r border-gray-200 p-8 hidden md:flex md:flex-col justify-between shadow-sm">
     <div>
-         <a href="index.html" class="font-bold text-lg accent-teal">TripLens</a>
-      <nav class="space-y-4 text-sm">
+      <a href="index.html" class="font-extrabold text-2xl accent-teal tracking-tight">TripLens</a>
+      <nav class="space-y-5 text-sm mt-10">
         <a href="dashboard.html" class="block text-gray-600 hover:text-[#0a8574]">Dashboard</a>
-        <a href="analytics.html" class="block font-medium text-gray-800">Analytics</a>
+        <a href="analytics.html" class="block font-semibold text-[#0a8574] bg-[#e6f7f4] px-3 py-2 rounded-lg">Analytics</a>
         <a href="index.html" class="block text-gray-600 hover:text-[#0a8574]">Home</a>
       </nav>
     </div>
   </aside>
 
   <!-- Main -->
-  <main class="flex-1 p-8">
+  <main class="flex-1 p-10 md:p-14">
 
-    <h1 class="text-3xl font-bold mb-8">Travel Analytics</h1>
+    <h1 class="text-4xl md:text-5xl font-extrabold mb-12 tracking-tight">Travel Analytics</h1>
 
     <!-- Stats -->
-    <div class="grid md:grid-cols-3 gap-6 mb-10">
+    <div class="grid md:grid-cols-3 gap-6 mb-14">
 
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
         <p class="text-gray-500 text-sm mb-2">Total Trips</p>
         <p id="totalTrips" class="text-3xl font-bold accent-teal">0</p>
       </div>
 
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
         <p class="text-gray-500 text-sm mb-2">Total Spending</p>
         <p id="totalSpending" class="text-3xl font-bold accent-teal">₹0</p>
       </div>
 
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
         <p class="text-gray-500 text-sm mb-2">Estimated CO₂</p>
         <p id="totalCarbon" class="text-3xl font-bold accent-teal">0kg</p>
       </div>
@@ -59,12 +132,12 @@
     <!-- Charts -->
     <div class="grid lg:grid-cols-2 gap-8">
 
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div class="bg-white rounded-3xl p-8 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
         <h2 class="font-bold mb-4">Travel Mode Distribution</h2>
         <canvas id="modeChart"></canvas>
       </div>
 
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div class="bg-white rounded-3xl p-8 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
         <h2 class="font-bold mb-4">Spending Overview</h2>
         <canvas id="budgetChart"></canvas>
       </div>
@@ -75,59 +148,63 @@
 </div>
 
 <script>
-  const trips = JSON.parse(localStorage.getItem("triplensTrips")) || [];
+async function loadAnalytics() {
+  try {
+    const res = await fetch("http://localhost:5000/trips");
+    const trips = await res.json();
 
-  // Totals
-  const totalTrips = trips.length;
-  const totalSpending = trips.reduce((sum, t) => sum + Number(t.budget), 0);
-  const totalCarbon = trips.reduce((sum, t) => {
-    if (t.mode === "Flight") return sum + 5;
-    if (t.mode === "Train") return sum + 2;
-    return sum + 1;
-  }, 0);
+    const totalTrips = trips.length;
+    const totalSpending = trips.reduce((sum, t) => sum + Number(t.budget || 0), 0);
+    const totalCarbon = trips.reduce((sum, t) => sum + Number(t.carbon || 0), 0);
 
-  document.getElementById("totalTrips").textContent = totalTrips;
-  document.getElementById("totalSpending").textContent = `₹${totalSpending}`;
-  document.getElementById("totalCarbon").textContent = `${totalCarbon}kg`;
+    document.getElementById("totalTrips").textContent = totalTrips;
+    document.getElementById("totalSpending").textContent = `₹${totalSpending}`;
+    document.getElementById("totalCarbon").textContent = `${totalCarbon}kg`;
 
-  // Mode Count
-  const modeCounts = { Flight: 0, Train: 0, Car: 0 };
-  trips.forEach(t => {
-    if (modeCounts[t.mode] !== undefined) modeCounts[t.mode]++;
-  });
+    const modeCounts = { Flight: 0, Train: 0, Car: 0 };
+    trips.forEach(t => {
+      if (modeCounts[t.mode] !== undefined) modeCounts[t.mode]++;
+    });
 
-  new Chart(document.getElementById("modeChart"), {
-    type: "doughnut",
-    data: {
-      labels: Object.keys(modeCounts),
-      datasets: [{
-        data: Object.values(modeCounts),
-        backgroundColor: ["#0a8574", "#94a3b8", "#fbbf24"]
-      }]
-    }
-  });
-
-  new Chart(document.getElementById("budgetChart"), {
-    type: "bar",
-    data: {
-      labels: trips.map((t, i) => `Trip ${i + 1}`),
-      datasets: [{
-        label: "Budget (₹)",
-        data: trips.map(t => t.budget),
-        backgroundColor: "#0a8574"
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false }
+    new Chart(document.getElementById("modeChart"), {
+      type: "doughnut",
+      data: {
+        labels: Object.keys(modeCounts),
+        datasets: [{
+          data: Object.values(modeCounts),
+          backgroundColor: ["#0a8574", "#94a3b8", "#fbbf24"]
+        }]
       },
-      scales: {
-        y: { beginAtZero: true }
+      options: {
+        animation: { duration: 1000, easing: 'easeOutQuart' },
+        plugins: { legend: { position: 'bottom' } }
       }
-    }
-  });
+    });
 
+    new Chart(document.getElementById("budgetChart"), {
+      type: "bar",
+      data: {
+        labels: trips.map((t, i) => `Trip ${i + 1}`),
+        datasets: [{
+          label: "Budget (₹)",
+          data: trips.map(t => t.budget),
+          backgroundColor: "#0a8574"
+        }]
+      },
+      options: {
+        animation: { duration: 1000, easing: 'easeOutQuart' },
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+  } catch (error) {
+    console.error("Failed to load analytics:", error);
+  }
+}
+
+loadAnalytics();
 </script>
 
 </body>
