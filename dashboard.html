@@ -39,7 +39,9 @@
   <main class="flex-1 p-10 md:p-14">
 
     <div class="mb-14">
-      <h1 class="text-4xl md:text-5xl font-extrabold mb-3 tracking-tight">Welcome Back, Explorer ✈️</h1>
+      <h1 id="welcomeHeading" class="text-4xl md:text-5xl font-extrabold mb-3 tracking-tight">
+        Welcome Back ✈️
+      </h1>
       <p class="text-gray-500 text-lg max-w-3xl">Plan your next adventure, track your travel habits, and build your journey story.</p>
     </div>
 
@@ -146,6 +148,27 @@
 
         </div>
 
+        <!-- Itinerary Style Selection -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-2">Choose Itinerary Style</label>
+          <select id="itineraryStyle"
+            class="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+            <option value="smart" selected>Smart Balanced (AI Recommended)</option>
+            <option value="budget">Budget Focused</option>
+            <option value="luxury">Luxury Experience</option>
+            <option value="adventure">Adventure Packed</option>
+            <option value="relaxed">Relaxed & Slow Travel</option>
+            <option value="custom">Write My Own</option>
+          </select>
+        </div>
+
+        <div id="customItineraryContainer" class="md:col-span-2 hidden">
+          <label class="block text-sm font-medium mb-2">Write Your Custom Itinerary</label>
+          <textarea id="customItinerary" rows="5"
+            placeholder="Write your own itinerary here..."
+            class="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#0a8574]"></textarea>
+        </div>
+
         <div class="md:col-span-2">
           <button type="submit" class="btn-primary px-6 py-3 rounded-lg font-medium w-full md:w-auto">
             Analyze Trip
@@ -176,6 +199,20 @@
 
 <script>
 
+  // Personalize Welcome Message
+  const storedUser = localStorage.getItem("triplensUser");
+
+  if (storedUser) {
+    try {
+      const parsedUser = JSON.parse(storedUser);
+      const userName = parsedUser.name || parsedUser.username || "Explorer";
+      const heading = document.getElementById("welcomeHeading");
+      heading.textContent = `Welcome Back, ${userName} ✈️`;
+    } catch (e) {
+      console.warn("Could not parse user data");
+    }
+  }
+
   const logoutBtn = document.getElementById("logoutBtn");
   logoutBtn.addEventListener("click", function() {
     localStorage.removeItem("triplensUser");
@@ -183,6 +220,17 @@
   });
 
   const form = document.getElementById("tripForm");
+
+  const itineraryStyleSelect = document.getElementById("itineraryStyle");
+  const customItineraryContainer = document.getElementById("customItineraryContainer");
+
+  itineraryStyleSelect.addEventListener("change", function() {
+    if (this.value === "custom") {
+      customItineraryContainer.classList.remove("hidden");
+    } else {
+      customItineraryContainer.classList.add("hidden");
+    }
+  });
 
   async function loadTrips() {
     try {
@@ -294,6 +342,10 @@ form.addEventListener("submit", async function(e){
   const budget = Number(document.getElementById("budget").value);
   const mode = document.getElementById("mode").value;
   const departureTime = document.getElementById("departureTime").value;
+  const itineraryStyle = document.getElementById("itineraryStyle").value;
+  const customItinerary = document.getElementById("customItinerary")
+    ? document.getElementById("customItinerary").value.trim()
+    : "";
 
   try {
     const res = await fetch("http://localhost:5000/trips", {
@@ -304,54 +356,57 @@ form.addEventListener("submit", async function(e){
         destination,
         budget,
         mode,
-        departureTime
+        departureTime,
+        style: itineraryStyle
       })
     });
 
     const savedTrip = await res.json();
 
-    // Call AI itinerary route
-    const aiRes = await fetch("http://localhost:5000/generate-itinerary", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        source,
-        destination,
-        budget,
-        mode
-      })
-    });
+    let finalItinerary = "";
 
-    if (!aiRes.ok) {
-      const errText = await aiRes.text();
-      document.getElementById("itineraryOutput").textContent =
-        "AI request failed: " + errText;
+    if (itineraryStyle === "custom" && customItinerary) {
+      finalItinerary = customItinerary;
     } else {
+      const aiRes = await fetch("http://localhost:5000/generate-itinerary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tripId: savedTrip._id
+        })
+      });
+
+      if (!aiRes.ok) {
+        const errText = await aiRes.text();
+        document.getElementById("itineraryOutput").textContent =
+          "AI request failed: " + errText;
+        return;
+      }
+
       const aiData = await aiRes.json();
-      console.log("AI raw response:", aiData);
 
       if (aiData && aiData.itinerary) {
-        const itineraryContainer = document.getElementById("itineraryOutput");
-        itineraryContainer.innerHTML = "";
-
-        const sections = aiData.itinerary.split("\n").filter(line => line.trim() !== "");
-
-        sections.forEach(line => {
-          const card = document.createElement("div");
-          card.className = "p-4 bg-gray-50 rounded-xl border border-gray-200";
-          card.textContent = line;
-          itineraryContainer.appendChild(card);
-        });
+        finalItinerary = aiData.itinerary;
       } else {
         document.getElementById("itineraryOutput").textContent =
-          "AI returned unexpected response. Check console.";
+          "AI returned unexpected response.";
+        return;
       }
     }
+
+    const itineraryContainer = document.getElementById("itineraryOutput");
+    itineraryContainer.innerHTML = "";
+
+    const textBlock = document.createElement("div");
+    textBlock.className = "text-sm text-gray-700 whitespace-pre-line";
+    textBlock.textContent = finalItinerary;
+
+    itineraryContainer.appendChild(textBlock);
 
     const reminderText = `
       • Pack essentials 24 hrs before departure
       • Leave ${mode === "Flight" ? "2 hours" : "1 hour"} before departure
-      • Backend-calculated delay probability: ${savedTrip.delayProbability}%
+      • Estimated trip length: ${savedTrip.days} days
     `;
     document.getElementById("reminderOutput").textContent = reminderText;
 
