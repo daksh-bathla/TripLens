@@ -2,8 +2,8 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
-const OpenAI = require("openai");
 const mongoose = require("mongoose");
+const fetch = require("node-fetch");
 
 const tripRoutes = require("./routes/tripRoutes");
 
@@ -11,13 +11,12 @@ console.log("Starting TripLens server...");
 
 const app = express();
 
-
 app.use(cors());
 app.use(express.json());
 
 app.use("/trips", tripRoutes);
 
-// Generate itinerary route
+// Generate itinerary route (local mock AI)
 app.post("/generate-itinerary", async (req, res) => {
   try {
     const { source, destination, budget, mode } = req.body;
@@ -26,40 +25,42 @@ app.post("/generate-itinerary", async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const prompt = `
-Create a practical 3-day travel itinerary.
-From: ${source}
-To: ${destination}
-Budget: ₹${budget}
-Travel Mode: ${mode}
+    const dailyBudget = Math.floor(Number(budget) / 3);
 
-Include:
-- Day wise breakdown
-- Cost optimization tips
-- Safety tips
-- Sustainability suggestion
+    const itinerary = `
+Day 1: Arrival in ${destination}
+- Travel via ${mode}
+- Check into budget-friendly accommodation (~₹${dailyBudget})
+- Explore local markets and nearby attractions
+
+Day 2: Main Attractions
+- Visit top landmarks in ${destination}
+- Try local cuisine (set food budget ₹${Math.floor(dailyBudget / 2)})
+- Evening cultural exploration
+
+Day 3: Relax & Return
+- Light sightseeing
+- Souvenir shopping within budget
+- Return to ${source}
+
+Cost Optimization Tips:
+- Pre-book transport
+- Use public transport locally
+
+Safety Tips:
+- Keep emergency contacts saved
+- Avoid isolated areas at night
+
+Sustainability:
+- Carry reusable bottle
+- Support local businesses
 `;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "You are a smart travel planner AI." },
-        { role: "user", content: prompt }
-      ],
-    });
-
-    res.json({
-      itinerary: response.choices[0].message.content,
-    });
-
+    res.json({ itinerary });
   } catch (err) {
     console.error("Error generating itinerary:", err.message);
     res.status(500).json({ error: err.message });
   }
-});
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
 });
 
 // Health check route

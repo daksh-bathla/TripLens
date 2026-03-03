@@ -1,82 +1,9 @@
-<script>
-async function loadAnalytics() {
-  try {
-    const res = await fetch("http://localhost:5000/trips");
-    const trips = await res.json();
-
-    // Totals
-    const totalTrips = trips.length;
-    const totalSpending = trips.reduce((sum, t) => sum + Number(t.budget || 0), 0);
-    const totalCarbon = trips.reduce((sum, t) => sum + Number(t.carbon || 0), 0);
-
-    document.getElementById("totalTrips").textContent = totalTrips;
-    document.getElementById("totalSpending").textContent = `₹${totalSpending}`;
-    document.getElementById("totalCarbon").textContent = `${totalCarbon}kg`;
-
-    // Mode Count
-    const modeCounts = { Flight: 0, Train: 0, Car: 0 };
-    trips.forEach(t => {
-      if (modeCounts[t.mode] !== undefined) modeCounts[t.mode]++;
-    });
-
-    new Chart(document.getElementById("modeChart"), {
-      type: "doughnut",
-      data: {
-        labels: Object.keys(modeCounts),
-        datasets: [{
-          data: Object.values(modeCounts),
-          backgroundColor: ["#0a8574", "#94a3b8", "#fbbf24"]
-        }]
-      },
-      options: {
-        animation: {
-          duration: 1000,
-          easing: 'easeOutQuart'
-        },
-        plugins: {
-          legend: { position: 'bottom' }
-        }
-      }
-    });
-
-    new Chart(document.getElementById("budgetChart"), {
-      type: "bar",
-      data: {
-        labels: trips.map((t, i) => `Trip ${i + 1}`),
-        datasets: [{
-          label: "Budget (₹)",
-          data: trips.map(t => t.budget),
-          backgroundColor: "#0a8574"
-        }]
-      },
-      options: {
-        animation: {
-          duration: 1000,
-          easing: 'easeOutQuart'
-        },
-        responsive: true,
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
-
-  } catch (error) {
-    console.error("Failed to load analytics:", error);
-  }
-}
-
-loadAnalytics();
-</script>
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TripLens – Analytics</title>
+  <title>TripLens – Insights</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -98,7 +25,8 @@ loadAnalytics();
       <a href="index.html" class="font-extrabold text-2xl accent-teal tracking-tight">TripLens</a>
       <nav class="space-y-5 text-sm mt-10">
         <a href="dashboard.html" class="block text-gray-600 hover:text-[#0a8574]">Dashboard</a>
-        <a href="analytics.html" class="block font-semibold text-[#0a8574] bg-[#e6f7f4] px-3 py-2 rounded-lg">Analytics</a>
+        <a href="trips.recent.html" class="block text-gray-600 hover:text-[#0a8574]">Recent Trips</a>
+        <a href="analytics.html" class="block font-semibold text-[#0a8574] bg-[#e6f7f4] px-3 py-2 rounded-lg">Insights</a>
         <a href="index.html" class="block text-gray-600 hover:text-[#0a8574]">Home</a>
       </nav>
     </div>
@@ -107,41 +35,78 @@ loadAnalytics();
   <!-- Main -->
   <main class="flex-1 p-10 md:p-14">
 
-    <h1 class="text-4xl md:text-5xl font-extrabold mb-12 tracking-tight">Travel Analytics</h1>
+    <h1 class="text-4xl md:text-5xl font-extrabold mb-12 tracking-tight">Your Travel Insights</h1>
 
-    <!-- Stats -->
-    <div class="grid md:grid-cols-3 gap-6 mb-14">
+    <!-- Overview Cards -->
+    <div class="grid md:grid-cols-4 gap-6 mb-14">
 
-      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100">
         <p class="text-gray-500 text-sm mb-2">Total Trips</p>
         <p id="totalTrips" class="text-3xl font-bold accent-teal">0</p>
       </div>
 
-      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100">
         <p class="text-gray-500 text-sm mb-2">Total Spending</p>
         <p id="totalSpending" class="text-3xl font-bold accent-teal">₹0</p>
       </div>
 
-      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
-        <p class="text-gray-500 text-sm mb-2">Estimated CO₂</p>
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100">
+        <p class="text-gray-500 text-sm mb-2">Avg Spend / Trip</p>
+        <p id="avgSpending" class="text-3xl font-bold accent-teal">₹0</p>
+      </div>
+
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100">
+        <p class="text-gray-500 text-sm mb-2">Sustainability Impact</p>
         <p id="totalCarbon" class="text-3xl font-bold accent-teal">0kg</p>
       </div>
 
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100">
+        <p class="text-gray-500 text-sm mb-2">Trips / Month</p>
+        <p id="tripsPerMonth" class="text-3xl font-bold accent-teal">0</p>
+      </div>
     </div>
 
     <!-- Charts -->
-    <div class="grid lg:grid-cols-2 gap-8">
+    <div class="grid lg:grid-cols-2 gap-8 mb-14">
 
-      <div class="bg-white rounded-3xl p-8 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
+      <div class="bg-white rounded-3xl p-8 shadow-md border border-gray-100">
         <h2 class="font-bold mb-4">Travel Mode Distribution</h2>
         <canvas id="modeChart"></canvas>
       </div>
 
-      <div class="bg-white rounded-3xl p-8 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300">
-        <h2 class="font-bold mb-4">Spending Overview</h2>
+      <div class="bg-white rounded-3xl p-8 shadow-md border border-gray-100">
+        <h2 class="font-bold mb-4">Spending Per Trip</h2>
         <canvas id="budgetChart"></canvas>
       </div>
 
+    </div>
+
+    <!-- Monthly Spending Trend -->
+    <div class="bg-white rounded-3xl p-8 shadow-md border border-gray-100 mb-14">
+      <h2 class="font-bold mb-4">Monthly Spending Trend</h2>
+      <canvas id="monthlyTrendChart"></canvas>
+    </div>
+
+    <!-- Destination + Goals -->
+    <div class="grid lg:grid-cols-2 gap-8 mb-14">
+
+      <div class="bg-white rounded-3xl p-8 shadow-md border border-gray-100">
+        <h2 class="font-bold mb-4">Most Visited Destination</h2>
+        <p id="mostVisited" class="text-lg text-gray-700"></p>
+      </div>
+
+      <div class="bg-white rounded-3xl p-8 shadow-md border border-gray-100">
+        <h2 class="font-bold mb-4">Travel Consistency</h2>
+        <p id="travelStreak" class="text-lg text-gray-700 mb-3"></p>
+        <p id="goalTracking" class="text-sm text-gray-500"></p>
+      </div>
+
+    </div>
+
+    <!-- Travel Personality -->
+    <div class="bg-white rounded-3xl p-10 shadow-md border border-gray-100">
+      <h2 class="font-bold text-xl mb-4">Your Travel Style</h2>
+      <p id="travelPersonality" class="text-lg text-gray-700"></p>
     </div>
 
   </main>
@@ -156,14 +121,17 @@ async function loadAnalytics() {
     const totalTrips = trips.length;
     const totalSpending = trips.reduce((sum, t) => sum + Number(t.budget || 0), 0);
     const totalCarbon = trips.reduce((sum, t) => sum + Number(t.carbon || 0), 0);
+    const avgSpending = totalTrips ? Math.round(totalSpending / totalTrips) : 0;
 
     document.getElementById("totalTrips").textContent = totalTrips;
     document.getElementById("totalSpending").textContent = `₹${totalSpending}`;
     document.getElementById("totalCarbon").textContent = `${totalCarbon}kg`;
+    document.getElementById("avgSpending").textContent = `₹${avgSpending}`;
 
-    const modeCounts = { Flight: 0, Train: 0, Car: 0 };
+    // ===== MODE DISTRIBUTION =====
+    const modeCounts = {};
     trips.forEach(t => {
-      if (modeCounts[t.mode] !== undefined) modeCounts[t.mode]++;
+      modeCounts[t.mode] = (modeCounts[t.mode] || 0) + 1;
     });
 
     new Chart(document.getElementById("modeChart"), {
@@ -175,10 +143,7 @@ async function loadAnalytics() {
           backgroundColor: ["#0a8574", "#94a3b8", "#fbbf24"]
         }]
       },
-      options: {
-        animation: { duration: 1000, easing: 'easeOutQuart' },
-        plugins: { legend: { position: 'bottom' } }
-      }
+      options: { plugins: { legend: { position: 'bottom' } } }
     });
 
     new Chart(document.getElementById("budgetChart"), {
@@ -191,13 +156,98 @@ async function loadAnalytics() {
           backgroundColor: "#0a8574"
         }]
       },
-      options: {
-        animation: { duration: 1000, easing: 'easeOutQuart' },
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } }
-      }
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
     });
+
+    // ===== MONTHLY SPENDING TREND =====
+    const monthlySpending = {};
+    trips.forEach(t => {
+      const date = new Date(t.createdAt);
+      const key = `${date.getFullYear()}-${date.getMonth()+1}`;
+      monthlySpending[key] = (monthlySpending[key] || 0) + Number(t.budget || 0);
+    });
+
+    const sortedMonths = Object.keys(monthlySpending).sort();
+
+    new Chart(document.getElementById("monthlyTrendChart"), {
+      type: "line",
+      data: {
+        labels: sortedMonths,
+        datasets: [{
+          label: "Monthly Spend (₹)",
+          data: sortedMonths.map(m => monthlySpending[m]),
+          borderColor: "#0a8574",
+          tension: 0.3
+        }]
+      },
+      options: { responsive: true }
+    });
+
+    // ===== MOST VISITED DESTINATION =====
+    const destinationCounts = {};
+    trips.forEach(t => {
+      destinationCounts[t.destination] = (destinationCounts[t.destination] || 0) + 1;
+    });
+
+    const mostVisited = Object.entries(destinationCounts).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById("mostVisited").textContent =
+      mostVisited ? `${mostVisited[0]} (${mostVisited[1]} trips)` : "No trips yet.";
+
+    // ===== TRAVEL FREQUENCY =====
+    const firstTripDate = trips.length ? new Date(trips[0].createdAt) : null;
+    const monthsActive = firstTripDate ?
+      Math.max(1, (new Date().getFullYear() - firstTripDate.getFullYear())*12 +
+        (new Date().getMonth() - firstTripDate.getMonth()) + 1)
+      : 1;
+
+    const tripsPerMonth = totalTrips ? (totalTrips / monthsActive).toFixed(1) : 0;
+    document.getElementById("tripsPerMonth").textContent = tripsPerMonth;
+
+    // ===== STREAK LOGIC =====
+    const tripMonths = new Set();
+    trips.forEach(t => {
+      const d = new Date(t.createdAt);
+      tripMonths.add(`${d.getFullYear()}-${d.getMonth()+1}`);
+    });
+
+    const sortedTripMonths = Array.from(tripMonths).sort();
+    let streak = 0;
+
+    for (let i = sortedTripMonths.length - 1; i >= 0; i--) {
+      streak++;
+      if (i > 0) {
+        const curr = new Date(sortedTripMonths[i]);
+        const prev = new Date(sortedTripMonths[i-1]);
+        const diff = (curr.getFullYear() - prev.getFullYear())*12 +
+                     (curr.getMonth() - prev.getMonth());
+        if (diff !== 1) break;
+      }
+    }
+
+    document.getElementById("travelStreak").textContent =
+      streak > 1 ? `You’ve traveled ${streak} months in a row 🔥` :
+      "No active streak yet. Plan your next trip!";
+
+    // ===== GOAL TRACKING =====
+    const currentYear = new Date().getFullYear();
+    const citiesThisYear = new Set(
+      trips.filter(t => new Date(t.createdAt).getFullYear() === currentYear)
+           .map(t => t.destination)
+    );
+
+    const goalTarget = 5;
+    document.getElementById("goalTracking").textContent =
+      `${citiesThisYear.size}/${goalTarget} cities explored this year.`;
+
+    // ===== TRAVEL PERSONALITY =====
+    let personality = "Explorer";
+    if (avgSpending > 80000) personality = "Luxury Voyager";
+    else if (avgSpending > 40000) personality = "Balanced Traveler";
+    else if (avgSpending > 15000) personality = "Budget Explorer";
+    else personality = "Backpack Adventurer";
+
+    document.getElementById("travelPersonality").textContent =
+      `Based on your travel behavior, you are a ${personality}. Keep exploring ✈️`;
 
   } catch (error) {
     console.error("Failed to load analytics:", error);

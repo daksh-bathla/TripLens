@@ -66,6 +66,30 @@
         </button>
       </p>
 
+      <!-- Divider -->
+      <div class="flex items-center my-6">
+        <div class="flex-1 h-px bg-gray-200"></div>
+        <span class="px-4 text-xs text-gray-400 uppercase">or</span>
+        <div class="flex-1 h-px bg-gray-200"></div>
+      </div>
+
+      <!-- Continue as Guest -->
+      <button type="button" id="guestLogin"
+        class="w-full border border-gray-300 py-3 rounded-lg font-medium hover:bg-gray-50 transition mb-3">
+        Continue as Guest
+      </button>
+
+      <!-- Social Login (UI only for now) -->
+      <button type="button"
+        class="w-full bg-black text-white py-3 rounded-lg font-medium hover:opacity-90 transition mb-3">
+        Continue with Google
+      </button>
+
+      <button type="button"
+        class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:opacity-90 transition">
+        Continue with Facebook
+      </button>
+
     </form>
 
   </div>
@@ -124,6 +148,13 @@
       }
 
       localStorage.setItem("triplensUser", email);
+      window.location.href = "dashboard.html";
+    });
+
+    const guestLogin = document.getElementById("guestLogin");
+
+    guestLogin.addEventListener("click", function() {
+      localStorage.setItem("triplensUser", "Guest User");
       window.location.href = "dashboard.html";
     });
   </script>
