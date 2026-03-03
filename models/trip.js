@@ -1,5 +1,3 @@
-
-
 const mongoose = require("mongoose");
 
 const tripSchema = new mongoose.Schema({
@@ -8,17 +6,10 @@ const tripSchema = new mongoose.Schema({
   destination: { type: String, required: true },
   mode: { type: String, required: true },
   budget: { type: Number, required: true },
-  riskScore: { type: Number },
-  riskLevel: { type: String },
-  delayProbability: { type: Number },
-  confidenceScore: { type: Number },
+  style: { type: String },
+  days: { type: Number },
+  itinerary: { type: String },
   carbon: { type: Number },
-  breakdown: {
-    transportVolatility: Number,
-    financialExposure: Number,
-    timingRisk: Number,
-    externalUncertainty: Number
-  },
   createdAt: { type: Date, default: Date.now }
 });
 

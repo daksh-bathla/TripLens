@@ -5,6 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const fetch = require("node-fetch");
 
+const Trip = require("./models/trip");
 const tripRoutes = require("./routes/tripRoutes");
 
 console.log("Starting TripLens server...");
@@ -16,47 +17,88 @@ app.use(express.json());
 
 app.use("/trips", tripRoutes);
 
-// Generate itinerary route (local mock AI)
+// Generate itinerary route (Hugging Face powered + DB-saving)
 app.post("/generate-itinerary", async (req, res) => {
   try {
-    const { source, destination, budget, mode } = req.body;
+    const { tripId } = req.body;
 
-    if (!source || !destination || !budget || !mode) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!tripId) {
+      return res.status(400).json({ error: "Trip ID is required" });
     }
 
-    const dailyBudget = Math.floor(Number(budget) / 3);
+    const trip = await Trip.findById(tripId);
+    if (!trip) {
+      return res.status(404).json({ error: "Trip not found" });
+    }
 
-    const itinerary = `
-Day 1: Arrival in ${destination}
-- Travel via ${mode}
-- Check into budget-friendly accommodation (~₹${dailyBudget})
-- Explore local markets and nearby attractions
+    const { source, destination, budget, mode, style, days } = trip;
 
-Day 2: Main Attractions
-- Visit top landmarks in ${destination}
-- Try local cuisine (set food budget ₹${Math.floor(dailyBudget / 2)})
-- Evening cultural exploration
+    // === Location-Aware Hint ===
+    let locationHint = "Explore local culture and iconic attractions.";
+    const lowerDestination = destination.toLowerCase();
 
-Day 3: Relax & Return
-- Light sightseeing
-- Souvenir shopping within budget
-- Return to ${source}
+    if (lowerDestination.includes("jaipur")) {
+      locationHint = "Include forts, palaces, and Rajasthani cuisine.";
+    } else if (lowerDestination.includes("mumbai")) {
+      locationHint = "Include Marine Drive, Bollywood history, and street food.";
+    } else if (lowerDestination.includes("goa")) {
+      locationHint = "Include beaches, water sports, and coastal nightlife.";
+    }
 
-Cost Optimization Tips:
-- Pre-book transport
-- Use public transport locally
+    const dailyBudget = Math.floor(Number(budget) / days);
 
-Safety Tips:
-- Keep emergency contacts saved
-- Avoid isolated areas at night
+    const prompt = `
+Create a ${days}-day travel itinerary from ${source} to ${destination}.
 
-Sustainability:
-- Carry reusable bottle
-- Support local businesses
+Travel Mode: ${mode}
+Total Budget: ₹${budget}
+Daily Budget: ₹${dailyBudget}
+Style: ${style || "balanced"}
+
+Special Instructions:
+- Focus on ${style || "balanced exploration"}
+- ${locationHint}
+- Keep it structured as Day 1, Day 2, etc.
+- Keep activities realistic within daily budget
+- Add short descriptions per activity
 `;
 
-    res.json({ itinerary });
+    // === Hugging Face Call ===
+    const hfResponse = await fetch(
+      "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.HF_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ inputs: prompt })
+      }
+    );
+
+    if (!hfResponse.ok) {
+      const errText = await hfResponse.text();
+      return res.status(500).json({ error: errText });
+    }
+
+    const data = await hfResponse.json();
+
+    let generatedText = "";
+
+    if (Array.isArray(data) && data[0]?.generated_text) {
+      generatedText = data[0].generated_text;
+    } else if (data.generated_text) {
+      generatedText = data.generated_text;
+    } else {
+      generatedText = "AI response format unexpected.";
+    }
+
+    // === Save Itinerary to DB ===
+    trip.itinerary = generatedText;
+    await trip.save();
+
+    res.json({ itinerary: generatedText });
+
   } catch (err) {
     console.error("Error generating itinerary:", err.message);
     res.status(500).json({ error: err.message });

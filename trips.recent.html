@@ -1,107 +1,152 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recent Trips | TripLens</title>
+  <title>TripLens – Your Trips</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: #f8faf9; }
+    .accent-teal { color:#0a8574; }
+  </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
 
-  <div class="flex min-h-screen">
+<body class="min-h-screen">
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow-md p-6">
-      <h1 class="text-2xl font-bold text-[#0a8574] mb-10">TripLens</h1>
+<div class="flex min-h-screen">
 
-      <nav class="space-y-5 text-sm">
-        <a href="dashboard.html" class="block text-gray-600 hover:text-[#0a8574]">Dashboard</a>
-        <a href="trips.recent.html" class="block font-semibold text-[#0a8574] bg-[#e6f7f4] px-3 py-2 rounded-lg">Recent Trips</a>
-        <a href="analytics.html" class="block text-gray-600 hover:text-[#0a8574]">Analytics</a>
-        <a href="index.html" class="block text-gray-600 hover:text-[#0a8574]">Home</a>
-        <button id="logoutBtn" class="block text-red-500 hover:underline mt-6">Logout</button>
-      </nav>
-    </aside>
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white shadow-md p-6">
+    <h1 class="text-2xl font-bold accent-teal mb-10">TripLens</h1>
 
-    <!-- Main Content -->
-    <main class="flex-1 p-10">
-      <h2 class="text-3xl font-bold mb-6">Your Recent Trips</h2>
+    <nav class="space-y-5 text-sm">
+      <a href="dashboard.html" class="block text-gray-600 hover:text-[#0a8574]">Dashboard</a>
+      <a href="trips.recent.html" class="block font-semibold text-[#0a8574] bg-[#e6f7f4] px-3 py-2 rounded-lg">Recent Trips</a>
+      <a href="analytics.html" class="block text-gray-600 hover:text-[#0a8574]">Analytics</a>
+      <a href="index.html" class="block text-gray-600 hover:text-[#0a8574]">Home</a>
+      <button id="logoutBtn" class="block text-red-500 hover:underline mt-6">Logout</button>
+    </nav>
+  </aside>
 
-      <div id="tripsContainer" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Trip cards will load here -->
+  <!-- Main -->
+  <main class="flex-1 p-10">
+
+    <h2 class="text-4xl font-bold mb-3">Your Travel History ✈️</h2>
+    <p class="text-gray-500 mb-10">Revisit your journeys and manage your past adventures.</p>
+
+    <!-- Quick Stats -->
+    <div class="grid md:grid-cols-3 gap-6 mb-12">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <p class="text-gray-500 text-sm">Total Trips</p>
+        <p id="totalTrips" class="text-2xl font-bold accent-teal">0</p>
       </div>
-    </main>
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <p class="text-gray-500 text-sm">Trips This Year</p>
+        <p id="yearTrips" class="text-2xl font-bold accent-teal">0</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <p class="text-gray-500 text-sm">Most Visited Destination</p>
+        <p id="topDestination" class="text-2xl font-bold accent-teal">—</p>
+      </div>
+    </div>
 
-  </div>
+    <!-- Trips Grid -->
+    <div id="tripsContainer" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Trip cards load here -->
+    </div>
 
-  <script>
-    const user = localStorage.getItem("triplensUser");
+  </main>
+</div>
 
-    // Enforce login
-    if (!user) {
-      alert("Please log in to view your saved trips.");
-      window.location.href = "auth.html";
-    }
+<script>
 
-    const tripsContainer = document.getElementById("tripsContainer");
+const user = localStorage.getItem("triplensUser");
+if (!user) {
+  window.location.href = "auth.html";
+}
 
-    async function loadTrips() {
-      try {
-        const response = await fetch("http://localhost:5000/trips");
-        const trips = await response.json();
+const tripsContainer = document.getElementById("tripsContainer");
 
-        if (!trips.length) {
-          tripsContainer.innerHTML = "<p class='text-gray-500'>No trips saved yet.</p>";
-          return;
-        }
+async function loadTrips() {
+  try {
+    const response = await fetch("http://localhost:5000/trips");
+    const trips = await response.json();
 
-        tripsContainer.innerHTML = "";
+    // === Quick Stats ===
+    document.getElementById("totalTrips").textContent = trips.length;
 
-        trips.reverse().forEach(trip => {
-          const card = document.createElement("div");
-          card.className = "bg-white shadow rounded-xl p-5 border";
+    const currentYear = new Date().getFullYear();
+    const yearTrips = trips.filter(t => new Date(t.createdAt).getFullYear() === currentYear).length;
+    document.getElementById("yearTrips").textContent = yearTrips;
 
-          card.innerHTML = `
-            <h3 class="text-xl font-semibold mb-2 capitalize">${trip.source} → ${trip.destination}</h3>
-            <p class="text-sm text-gray-500 mb-2">Mode: ${trip.mode}</p>
-            <p class="text-sm mb-1">Budget: ₹${trip.budget}</p>
-            <p class="text-sm mb-1">Risk Score: <span class="font-medium">${trip.riskScore}</span></p>
-            <p class="text-sm mb-1">Risk Level: <span class="font-medium">${trip.riskLevel}</span></p>
-            <p class="text-xs text-gray-400 mt-3">Created: ${new Date(trip.createdAt).toLocaleDateString()}</p>
-            <button data-id="${trip._id}" class="deleteBtn mt-4 text-red-500 text-sm hover:underline">Delete</button>
-          `;
-
-          tripsContainer.appendChild(card);
-        });
-
-        attachDeleteEvents();
-
-      } catch (err) {
-        tripsContainer.innerHTML = "<p class='text-red-500'>Failed to load trips.</p>";
-      }
-    }
-
-    function attachDeleteEvents() {
-      document.querySelectorAll(".deleteBtn").forEach(btn => {
-        btn.addEventListener("click", async function() {
-          const id = this.getAttribute("data-id");
-
-          await fetch(`http://localhost:5000/trips/${id}`, {
-            method: "DELETE"
-          });
-
-          loadTrips();
-        });
-      });
-    }
-
-    document.getElementById("logoutBtn").addEventListener("click", function() {
-      localStorage.removeItem("triplensUser");
-      window.location.href = "index.html";
+    const destinationCounts = {};
+    trips.forEach(t => {
+      destinationCounts[t.destination] = (destinationCounts[t.destination] || 0) + 1;
     });
 
-    loadTrips();
-  </script>
+    const top = Object.entries(destinationCounts).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById("topDestination").textContent = top ? `${top[0]} (${top[1]}x)` : "—";
+
+    // === Trip Cards ===
+    if (!trips.length) {
+      tripsContainer.innerHTML = "<p class='text-gray-500'>No trips saved yet. Start planning!</p>";
+      return;
+    }
+
+    tripsContainer.innerHTML = "";
+
+    trips.reverse().forEach(trip => {
+      const card = document.createElement("div");
+      card.className = "bg-white rounded-2xl p-6 shadow-md border border-gray-100 transition hover:shadow-lg";
+
+      card.innerHTML = `
+        <h3 class="text-xl font-semibold capitalize mb-1">${trip.source} → ${trip.destination}</h3>
+        <p class="text-sm text-gray-500 mb-3">${new Date(trip.createdAt).toLocaleDateString()}</p>
+        <div class="space-y-1 text-sm mb-4">
+          <p>Mode: <span class="font-medium">${trip.mode}</span></p>
+          <p>Budget: <span class="font-medium">₹${trip.budget}</span></p>
+          <p>Sustainability Impact: <span class="font-medium">${trip.carbon || 0}kg</span></p>
+        </div>
+        <div class="flex gap-3">
+          <button class="viewBtn bg-[#0a8574] text-white px-4 py-2 text-sm rounded-lg hover:opacity-90">View Itinerary</button>
+          <button data-id="${trip._id}" class="deleteBtn text-sm text-red-500 hover:underline">Delete</button>
+        </div>
+      `;
+
+      tripsContainer.appendChild(card);
+
+      // View itinerary
+      card.querySelector(".viewBtn").addEventListener("click", () => {
+        alert(trip.itinerary || "No itinerary stored.");
+      });
+    });
+
+    attachDeleteEvents();
+
+  } catch (err) {
+    tripsContainer.innerHTML = "<p class='text-red-500'>Failed to load trips.</p>";
+  }
+}
+
+function attachDeleteEvents() {
+  document.querySelectorAll(".deleteBtn").forEach(btn => {
+    btn.addEventListener("click", async function() {
+      const id = this.getAttribute("data-id");
+      await fetch(`http://localhost:5000/trips/${id}`, { method: "DELETE" });
+      loadTrips();
+    });
+  });
+}
+
+// Logout
+ document.getElementById("logoutBtn").addEventListener("click", function() {
+  localStorage.removeItem("triplensUser");
+  window.location.href = "index.html";
+});
+
+loadTrips();
+
+</script>
 
 </body>
 </html>
