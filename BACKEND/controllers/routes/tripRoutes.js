@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { createTrip, getTrips, deleteTrip } = require("../controllers/tripController");
+const { createTrip, getTrips, deleteTrip } = require("../tripController");
 
 // Create a new trip
 router.post("/", createTrip);

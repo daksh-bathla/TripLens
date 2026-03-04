@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const fetch = require("node-fetch");
 
 const Trip = require("./models/trip");
-const tripRoutes = require("./routes/tripRoutes");
+const tripRoutes = require("./controllers/routes/tripRoutes");
 
 console.log("Starting TripLens server...");
 
