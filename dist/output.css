@@ -3,7 +3,14 @@
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
   background: #fafaf8;
+  background-image: radial-gradient(rgba(0,0,0,0.02) 1px, transparent 1px);
+  background-size: 20px 20px;
   color: #2a2a28;
+}
+
+/* Global Smooth UI Transitions */
+* {
+  transition: all 0.15s ease;
 }
 
 /* Accent Utilities */
@@ -46,7 +53,7 @@ body {
 .card-hover:hover {
   border-color: #0a8574;
   box-shadow: 0 12px 32px rgba(10, 133, 116, 0.08);
-  transform: translateY(-4px);
+  transform: translateY(-3px) scale(1.01);
   transition: all 0.3s ease;
 }
 
@@ -66,6 +73,9 @@ body {
 
 .sidebar-link:hover {
   color: #0a8574;
+  background: rgba(10,133,116,0.06);
+  border-radius: 6px;
+  padding-left: 6px;
 }
 
 .logout-btn {
@@ -98,4 +108,18 @@ body {
   font-size: 0.75rem;
   color: #6b7280;
   margin-bottom: 0.5rem;
+}
+
+/* Page Container Utility */
+
+.page-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 2rem;
+}
+
+/* Soft Glow Accent (used in hero sections or highlights) */
+
+.hero-glow {
+  background: radial-gradient(circle at center, rgba(10,133,116,0.15), transparent 70%);
 }

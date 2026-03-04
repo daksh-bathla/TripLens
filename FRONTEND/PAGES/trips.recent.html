@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TripLens – Your Trips</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <style>
     body { background: #f8faf9; }
     .accent-teal { color:#0a8574; }
@@ -34,6 +36,12 @@
     <h2 class="text-4xl font-bold mb-3">Your Travel History ✈️</h2>
     <p class="text-gray-500 mb-10">Revisit your journeys and manage your past adventures.</p>
 
+    <!-- Search -->
+    <div class="mb-8">
+      <input id="tripSearch" type="text" placeholder="Search trips by destination or mode..."
+        class="w-full md:w-96 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a8574]" />
+    </div>
+
     <!-- Quick Stats -->
     <div class="grid md:grid-cols-3 gap-6 mb-12">
       <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -50,9 +58,24 @@
       </div>
     </div>
 
+    <!-- Travel Map -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-12">
+      <h3 class="text-lg font-semibold mb-4">Travel Map 🌍</h3>
+      <div id="travelMap" class="w-full h-80 rounded-lg"></div>
+    </div>
+
     <!-- Trips Grid -->
     <div id="tripsContainer" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
       <!-- Trip cards load here -->
+    </div>
+
+    <!-- Itinerary Modal -->
+    <div id="itineraryModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-6">
+      <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl">
+        <h3 class="text-xl font-semibold mb-4">Trip Itinerary</h3>
+        <div id="modalContent" class="text-sm text-gray-600 whitespace-pre-line mb-6"></div>
+        <button id="closeModal" class="px-4 py-2 bg-[#0a8574] text-white rounded-lg">Close</button>
+      </div>
     </div>
 
   </main>
@@ -66,21 +89,76 @@ if (!user) {
 }
 
 const tripsContainer = document.getElementById("tripsContainer");
+const searchInput = document.getElementById("tripSearch");
+const modal = document.getElementById("itineraryModal");
+const modalContent = document.getElementById("modalContent");
+const closeModal = document.getElementById("closeModal");
+let allTrips = [];
+
+let map;
+let mapMarkers = [];
+
+function initMap() {
+  map = L.map("travelMap").setView([20, 0], 2);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap contributors"
+  }).addTo(map);
+}
+
+async function geocodeLocation(place) {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`
+    );
+    const data = await res.json();
+    if (data && data.length) {
+      return {
+        lat: parseFloat(data[0].lat),
+        lon: parseFloat(data[0].lon)
+      };
+    }
+  } catch {}
+  return null;
+}
+
+async function plotTripsOnMap(trips) {
+  if (!map) return;
+
+  mapMarkers.forEach(m => map.removeLayer(m));
+  mapMarkers = [];
+
+  for (const trip of trips) {
+    if (!trip.destination) continue;
+
+    const loc = await geocodeLocation(trip.destination);
+    if (!loc) continue;
+
+    const marker = L.marker([loc.lat, loc.lon]).addTo(map)
+      .bindPopup(`<b>${trip.source} → ${trip.destination}</b><br>Mode: ${trip.mode}`);
+
+    mapMarkers.push(marker);
+  }
+}
 
 async function loadTrips() {
   try {
     const response = await fetch("http://localhost:5000/trips");
     const trips = await response.json();
+    allTrips = trips;
+
+    plotTripsOnMap(trips);
 
     // === Quick Stats ===
     document.getElementById("totalTrips").textContent = trips.length;
 
     const currentYear = new Date().getFullYear();
-    const yearTrips = trips.filter(t => new Date(t.createdAt).getFullYear() === currentYear).length;
+    const yearTrips = trips.filter(t => t.createdAt && new Date(t.createdAt).getFullYear() === currentYear).length;
     document.getElementById("yearTrips").textContent = yearTrips;
 
     const destinationCounts = {};
     trips.forEach(t => {
+      if (!t.destination) return;
       destinationCounts[t.destination] = (destinationCounts[t.destination] || 0) + 1;
     });
 
@@ -93,35 +171,7 @@ async function loadTrips() {
       return;
     }
 
-    tripsContainer.innerHTML = "";
-
-    trips.reverse().forEach(trip => {
-      const card = document.createElement("div");
-      card.className = "bg-white rounded-2xl p-6 shadow-md border border-gray-100 transition hover:shadow-lg";
-
-      card.innerHTML = `
-        <h3 class="text-xl font-semibold capitalize mb-1">${trip.source} → ${trip.destination}</h3>
-        <p class="text-sm text-gray-500 mb-3">${new Date(trip.createdAt).toLocaleDateString()}</p>
-        <div class="space-y-1 text-sm mb-4">
-          <p>Mode: <span class="font-medium">${trip.mode}</span></p>
-          <p>Budget: <span class="font-medium">₹${trip.budget}</span></p>
-          <p>Sustainability Impact: <span class="font-medium">${trip.carbon || 0}kg</span></p>
-        </div>
-        <div class="flex gap-3">
-          <button class="viewBtn bg-[#0a8574] text-white px-4 py-2 text-sm rounded-lg hover:opacity-90">View Itinerary</button>
-          <button data-id="${trip._id}" class="deleteBtn text-sm text-red-500 hover:underline">Delete</button>
-        </div>
-      `;
-
-      tripsContainer.appendChild(card);
-
-      // View itinerary
-      card.querySelector(".viewBtn").addEventListener("click", () => {
-        alert(trip.itinerary || "No itinerary stored.");
-      });
-    });
-
-    attachDeleteEvents();
+    renderTrips(trips);
 
   } catch (err) {
     tripsContainer.innerHTML = "<p class='text-red-500'>Failed to load trips.</p>";
@@ -131,11 +181,66 @@ async function loadTrips() {
 function attachDeleteEvents() {
   document.querySelectorAll(".deleteBtn").forEach(btn => {
     btn.addEventListener("click", async function() {
+      if (!confirm("Are you sure you want to delete this trip?")) return;
       const id = this.getAttribute("data-id");
       await fetch(`http://localhost:5000/trips/${id}`, { method: "DELETE" });
       loadTrips();
     });
   });
+}
+
+closeModal.addEventListener("click", () => {
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+});
+
+searchInput.addEventListener("input", () => {
+  const term = searchInput.value.toLowerCase();
+  const filtered = allTrips.filter(t =>
+    (t.destination && t.destination.toLowerCase().includes(term)) ||
+    (t.mode && t.mode.toLowerCase().includes(term)) ||
+    (t.source && t.source.toLowerCase().includes(term))
+  );
+
+  renderTrips(filtered);
+});
+
+function renderTrips(trips) {
+  tripsContainer.innerHTML = "";
+
+  if (!trips.length) {
+    tripsContainer.innerHTML = "<p class='text-gray-500'>No matching trips found.</p>";
+    return;
+  }
+
+  [...trips].reverse().forEach(trip => {
+    const card = document.createElement("div");
+    card.className = "bg-white rounded-2xl p-6 shadow-md border border-gray-100 transition hover:shadow-lg";
+
+    card.innerHTML = `
+      <h3 class="text-xl font-semibold capitalize mb-1">${trip.source} → ${trip.destination}</h3>
+      <p class="text-sm text-gray-500 mb-3">${trip.createdAt ? new Date(trip.createdAt).toLocaleDateString() : "Unknown date"}</p>
+      <div class="space-y-1 text-sm mb-4">
+        <p>Mode: <span class="font-medium">${trip.mode}</span></p>
+        <p>Budget: <span class="font-medium">₹${Number(trip.budget || 0).toLocaleString()}</span></p>
+        <p>Sustainability Impact: <span class="font-medium">${trip.carbon || 0}kg</span></p>
+      </div>
+      <div class="flex gap-3">
+        <button class="viewBtn bg-[#0a8574] text-white px-4 py-2 text-sm rounded-lg hover:opacity-90">View Itinerary</button>
+        <button data-id="${trip.id || trip._id}" class="deleteBtn text-sm text-red-500 hover:underline">Delete</button>
+      </div>
+    `;
+
+    tripsContainer.appendChild(card);
+
+    card.querySelector(".viewBtn").addEventListener("click", () => {
+      modalContent.textContent = trip.itinerary || "No itinerary stored.";
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    });
+  });
+
+  attachDeleteEvents();
 }
 
 // Logout
@@ -144,6 +249,7 @@ function attachDeleteEvents() {
   window.location.href = "index.html";
 });
 
+initMap();
 loadTrips();
 
 </script>

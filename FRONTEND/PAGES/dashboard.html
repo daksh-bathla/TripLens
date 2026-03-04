@@ -6,7 +6,11 @@
   <title>TripLens – Dashboard</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../CSS/travelAnimations.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; background:#fafaf8; color:#2a2a28; }
@@ -27,7 +31,8 @@
       <nav class="space-y-5 text-sm mt-10">
         <a href="dashboard.html" class="block font-semibold text-[#0a8574] bg-[#e6f7f4] px-3 py-2 rounded-lg">Dashboard</a>
         <a href="trips.recent.html" class="block text-gray-600 hover:text-[#0a8574]">Recent Trips</a>
-        <a href="analytics.html" class="block text-gray-600 hover:text-[#0a8574]">Analytics</a>
+        <a href="analytics.html" class="block text-gray-600 hover:text-[#0a8574]">Insights
+        </a>
         <a href="index.html" class="block text-gray-600 hover:text-[#0a8574]">Home</a>
       </nav>
     </div>
@@ -39,6 +44,7 @@
   <main class="flex-1 p-10 md:p-14">
 
     <div class="mb-14">
+      <div class="wave-divider"></div>
       <h1 id="welcomeHeading" class="text-4xl md:text-5xl font-extrabold mb-3 tracking-tight">
         Welcome Back ✈️
       </h1>
@@ -79,99 +85,58 @@
       </div>
     </div>
 
-    <!-- Trip Form -->
+    <!-- AI Trip Planner -->
     <div class="bg-white rounded-3xl p-10 shadow-md border border-gray-100 transition transform hover:-translate-y-1 hover:shadow-xl duration-300 mb-12">
-      <h2 class="font-bold text-lg mb-6"> New Trip</h2>
+      <h2 class="font-bold text-xl mb-6">AI Trip Planner ✨</h2>
+      <p class="text-sm text-gray-500 mb-6">Tell us where you want to go and we'll build a smart travel plan for you.</p>
 
       <form id="tripForm" class="grid md:grid-cols-2 gap-4">
 
-        <!-- Entry Mode Selection -->
-        <div class="md:col-span-2 mb-2">
-          <p class="text-sm font-medium mb-2">How would you like to add trip details?</p>
-          <div class="flex gap-6 text-sm">
-            <label class="flex items-center gap-2">
-              <input type="radio" name="entryMode" value="manual" checked onclick="toggleEntryMode('manual')">
-              Enter Manually
-            </label>
-            <label class="flex items-center gap-2">
-              <input type="radio" name="entryMode" value="ticket" onclick="toggleEntryMode('ticket')">
-              Upload Departure & Return Tickets
-            </label>
-          </div>
+        <!-- Source -->
+        <div class="relative">
+          <input type="text" id="source" placeholder="Where are you traveling from?" required
+            class="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+          <div id="sourceSuggestions" class="absolute z-10 bg-white border border-gray-200 rounded-lg shadow-md w-full hidden max-h-48 overflow-y-auto"></div>
         </div>
 
-        <!-- Manual Fields -->
-        <div id="manualFields" class="md:col-span-2 grid md:grid-cols-2 gap-4">
-
-          <input type="text" id="source" placeholder="Source" required
-            class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
-
-          <input type="text" id="destination" placeholder="Destination" required
-            class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
-
-          <input type="number" id="budget" placeholder="Budget (₹)" required
-            class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
-
-          <select id="mode" required
-            class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
-            <option value="">Travel Mode</option>
-            <option>Flight</option>
-            <option>Train</option>
-            <option>Car</option>
-          </select>
-
-          <input type="datetime-local" id="departureTime" required
-            class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574] md:col-span-2">
-
-          <!-- Manual PNR Field (kept) -->
-          <div id="pnrField" class="hidden md:col-span-2">
-            <input type="text" id="pnr" placeholder="Enter PNR / Booking Reference"
-              class="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
-          </div>
-
+        <!-- Destination -->
+        <div class="relative">
+          <input type="text" id="destination" placeholder="Where do you want to go?" required
+            class="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+          <div id="destinationSuggestions" class="absolute z-10 bg-white border border-gray-200 rounded-lg shadow-md w-full hidden max-h-48 overflow-y-auto"></div>
         </div>
 
-        <!-- Ticket Upload Fields -->
-        <div id="ticketFields" class="hidden md:col-span-2 grid md:grid-cols-2 gap-4">
+        <!-- Travel Mode -->
+        <select id="mode" required
+          class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+          <option value="">Preferred Travel Mode</option>
+          <option>Flight</option>
+          <option>Train</option>
+          <option>Car</option>
+        </select>
 
-          <div>
-            <label class="block text-sm mb-2">Departure Ticket</label>
-            <input type="file" id="departureTicket" accept=".txt,.pdf,image/*"
-              class="border border-gray-300 p-3 rounded-lg w-full">
-          </div>
+        <!-- Budget -->
+        <input type="number" id="budget" placeholder="Budget (optional)"
+          class="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
 
-          <div>
-            <label class="block text-sm mb-2">Return Ticket</label>
-            <input type="file" id="returnTicket" accept=".txt,.pdf,image/*"
-              class="border border-gray-300 p-3 rounded-lg w-full">
-          </div>
-
-        </div>
-
-        <!-- Itinerary Style Selection -->
+        <!-- Trip Style -->
         <div class="md:col-span-2">
-          <label class="block text-sm font-medium mb-2">Choose Itinerary Style</label>
+          <label class="block text-sm font-medium mb-2">Trip Style</label>
           <select id="itineraryStyle"
             class="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
             <option value="smart" selected>Smart Balanced (AI Recommended)</option>
-            <option value="budget">Budget Focused</option>
+            <option value="budget">Budget Travel</option>
             <option value="luxury">Luxury Experience</option>
-            <option value="adventure">Adventure Packed</option>
-            <option value="relaxed">Relaxed & Slow Travel</option>
-            <option value="custom">Write My Own</option>
+            <option value="adventure">Adventure Trip</option>
+            <option value="relaxed">Relaxed & Scenic</option>
+            <option value="food">Food & Culture</option>
           </select>
         </div>
 
-        <div id="customItineraryContainer" class="md:col-span-2 hidden">
-          <label class="block text-sm font-medium mb-2">Write Your Custom Itinerary</label>
-          <textarea id="customItinerary" rows="5"
-            placeholder="Write your own itinerary here..."
-            class="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#0a8574]"></textarea>
-        </div>
-
-        <div class="md:col-span-2">
+        <!-- Generate Button -->
+        <div class="md:col-span-2 mt-2">
           <button type="submit" class="btn-primary px-6 py-3 rounded-lg font-medium w-full md:w-auto">
-            Analyze Trip
+            ✨ Generate Smart Trip Plan
           </button>
         </div>
 
@@ -183,6 +148,13 @@
       <h2 class="font-bold text-lg mb-4">Smart Itinerary</h2>
       <div id="itineraryOutput" class="space-y-4 text-sm text-gray-700 mb-6">
         <p class="text-gray-500">Generate a trip to see your AI itinerary.</p>
+      </div>
+      <div id="routeOutput" class="text-sm text-gray-600 mb-6"></div>
+
+      <!-- Travel Route Map -->
+      <div class="mt-6">
+        <h3 class="font-semibold text-sm mb-2 text-gray-600">Travel Route Map</h3>
+        <div id="travelMap" class="w-full h-72 rounded-xl border border-gray-200"></div>
       </div>
 
       <h2 class="font-bold text-lg mb-4">Smart Reminders</h2>
@@ -197,7 +169,94 @@
   </main>
 </div>
 
+<script src="../scripts/travelAnimations.js"></script>
 <script>
+
+  // Initialize Travel Map
+  let travelMap;
+
+  function initTravelMap() {
+    const mapEl = document.getElementById("travelMap");
+    if (!mapEl) return;
+
+    travelMap = L.map("travelMap").setView([20, 0], 2);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors"
+    }).addTo(travelMap);
+  }
+
+  document.addEventListener("DOMContentLoaded", initTravelMap);
+
+  // --- Geocode place name using OpenStreetMap ---
+  async function geocodePlace(place) {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`
+      );
+      const data = await res.json();
+      if (data && data.length) {
+        return {
+          lat: parseFloat(data[0].lat),
+          lon: parseFloat(data[0].lon)
+        };
+      }
+    } catch (e) {
+      console.warn("Geocoding failed:", e);
+    }
+    return null;
+  }
+
+  // --- Draw animated route on the Leaflet map ---
+  async function drawMapRoute(source, destination) {
+    if (!travelMap || !source || !destination) return;
+
+    const src = await geocodePlace(source);
+    const dst = await geocodePlace(destination);
+
+    if (!src || !dst) return;
+
+    const srcLatLng = [src.lat, src.lon];
+    const dstLatLng = [dst.lat, dst.lon];
+
+    // zoom map to route
+    const bounds = L.latLngBounds([srcLatLng, dstLatLng]);
+    travelMap.fitBounds(bounds, { padding: [40, 40] });
+
+    // draw route line
+    const routeLine = L.polyline([srcLatLng, dstLatLng], {
+      color: "#0a8574",
+      weight: 4,
+      opacity: 0.8
+    }).addTo(travelMap);
+
+    // airplane marker
+    const planeIcon = L.divIcon({
+      html: "✈️",
+      className: "",
+      iconSize: [24, 24]
+    });
+
+    const plane = L.marker(srcLatLng, { icon: planeIcon }).addTo(travelMap);
+
+    // animate plane along route
+    let progress = 0;
+    const steps = 60;
+
+    const interval = setInterval(() => {
+      progress++;
+      const lat =
+        srcLatLng[0] + ((dstLatLng[0] - srcLatLng[0]) * progress) / steps;
+      const lon =
+        srcLatLng[1] + ((dstLatLng[1] - srcLatLng[1]) * progress) / steps;
+
+      plane.setLatLng([lat, lon]);
+
+      if (progress >= steps) {
+        clearInterval(interval);
+      }
+    }, 40);
+  }
 
   // Personalize Welcome Message
   const storedUser = localStorage.getItem("triplensUser");
@@ -222,9 +281,11 @@
   const form = document.getElementById("tripForm");
 
   const itineraryStyleSelect = document.getElementById("itineraryStyle");
-  const customItineraryContainer = document.getElementById("customItineraryContainer");
+  const customItineraryContainer = document.getElementById("customItineraryContainer") || null;
 
   itineraryStyleSelect.addEventListener("change", function() {
+    if (!customItineraryContainer) return;
+
     if (this.value === "custom") {
       customItineraryContainer.classList.remove("hidden");
     } else {
@@ -232,9 +293,72 @@
     }
   });
 
+  // === OpenStreetMap Autocomplete ===
+  async function searchPlaces(query) {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`
+    );
+    return await res.json();
+  }
+
+  function attachAutocomplete(inputId, suggestionBoxId) {
+    const input = document.getElementById(inputId);
+    const box = document.getElementById(suggestionBoxId);
+
+    input.addEventListener("input", async () => {
+      const query = input.value.trim();
+
+      if (query.length < 3) {
+        box.classList.add("hidden");
+        return;
+      }
+
+      const places = await searchPlaces(query);
+
+      box.innerHTML = "";
+      if (!places.length) {
+        box.classList.add("hidden");
+        return;
+      }
+
+      places.forEach(place => {
+        const item = document.createElement("div");
+        item.className = "p-2 text-sm hover:bg-gray-100 cursor-pointer";
+        item.textContent = place.display_name;
+
+        item.onclick = () => {
+          input.value = place.display_name;
+          box.classList.add("hidden");
+        };
+
+        box.appendChild(item);
+      });
+
+      box.classList.remove("hidden");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!box.contains(e.target) && e.target !== input) {
+        box.classList.add("hidden");
+      }
+    });
+  }
+
+  attachAutocomplete("source", "sourceSuggestions");
+  attachAutocomplete("destination", "destinationSuggestions");
+
   async function loadTrips() {
     try {
-      const res = await fetch("http://localhost:5000/trips");
+      const storedUser = localStorage.getItem("triplensUser");
+      let userId = "";
+      try {
+        if (storedUser) {
+          const parsed = JSON.parse(storedUser);
+          userId = parsed.email || parsed.id || "";
+        }
+      } catch {}
+
+      const res = await fetch(`http://localhost:5000/trips?userId=${encodeURIComponent(userId)}`);
       const trips = await res.json();
 
       const totalTrips = trips.length;
@@ -242,7 +366,7 @@
       const totalCarbon = trips.reduce((sum, t) => sum + Number(t.carbon || 0), 0);
 
       document.getElementById("summaryTrips").textContent = totalTrips;
-      document.getElementById("summarySpending").textContent = `₹${totalSpending}`;
+      document.getElementById("summarySpending").textContent = `₹${totalSpending.toLocaleString()}`;
       document.getElementById("summaryCarbon").textContent = `${totalCarbon}kg`;
 
       // Current Year Trips
@@ -329,35 +453,55 @@
 form.addEventListener("submit", async function(e){
   e.preventDefault();
 
-  const currentUser = localStorage.getItem("triplensUser");
+  const currentUserRaw = localStorage.getItem("triplensUser");
 
-  if (!currentUser) {
+  if (!currentUserRaw) {
     alert("You must create an account to generate and save itineraries.");
     window.location.href = "auth.html";
     return;
   }
 
-  const source = document.getElementById("source").value;
-  const destination = document.getElementById("destination").value;
+  let currentUser;
+  try {
+    currentUser = JSON.parse(currentUserRaw);
+  } catch {
+    alert("User session corrupted. Please login again.");
+    localStorage.removeItem("triplensUser");
+    window.location.href = "auth.html";
+    return;
+  }
+
+  const userId = currentUser.email || currentUser.id || "";
+
+  const source = document.getElementById("source").value.trim();
+  const destination = document.getElementById("destination").value.trim();
   const budget = Number(document.getElementById("budget").value);
   const mode = document.getElementById("mode").value;
-  const departureTime = document.getElementById("departureTime").value;
+  const departureTimeEl = document.getElementById("departureTime");
+  const departureTime = departureTimeEl ? departureTimeEl.value : null;
   const itineraryStyle = document.getElementById("itineraryStyle").value;
   const customItinerary = document.getElementById("customItinerary")
     ? document.getElementById("customItinerary").value.trim()
     : "";
+
+  const itineraryContainer = document.getElementById("itineraryOutput");
+  itineraryContainer.textContent = "Preparing your trip...";
+  if (typeof startAIThinkingAnimation === "function") {
+    startAIThinkingAnimation("itineraryOutput");
+  }
 
   try {
     const res = await fetch("http://localhost:5000/trips", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        userId,
         source,
         destination,
         budget,
         mode,
-        departureTime,
-        style: itineraryStyle
+        style: itineraryStyle,
+        departureTime
       })
     });
 
@@ -378,7 +522,7 @@ form.addEventListener("submit", async function(e){
 
       if (!aiRes.ok) {
         const errText = await aiRes.text();
-        document.getElementById("itineraryOutput").textContent =
+        itineraryContainer.textContent =
           "AI request failed: " + errText;
         return;
       }
@@ -388,13 +532,16 @@ form.addEventListener("submit", async function(e){
       if (aiData && aiData.itinerary) {
         finalItinerary = aiData.itinerary;
       } else {
-        document.getElementById("itineraryOutput").textContent =
+        itineraryContainer.textContent =
           "AI returned unexpected response.";
         return;
       }
     }
 
-    const itineraryContainer = document.getElementById("itineraryOutput");
+    // stop AI thinking animation once result arrives
+    if (typeof thinkingInterval !== "undefined") {
+      clearInterval(thinkingInterval);
+    }
     itineraryContainer.innerHTML = "";
 
     const textBlock = document.createElement("div");
@@ -402,6 +549,11 @@ form.addEventListener("submit", async function(e){
     textBlock.textContent = finalItinerary;
 
     itineraryContainer.appendChild(textBlock);
+
+    if (typeof animateRoute === "function") {
+      animateRoute("source", "destination", "routeOutput");
+    }
+    drawMapRoute(source, destination);
 
     const reminderText = `
       • Pack essentials 24 hrs before departure
@@ -412,6 +564,18 @@ form.addEventListener("submit", async function(e){
 
     loadTrips();
     form.reset();
+    if (customItineraryContainer) {
+      customItineraryContainer.classList.add("hidden");
+    }
+
+    const pnrField = document.getElementById("pnrField");
+    if (pnrField) pnrField.classList.add("hidden");
+
+    const ticketFields = document.getElementById("ticketFields");
+    const manualFields = document.getElementById("manualFields");
+
+    if (ticketFields) ticketFields.classList.add("hidden");
+    if (manualFields) manualFields.classList.remove("hidden");
 
   } catch (err) {
     console.error("Failed to save trip:", err);

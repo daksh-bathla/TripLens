@@ -1,11 +1,20 @@
 const Trip = require("../models/trip");
+const mongoose = require("mongoose");
 
 // Create Trip
 exports.createTrip = async (req, res) => {
   try {
-    const { source, destination, mode, budget, departureTime, style } = req.body;
+    const { userId, source, destination, mode, budget, departureTime, style } = req.body;
 
-    const numericBudget = Number(budget);
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    if (!source || !destination || !mode) {
+      return res.status(400).json({ error: "Source, destination, and mode are required" });
+    }
+
+    const numericBudget = Number(budget) || 0;
 
     // === Dynamic Day Logic Based on Budget ===
     let days = 2;
@@ -20,7 +29,7 @@ exports.createTrip = async (req, res) => {
     // === Simple Location-Aware Recommendations ===
     let locationHint = "Explore local culture and iconic attractions.";
 
-    const lowerDestination = destination.toLowerCase();
+    const lowerDestination = (destination || "").toLowerCase();
 
     if (lowerDestination.includes("jaipur")) {
       locationHint = "Visit forts, palaces, and explore Rajasthani cuisine.";
@@ -33,16 +42,23 @@ exports.createTrip = async (req, res) => {
     }
 
     // === Carbon Estimation ===
-    const carbon = mode === "Flight" ? 5 : mode === "Train" ? 2 : 1;
+    let carbon = 0;
+    if (mode === "Flight") carbon = days * 90;
+    else if (mode === "Train") carbon = days * 30;
+    else if (mode === "Car") carbon = days * 60;
+    else carbon = days * 20;
 
     const trip = new Trip({
-      source,
-      destination,
+      userId,
+      source: source.trim(),
+      destination: destination.trim(),
       mode,
       budget: numericBudget,
-      style,
+      departureTime,
+      style: style || "Balanced",
       days,
-      carbon
+      carbon,
+      locationHint
     });
 
     await trip.save();
@@ -56,7 +72,11 @@ exports.createTrip = async (req, res) => {
 // Get All Trips
 exports.getTrips = async (req, res) => {
   try {
-    const trips = await Trip.find().sort({ createdAt: -1 });
+    const { userId } = req.query;
+
+    const query = userId ? { userId } : {};
+
+    const trips = await Trip.find(query).sort({ createdAt: -1 });
     res.json(trips);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -67,6 +87,9 @@ exports.getTrips = async (req, res) => {
 exports.deleteTrip = async (req, res) => {
   try {
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid trip ID" });
+    }
 
     const deletedTrip = await Trip.findByIdAndDelete(id);
 

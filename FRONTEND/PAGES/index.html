@@ -27,9 +27,9 @@
 </nav>
 
 <!-- Hero -->
-<section class="flex-1 flex flex-col items-center justify-center text-center px-6 py-32">
+<section class="flex-1 flex flex-col items-center justify-center text-center px-6 py-20 md:py-32">
   <h1 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight max-w-4xl">
-    Plan smarter. Track your journeys. Build your travel story.
+    Turn Your Trips Into Insights, Analytics, and AI‑Powered Itineraries
   </h1>
   <p class="text-gray-600 max-w-2xl mb-10 text-lg">
     TripLens transforms your trips into insights, goals, streaks, and beautifully generated itineraries — all in one intelligent dashboard.
@@ -41,6 +41,29 @@
     <a href="#features" class="px-10 py-4 rounded-2xl text-lg border border-gray-300 hover:bg-white transition">
       Explore Features
     </a>
+  </div>
+</section>
+
+<!-- Product Preview -->
+<section class="px-6 pb-24">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6 md:p-10">
+      <h3 class="text-xl font-semibold mb-6 text-center">Inside Your TripLens Dashboard</h3>
+      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1400&auto=format&fit=crop"
+           alt="TripLens Dashboard Preview"
+           class="rounded-2xl shadow-md w-full">
+    </div>
+  </div>
+</section>
+
+<!-- Problem Section -->
+<section class="py-20 px-6 text-center">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-3xl font-bold mb-6">Most travel apps only help you book trips.</h2>
+    <p class="text-gray-600 text-lg">
+      But they don’t help you understand your travel habits, spending patterns, or planning efficiency.
+      TripLens turns every journey into insights, analytics, and intelligent planning so you travel smarter every time.
+    </p>
   </div>
 </section>
 
@@ -127,8 +150,37 @@
   </button>
 </section>
 
-<footer class="text-center text-gray-400 text-sm py-12 border-t border-gray-200">
-  © 2026 TripLens • Built for modern explorers.
+<footer class="py-14 border-t border-gray-200 bg-white">
+  <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-10 text-sm text-gray-500">
+    
+    <div>
+      <h4 class="font-semibold text-gray-800 mb-3">TripLens</h4>
+      <p>Plan smarter trips with analytics, AI itineraries, and personal travel insights.</p>
+    </div>
+
+    <div>
+      <h4 class="font-semibold text-gray-800 mb-3">Product</h4>
+      <ul class="space-y-2">
+        <li><a href="dashboard.html" class="hover:text-[#0a8574]">Dashboard</a></li>
+        <li><a href="analytics.html" class="hover:text-[#0a8574]">Insights</a></li>
+        <li><a href="dashboard.html" class="hover:text-[#0a8574]">Trip Planner</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4 class="font-semibold text-gray-800 mb-3">Company</h4>
+      <ul class="space-y-2">
+        <li><a href="#" class="hover:text-[#0a8574]">About</a></li>
+        <li><a href="#" class="hover:text-[#0a8574]">Privacy</a></li>
+        <li><a href="#" class="hover:text-[#0a8574]">Contact</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <p class="text-center text-gray-400 text-xs mt-10">
+    © 2026 TripLens • Built for modern explorers
+  </p>
 </footer>
 
 <script>
@@ -139,12 +191,21 @@
 
   function updateDemo() {
     const budget = Number(demoBudget.value);
+    const mode = demoMode.value;
+
     demoBudgetValue.textContent = budget;
 
     let style = "Backpack Adventurer";
-    if (budget > 40000) style = "Luxury Voyager";
-    else if (budget > 20000) style = "Balanced Traveler";
-    else if (budget > 8000) style = "Budget Explorer";
+
+    if (budget > 40000 && mode === "Flight") {
+      style = "Luxury Voyager";
+    } else if (budget > 20000) {
+      style = "Balanced Explorer";
+    } else if (mode === "Car" && budget < 8000) {
+      style = "Road Trip Backpacker";
+    } else if (budget > 8000) {
+      style = "Budget Explorer";
+    }
 
     demoStyle.textContent = style;
   }
@@ -154,7 +215,7 @@
   updateDemo();
 
   document.getElementById("startJourneyBtn").onclick = () => window.location.href = "dashboard.html";
-  document.getElementById("getStartedBtn").onclick = () => window.location.href = "dashboard.html";
+  document.getElementById("getStartedBtn").onclick = () => window.location.href = "auth.html";
   document.getElementById("analyzeTripBtn").onclick = () => window.location.href = "dashboard.html";
 </script>
 
