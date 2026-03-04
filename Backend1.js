@@ -18,10 +18,7 @@ app.use(express.json());
    DATABASE CONNECTION
 ============================== */
 
-mongoose.connect("mongodb://127.0.0.1:27017/triplens", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/triplens");
 
 mongoose.connection.on("connected", () => {
   console.log("MongoDB connected");
@@ -149,7 +146,7 @@ Only return the itinerary text.
 `;
 
     const aiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {

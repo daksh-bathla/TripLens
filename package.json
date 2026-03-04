@@ -1,8 +1,15 @@
 {
+  "name": "triplens",
+  "version": "1.0.0",
+  "description": "TripLens AI travel planner",
+  "main": "Backend1.js",
+  "scripts": {
+    "start": "node Backend1.js",
+    "dev": "nodemon Backend1.js"
+  },
   "dependencies": {
     "cors": "^2.8.6",
-<<<<<<< HEAD
-    "dotenv": "^16.6.1",
+    "dotenv": "^17.3.1",
     "express": "^4.22.1",
     "mongoose": "^9.2.3",
     "node-fetch": "^2.7.0"
@@ -12,10 +19,5 @@
     "nodemon": "^3.1.14",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.4"
-=======
-    "dotenv": "^17.3.1",
-    "express": "^5.2.1",
-    "mongoose": "^9.2.3"
->>>>>>> ccd51b9 (chore: remove mac system files)
   }
 }
