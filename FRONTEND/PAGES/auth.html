@@ -28,7 +28,7 @@
 
       <div>
         <label class="block text-sm mb-2">Email</label>
-        <input type="email" required
+        <input id="emailInput" type="email" required
           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-600"
           placeholder="you@example.com" />
       </div>
@@ -115,6 +115,7 @@
         toggleAuthMode.textContent = "Sign in";
         authSubtitle.textContent = "Create your TripLens account";
         document.getElementById("confirmPassword").setAttribute("required", true);
+        document.getElementById("confirmPassword").value = "";
       } else {
         confirmWrapper.classList.add("hidden");
         authButton.textContent = "Sign In";
@@ -138,23 +139,46 @@
     form.addEventListener("submit", function (e) {
       e.preventDefault();
 
-      const email = form.querySelector('input[type="email"]').value;
+      const email = document.getElementById("emailInput").value.trim();
       const password = document.getElementById("passwordInput").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (!email.includes("@")) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+
+      if (password.length < 6) {
+        alert("Password should be at least 6 characters long.");
+        return;
+      }
 
       if (isSignup && password !== confirmPassword) {
         alert("Passwords do not match.");
         return;
       }
 
-      localStorage.setItem("triplensUser", email);
+      const userData = {
+        email: email,
+        name: email.split("@")[0],
+        loginTime: new Date().toISOString()
+      };
+
+      localStorage.setItem("triplensUser", JSON.stringify(userData));
       window.location.href = "dashboard.html";
     });
 
     const guestLogin = document.getElementById("guestLogin");
 
     guestLogin.addEventListener("click", function() {
-      localStorage.setItem("triplensUser", "Guest User");
+      const guestUser = {
+        email: "guest@triplens.app",
+        name: "Guest User",
+        loginTime: new Date().toISOString(),
+        guest: true
+      };
+
+      localStorage.setItem("triplensUser", JSON.stringify(guestUser));
       window.location.href = "dashboard.html";
     });
   </script>

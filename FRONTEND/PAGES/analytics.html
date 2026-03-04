@@ -38,7 +38,7 @@
     <h1 class="text-4xl md:text-5xl font-extrabold mb-12 tracking-tight">Your Travel Insights</h1>
 
     <!-- Overview Cards -->
-    <div class="grid md:grid-cols-4 gap-6 mb-14">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-6 mb-14">
 
       <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100">
         <p class="text-gray-500 text-sm mb-2">Total Trips</p>
@@ -63,6 +63,16 @@
       <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100">
         <p class="text-gray-500 text-sm mb-2">Trips / Month</p>
         <p id="tripsPerMonth" class="text-3xl font-bold accent-teal">0</p>
+      </div>
+
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100">
+        <p class="text-gray-500 text-sm mb-2">Avg Trip Length</p>
+        <p id="avgTripLength" class="text-3xl font-bold accent-teal">0 days</p>
+      </div>
+
+      <div class="bg-white rounded-3xl p-7 shadow-md border border-gray-100">
+        <p class="text-gray-500 text-sm mb-2">Preferred Mode</p>
+        <p id="preferredMode" class="text-3xl font-bold accent-teal">—</p>
       </div>
     </div>
 
@@ -103,6 +113,12 @@
 
     </div>
 
+    <!-- AI Travel Insight -->
+    <div class="bg-white rounded-3xl p-10 shadow-md border border-gray-100 mb-8">
+      <h2 class="font-bold text-xl mb-4">Travel Insight</h2>
+      <p id="travelInsight" class="text-lg text-gray-700"></p>
+    </div>
+
     <!-- Travel Personality -->
     <div class="bg-white rounded-3xl p-10 shadow-md border border-gray-100">
       <h2 class="font-bold text-xl mb-4">Your Travel Style</h2>
@@ -113,6 +129,21 @@
 </div>
 
 <script>
+let modeChartInstance;
+let budgetChartInstance;
+let monthlyTrendChartInstance;
+
+function animateValue(el, start, end, duration, prefix = "", suffix = "") {
+  const range = end - start;
+  const startTime = performance.now();
+  function step(currentTime) {
+    const progress = Math.min((currentTime - startTime) / duration, 1);
+    const value = Math.floor(progress * range + start);
+    el.textContent = `${prefix}${value.toLocaleString()}${suffix}`;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
 async function loadAnalytics() {
   try {
     const res = await fetch("http://localhost:5000/trips");
@@ -122,19 +153,30 @@ async function loadAnalytics() {
     const totalSpending = trips.reduce((sum, t) => sum + Number(t.budget || 0), 0);
     const totalCarbon = trips.reduce((sum, t) => sum + Number(t.carbon || 0), 0);
     const avgSpending = totalTrips ? Math.round(totalSpending / totalTrips) : 0;
+    const avgTripLength =
+      totalTrips
+        ? Math.round(
+            trips.reduce((sum, t) => sum + Number(t.days || 0), 0) / totalTrips
+          )
+        : 0;
 
-    document.getElementById("totalTrips").textContent = totalTrips;
-    document.getElementById("totalSpending").textContent = `₹${totalSpending}`;
-    document.getElementById("totalCarbon").textContent = `${totalCarbon}kg`;
-    document.getElementById("avgSpending").textContent = `₹${avgSpending}`;
+    animateValue(document.getElementById("totalTrips"), 0, totalTrips, 800);
+    animateValue(document.getElementById("totalSpending"), 0, totalSpending, 1000, "₹");
+    animateValue(document.getElementById("totalCarbon"), 0, totalCarbon, 900, "", "kg");
+    animateValue(document.getElementById("avgSpending"), 0, avgSpending, 900, "₹");
+    animateValue(document.getElementById("avgTripLength"), 0, avgTripLength, 800, "", " days");
 
     // ===== MODE DISTRIBUTION =====
     const modeCounts = {};
     trips.forEach(t => {
       modeCounts[t.mode] = (modeCounts[t.mode] || 0) + 1;
     });
+    const preferredModeEntry = Object.entries(modeCounts).sort((a,b)=>b[1]-a[1])[0];
+    const preferredMode = preferredModeEntry ? preferredModeEntry[0] : "—";
+    document.getElementById("preferredMode").textContent = preferredMode;
 
-    new Chart(document.getElementById("modeChart"), {
+    if (modeChartInstance) modeChartInstance.destroy();
+    modeChartInstance = new Chart(document.getElementById("modeChart"), {
       type: "doughnut",
       data: {
         labels: Object.keys(modeCounts),
@@ -146,7 +188,8 @@ async function loadAnalytics() {
       options: { plugins: { legend: { position: 'bottom' } } }
     });
 
-    new Chart(document.getElementById("budgetChart"), {
+    if (budgetChartInstance) budgetChartInstance.destroy();
+    budgetChartInstance = new Chart(document.getElementById("budgetChart"), {
       type: "bar",
       data: {
         labels: trips.map((t, i) => `Trip ${i + 1}`),
@@ -162,14 +205,16 @@ async function loadAnalytics() {
     // ===== MONTHLY SPENDING TREND =====
     const monthlySpending = {};
     trips.forEach(t => {
+      if (!t.createdAt) return;
       const date = new Date(t.createdAt);
-      const key = `${date.getFullYear()}-${date.getMonth()+1}`;
-      monthlySpending[key] = (monthlySpending[key] || 0) + Number(t.budget || 0);
+      const label = date.toLocaleString("default", { month: "short", year: "numeric" });
+      monthlySpending[label] = (monthlySpending[label] || 0) + Number(t.budget || 0);
     });
 
     const sortedMonths = Object.keys(monthlySpending).sort();
 
-    new Chart(document.getElementById("monthlyTrendChart"), {
+    if (monthlyTrendChartInstance) monthlyTrendChartInstance.destroy();
+    monthlyTrendChartInstance = new Chart(document.getElementById("monthlyTrendChart"), {
       type: "line",
       data: {
         labels: sortedMonths,
@@ -186,6 +231,7 @@ async function loadAnalytics() {
     // ===== MOST VISITED DESTINATION =====
     const destinationCounts = {};
     trips.forEach(t => {
+      if (!t.destination) return;
       destinationCounts[t.destination] = (destinationCounts[t.destination] || 0) + 1;
     });
 
@@ -194,7 +240,13 @@ async function loadAnalytics() {
       mostVisited ? `${mostVisited[0]} (${mostVisited[1]} trips)` : "No trips yet.";
 
     // ===== TRAVEL FREQUENCY =====
-    const firstTripDate = trips.length ? new Date(trips[0].createdAt) : null;
+    const firstTripDate = trips.length
+      ? trips
+          .filter(t => t.createdAt)
+          .map(t => new Date(t.createdAt))
+          .sort((a, b) => a - b)[0]
+      : null;
+
     const monthsActive = firstTripDate ?
       Math.max(1, (new Date().getFullYear() - firstTripDate.getFullYear())*12 +
         (new Date().getMonth() - firstTripDate.getMonth()) + 1)
@@ -206,6 +258,7 @@ async function loadAnalytics() {
     // ===== STREAK LOGIC =====
     const tripMonths = new Set();
     trips.forEach(t => {
+      if (!t.createdAt) return;
       const d = new Date(t.createdAt);
       tripMonths.add(`${d.getFullYear()}-${d.getMonth()+1}`);
     });
@@ -238,6 +291,25 @@ async function loadAnalytics() {
     const goalTarget = 5;
     document.getElementById("goalTracking").textContent =
       `${citiesThisYear.size}/${goalTarget} cities explored this year.`;
+
+    // ===== AI TRAVEL INSIGHT =====
+    let insight = "";
+
+    if (avgTripLength <= 3) {
+      insight = "You tend to prefer short, quick trips";
+    } else if (avgTripLength <= 6) {
+      insight = "You enjoy balanced mid-length getaways";
+    } else {
+      insight = "You like long immersive journeys";
+    }
+
+    if (preferredMode && preferredMode !== "—") {
+      insight += ` and often travel by ${preferredMode.toLowerCase()}.`;
+    } else {
+      insight += ".";
+    }
+
+    document.getElementById("travelInsight").textContent = insight;
 
     // ===== TRAVEL PERSONALITY =====
     let personality = "Explorer";

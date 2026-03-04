@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const fetch = require("node-fetch");
+const { Types } = mongoose;
 
 const Trip = require("./models/trip");
 const tripRoutes = require("./controllers/routes/tripRoutes");
@@ -26,16 +27,27 @@ app.post("/generate-itinerary", async (req, res) => {
       return res.status(400).json({ error: "Trip ID is required" });
     }
 
+    if (!Types.ObjectId.isValid(tripId)) {
+      return res.status(400).json({ error: "Invalid trip ID format" });
+    }
+
+    if (!process.env.HF_API_KEY) {
+      return res.status(500).json({ error: "AI service unavailable" });
+    }
+
     const trip = await Trip.findById(tripId);
+    if (trip && trip.itinerary) {
+      return res.json({ itinerary: trip.itinerary });
+    }
     if (!trip) {
       return res.status(404).json({ error: "Trip not found" });
     }
 
-    const { source, destination, budget, mode, style, days } = trip;
+    const { source, destination, budget, mode, style, days } = trip || {};
 
     // === Location-Aware Hint ===
     let locationHint = "Explore local culture and iconic attractions.";
-    const lowerDestination = destination.toLowerCase();
+    const lowerDestination = (destination || "").toLowerCase();
 
     if (lowerDestination.includes("jaipur")) {
       locationHint = "Include forts, palaces, and Rajasthani cuisine.";
@@ -45,7 +57,8 @@ app.post("/generate-itinerary", async (req, res) => {
       locationHint = "Include beaches, water sports, and coastal nightlife.";
     }
 
-    const dailyBudget = Math.floor(Number(budget) / days);
+    const safeDays = days && days > 0 ? days : 1;
+    const dailyBudget = Math.floor(Number(budget || 0) / safeDays);
 
     const prompt = `
 Create a ${days}-day travel itinerary from ${source} to ${destination}.
@@ -63,11 +76,15 @@ Special Instructions:
 - Add short descriptions per activity
 `;
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+
     // === Hugging Face Call ===
     const hfResponse = await fetch(
       "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
       {
         method: "POST",
+        signal: controller.signal,
         headers: {
           Authorization: `Bearer ${process.env.HF_API_KEY}`,
           "Content-Type": "application/json"
@@ -75,6 +92,7 @@ Special Instructions:
         body: JSON.stringify({ inputs: prompt })
       }
     );
+    clearTimeout(timeout);
 
     if (!hfResponse.ok) {
       const errText = await hfResponse.text();
@@ -93,7 +111,17 @@ Special Instructions:
       generatedText = "AI response format unexpected.";
     }
 
+    if (generatedText.startsWith(prompt)) {
+      generatedText = generatedText.replace(prompt, "").trim();
+    }
+
     // === Save Itinerary to DB ===
+    let carbon = 0;
+    if (mode === "Flight") carbon = safeDays * 90;
+    else if (mode === "Train") carbon = safeDays * 30;
+    else if (mode === "Car") carbon = safeDays * 60;
+
+    trip.carbon = carbon;
     trip.itinerary = generatedText;
     await trip.save();
 
@@ -101,6 +129,66 @@ Special Instructions:
 
   } catch (err) {
     console.error("Error generating itinerary:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// === AI TRAVEL INSIGHTS ===
+app.get("/travel-insights", async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
+
+    const trips = await Trip.find({ userId });
+
+    if (!trips.length) {
+      return res.json({
+        insight: "Plan your first trip to unlock travel insights."
+      });
+    }
+
+    const totalTrips = trips.length;
+
+    // Average trip length
+    const avgDays = Math.round(
+      trips.reduce((sum, t) => sum + (t.days || 0), 0) / totalTrips
+    );
+
+    // Preferred travel mode
+    const modeCounts = {};
+    trips.forEach(t => {
+      if (!t.mode) return;
+      modeCounts[t.mode] = (modeCounts[t.mode] || 0) + 1;
+    });
+
+    const preferredMode =
+      Object.entries(modeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ||
+      "various transport modes";
+
+    // Most visited destination
+    const destinationCounts = {};
+    trips.forEach(t => {
+      if (!t.destination) return;
+      destinationCounts[t.destination] =
+        (destinationCounts[t.destination] || 0) + 1;
+    });
+
+    const topDestination =
+      Object.entries(destinationCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+
+    let insight = `You usually take ${avgDays}-day trips and prefer traveling by ${preferredMode.toLowerCase()}.`;
+
+    if (topDestination) {
+      insight += ` Your most visited destination is ${topDestination}.`;
+    }
+
+    res.json({ insight });
+
+  } catch (err) {
+    console.error("Travel insight error:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -126,4 +214,7 @@ async function startServer() {
   }
 }
 
-startServer();
+startServer().catch(err => {
+  console.error("Startup failed:", err);
+  process.exit(1);
+});
