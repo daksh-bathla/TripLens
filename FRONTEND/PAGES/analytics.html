@@ -146,7 +146,8 @@ function animateValue(el, start, end, duration, prefix = "", suffix = "") {
 }
 async function loadAnalytics() {
   try {
-    const res = await fetch("http://localhost:5000/trips");
+    const userId = localStorage.getItem("userId") || "demo";
+    const res = await fetch(`http://localhost:5000/trips?userId=${encodeURIComponent(userId)}`);
     const trips = await res.json();
 
     const totalTrips = trips.length;
@@ -169,6 +170,7 @@ async function loadAnalytics() {
     // ===== MODE DISTRIBUTION =====
     const modeCounts = {};
     trips.forEach(t => {
+      if (!t || !t.mode) return;
       modeCounts[t.mode] = (modeCounts[t.mode] || 0) + 1;
     });
     const preferredModeEntry = Object.entries(modeCounts).sort((a,b)=>b[1]-a[1])[0];
@@ -195,7 +197,7 @@ async function loadAnalytics() {
         labels: trips.map((t, i) => `Trip ${i + 1}`),
         datasets: [{
           label: "Budget (₹)",
-          data: trips.map(t => t.budget),
+          data: trips.map(t => Number(t?.budget || 0)),
           backgroundColor: "#0a8574"
         }]
       },
@@ -211,7 +213,7 @@ async function loadAnalytics() {
       monthlySpending[label] = (monthlySpending[label] || 0) + Number(t.budget || 0);
     });
 
-    const sortedMonths = Object.keys(monthlySpending).sort();
+    const sortedMonths = Object.keys(monthlySpending).sort((a, b) => new Date(a) - new Date(b));
 
     if (monthlyTrendChartInstance) monthlyTrendChartInstance.destroy();
     monthlyTrendChartInstance = new Chart(document.getElementById("monthlyTrendChart"), {
@@ -284,7 +286,7 @@ async function loadAnalytics() {
     // ===== GOAL TRACKING =====
     const currentYear = new Date().getFullYear();
     const citiesThisYear = new Set(
-      trips.filter(t => new Date(t.createdAt).getFullYear() === currentYear)
+      trips.filter(t => t.createdAt && new Date(t.createdAt).getFullYear() === currentYear)
            .map(t => t.destination)
     );
 
