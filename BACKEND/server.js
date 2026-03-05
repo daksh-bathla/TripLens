@@ -7,7 +7,7 @@ const fetch = require("node-fetch");
 const { Types } = mongoose;
 
 const Trip = require("./models/trip");
-const tripRoutes = require("./controllers/routes/tripRoutes");
+const tripRoutes = require("./routes/tripRoutes");
 
 console.log("Starting TripLens server...");
 
@@ -16,7 +16,56 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 app.use("/trips", tripRoutes);
+
+// === Create Trip From OCR Ticket ===
+app.post("/create-trip-from-ticket", async (req, res) => {
+  try {
+    const { source, destination, date, pnr, userId, rawText } = req.body;
+
+    // === Attempt to auto-detect route from OCR text if not provided ===
+    let detectedSource = source;
+    let detectedDestination = destination;
+
+    if ((!detectedSource || !detectedDestination) && rawText) {
+      const routeMatch = rawText.match(/([A-Z]{3})\s*[\-→]\s*([A-Z]{3})/);
+
+      if (routeMatch) {
+        detectedSource = detectedSource || routeMatch[1];
+        detectedDestination = detectedDestination || routeMatch[2];
+      }
+    }
+
+    if (!detectedSource || !detectedDestination) {
+      return res.status(400).json({ error: "source and destination are required" });
+    }
+
+    // Default values for ticket-based trips
+    const trip = new Trip({
+      source: detectedSource,
+      destination: detectedDestination,
+      mode: "Flight",
+      budget: 15000,
+      style: "smart",
+      days: 3,
+      pnr,
+      departureDate: date,
+      userId
+    });
+
+    await trip.save();
+
+    res.json({
+      message: "Trip created from ticket",
+      tripId: trip._id
+    });
+
+  } catch (err) {
+    console.error("Ticket trip creation failed:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Generate itinerary route (Hugging Face powered + DB-saving)
 app.post("/generate-itinerary", async (req, res) => {
@@ -57,6 +106,29 @@ app.post("/generate-itinerary", async (req, res) => {
       locationHint = "Include beaches, water sports, and coastal nightlife.";
     }
 
+    // === Fetch Recent Trip History for AI Personalization ===
+    let historyContext = "";
+    try {
+      if (trip.userId) {
+        const pastTrips = await Trip.find({
+          userId: trip.userId,
+          _id: { $ne: trip._id }
+        })
+          .sort({ createdAt: -1 })
+          .limit(3);
+
+        if (pastTrips.length) {
+          const historyList = pastTrips
+            .map(t => `${t.source} to ${t.destination} (${t.style || "balanced"})`)
+            .join("; ");
+
+          historyContext = `User past travel history: ${historyList}. Use this to align the travel style.`;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not load trip history for AI context");
+    }
+
     const safeDays = days && days > 0 ? days : 1;
     const dailyBudget = Math.floor(Number(budget || 0) / safeDays);
 
@@ -67,6 +139,8 @@ Travel Mode: ${mode}
 Total Budget: ₹${budget}
 Daily Budget: ₹${dailyBudget}
 Style: ${style || "balanced"}
+
+${historyContext}
 
 Special Instructions:
 - Focus on ${style || "balanced exploration"}
@@ -203,7 +277,11 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
   try {
     console.log("Connecting to MongoDB...");
-    await mongoose.connect(process.env.MONGO_URI);
+    const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/triplens";
+    if (!process.env.MONGO_URI) {
+      console.warn("MONGO_URI not found in .env. Using local MongoDB at mongodb://127.0.0.1:27017/triplens");
+    }
+    await mongoose.connect(mongoUri);
     console.log("MongoDB connected");
 
     app.listen(PORT, () => {

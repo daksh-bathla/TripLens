@@ -133,6 +133,17 @@
           </select>
         </div>
 
+        <!-- Ticket OCR Upload -->
+        <div class="md:col-span-2 mt-2">
+          <label class="block text-sm font-medium mb-2">Upload Ticket (Auto‑Fill Trip)</label>
+          <input type="file" id="ticketUpload" accept="image/*,.pdf"
+            class="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#0a8574]">
+          <button type="button" onclick="parseTicket()"
+            class="btn-primary px-4 py-2 rounded-lg mt-2 text-sm">Scan Ticket</button>
+
+          <div id="parsedData" class="text-xs text-gray-600 mt-2"></div>
+        </div>
+
         <!-- Generate Button -->
         <div class="md:col-span-2 mt-2">
           <button type="submit" class="btn-primary px-6 py-3 rounded-lg font-medium w-full md:w-auto">
@@ -170,7 +181,68 @@
 </div>
 
 <script src="../scripts/travelAnimations.js"></script>
+<script src="https://unpkg.com/tesseract.js@v4.1.1/dist/tesseract.min.js"></script>
 <script>
+  // === Ticket OCR Parsing ===
+  async function parseTicket() {
+    const fileInput = document.getElementById("ticketUpload");
+    const file = fileInput.files[0];
+
+    if (!file) {
+      alert("Please upload a ticket image or PDF first.");
+      return;
+    }
+
+    const parsedBox = document.getElementById("parsedData");
+    parsedBox.textContent = "Scanning ticket...";
+
+    try {
+      const { data: { text } } = await Tesseract.recognize(file, "eng", {
+        logger: m => console.log(m)
+      });
+
+      // Basic extraction
+      const pnrMatch = text.match(/PNR[:\s]*([A-Z0-9]{5,6})/i);
+      const dateMatch = text.match(/(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/);
+
+      const flightMatch = text.match(/[A-Z]{2}\d{3,4}/);
+
+      const parsed = {
+        pnr: pnrMatch ? pnrMatch[1] : "Not found",
+        date: dateMatch ? dateMatch[1] : "Not found",
+        flight: flightMatch ? flightMatch[0] : "Unknown",
+        rawText: text.slice(0, 300)
+      };
+
+      parsedBox.innerHTML = `
+        <pre class="bg-gray-50 p-3 rounded">${JSON.stringify(parsed, null, 2)}</pre>
+        <button onclick="autoFillTrip('${parsed.pnr}','${parsed.date}')"
+          class="btn-primary px-3 py-1 rounded text-xs mt-2">Auto‑Fill Trip</button>
+      `;
+
+      localStorage.setItem("lastTicket", JSON.stringify(parsed));
+
+    } catch (err) {
+      console.error("OCR failed:", err);
+      parsedBox.textContent = "Could not read ticket. Try a clearer image.";
+    }
+  }
+
+  // === Autofill Trip Form From OCR ===
+  function autoFillTrip(pnr, date) {
+    const pnrField = document.getElementById("pnr");
+
+    if (pnrField) {
+      pnrField.value = pnr;
+    }
+
+    const departureInput = document.getElementById("departureTime");
+    if (departureInput && date !== "Not found") {
+      departureInput.value = date;
+    }
+
+    alert("Ticket data added to the form. You can now generate the trip plan.");
+  }
 
   // Initialize Travel Map
   let travelMap;
@@ -607,14 +679,33 @@ form.addEventListener("submit", async function(e){
     if (typeof animateRoute === "function") {
       animateRoute("source", "destination", "routeOutput");
     }
+
+    // Fetch structured timeline from backend (saved in DB for analytics)
+    try {
+      await fetch(`http://localhost:5000/trips/${savedTrip._id}/timeline`);
+    } catch (e) {
+      console.warn("Timeline generation failed:", e);
+    }
+
     drawMapRoute(source, destination);
 
-    const reminderText = `
-      • Pack essentials 24 hrs before departure
-      • Leave ${mode === "Flight" ? "2 hours" : "1 hour"} before departure
-      • Estimated trip length: ${savedTrip.days} days
-    `;
-    document.getElementById("reminderOutput").textContent = reminderText;
+    // Fetch smart reminders from backend
+    try {
+      const reminderRes = await fetch(`http://localhost:5000/trips/${savedTrip._id}/reminders`);
+      const reminderData = await reminderRes.json();
+
+      const reminderBox = document.getElementById("reminderOutput");
+
+      if (reminderData && reminderData.reminders) {
+        reminderBox.innerHTML = reminderData.reminders
+          .map(r => `• ${r}`)
+          .join("<br>");
+      } else {
+        reminderBox.textContent = "No reminders available.";
+      }
+    } catch (e) {
+      console.warn("Failed to load reminders:", e);
+    }
 
     loadTrips();
     form.reset();
