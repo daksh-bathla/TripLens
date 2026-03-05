@@ -26,7 +26,7 @@
       <a href="trips.recent.html" class="block font-semibold text-[#0a8574] bg-[#e6f7f4] px-3 py-2 rounded-lg">Recent Trips</a>
       <a href="analytics.html" class="block text-gray-600 hover:text-[#0a8574]">Insights</a>
       <a href="index.html" class="block text-gray-600 hover:text-[#0a8574]">Home</a>
-      <button id="logoutBtn" class="block text-red-500 hover:underline mt-6">Logout</button>
+      #<button id="logoutBtn" class="block text-red-500 hover:underline mt-6">Logout</button>
     </nav>
   </aside>
 
@@ -228,7 +228,7 @@ function renderTrips(trips) {
         <p>Sustainability Impact: <span class="font-medium">${trip.carbon || 0}kg</span></p>
       </div>
       <div class="flex gap-3">
-        <button class="viewBtn bg-[#0a8574] text-white px-4 py-2 text-sm rounded-lg hover:opacity-90">View Itinerary</button>
+        <button class="viewBtn bg-[#0a8574] text-white px-4 py-2 text-sm rounded-lg hover:opacity-90">Trip Details</button>
         <button data-id="${trip.id || trip._id}" class="deleteBtn text-sm text-red-500 hover:underline">Delete</button>
       </div>
     `;
@@ -236,9 +236,8 @@ function renderTrips(trips) {
     tripsContainer.appendChild(card);
 
     card.querySelector(".viewBtn").addEventListener("click", () => {
-      modalContent.textContent = trip.itinerary || "No itinerary stored.";
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
+      const id = trip._id || trip.id;
+      window.location.href = `tripdetails.html?id=${id}`;
     });
   });
 

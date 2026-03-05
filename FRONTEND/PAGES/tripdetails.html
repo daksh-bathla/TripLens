@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trip Details - TripLens</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+<div class="flex min-h-screen">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white shadow-md p-6">
+    <h1 class="text-2xl font-bold accent-teal mb-10">TripLens</h1>
+
+    <nav class="space-y-5 text-sm">
+      <a href="dashboard.html" class="block text-gray-600 hover:text-[#0a8574]">Dashboard</a>
+      <a href="trips.recent.html" class="block text-gray-600 hover:text-[#0a8574]">Recent Trips</a>
+      <a href="analytics.html" class="block text-gray-600 hover:text-[#0a8574]">Insights</a>
+      <a href="index.html" class="block text-gray-600 hover:text-[#0a8574]">Home</a>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 p-10">
+
+    <h1 class="text-3xl font-bold mb-6">Trip Details</h1>
+
+    <div id="tripInfo" class="bg-white p-6 rounded-xl shadow mb-6"></div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+
+<div class="bg-white p-6 rounded-xl shadow">
+<h2 class="text-xl font-semibold mb-3">Itinerary</h2>
+<div id="itinerary"></div>
+</div>
+
+<div class="bg-white p-6 rounded-xl shadow">
+<h2 class="text-xl font-semibold mb-3">Smart Reminders</h2>
+<div id="reminders"></div>
+</div>
+
+<div class="bg-white p-6 rounded-xl shadow md:col-span-2">
+<h2 class="text-xl font-semibold mb-3">Timeline</h2>
+<div id="timeline"></div>
+</div>
+
+<div class="bg-white p-6 rounded-xl shadow md:col-span-2">
+<h2 class="text-xl font-semibold mb-3">Trip Intelligence</h2>
+<div id="report"></div>
+</div>
+
+</div>
+
+  </main>
+
+</div>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+const tripId = params.get("id");
+
+async function loadTrip() {
+
+const tripRes = await fetch(`http://localhost:5000/trips?id=${tripId}`);
+const trips = await tripRes.json();
+
+const trip = trips.find(t => (t._id === tripId || t.id === tripId));
+
+if (!trip) return;
+
+// Trip Info
+
+document.getElementById("tripInfo").innerHTML = `
+<strong>Route:</strong> ${trip.source} → ${trip.destination}<br>
+<strong>Mode:</strong> ${trip.mode}<br>
+<strong>Budget:</strong> ₹${trip.budget}<br>
+<strong>Carbon:</strong> ${trip.carbon || 0} kg
+`;
+
+// Itinerary
+
+document.getElementById("itinerary").innerHTML = (trip.itinerary || "No itinerary").replace(/\n/g,"<br>");
+
+// Timeline
+
+try {
+const tRes = await fetch(`http://localhost:5000/trips/${tripId}/timeline`);
+const tData = await tRes.json();
+
+let html = "";
+
+if (tData.timeline) {
+
+Object.entries(tData.timeline).forEach(([day, items]) => {
+
+html += `<div class="mb-4"><strong>${day}</strong>`;
+
+items.forEach(i => {
+html += `<div>• ${i}</div>`;
+});
+
+html += `</div>`;
+
+});
+
+}
+
+document.getElementById("timeline").innerHTML = html;
+
+} catch {}
+
+// Reminders
+
+try {
+
+const rRes = await fetch(`http://localhost:5000/trips/${tripId}/reminders`);
+const rData = await rRes.json();
+
+if (rData.reminders) {
+
+let html = "";
+
+rData.reminders.forEach(r => {
+html += `<div>• ${r}</div>`;
+});
+
+
+document.getElementById("reminders").innerHTML = html;
+
+}
+
+} catch {}
+
+// Report
+
+try {
+
+const repRes = await fetch(`http://localhost:5000/trips/${tripId}/report`);
+const repData = await repRes.json();
+
+if (repData.report) {
+
+const r = repData.report;
+
+document.getElementById("report").innerHTML = `
+Destination: ${r.destination}<br>
+Duration: ${r.durationDays} days<br>
+Travel Mode: ${r.travelMode}<br>
+Carbon Footprint: ${r.estimatedCarbon} kg
+`;
+
+}
+
+} catch {}
+
+}
+
+loadTrip();
+
+</script>
+
+</body>
+</html>

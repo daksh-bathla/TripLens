@@ -5,7 +5,7 @@ const router = express.Router();
  * Trip Controller functions
  * These handle the actual logic for each route
  */
-const { createTrip, getTrips, deleteTrip } = require("../tripController");
+const { createTrip, getTrips, deleteTrip, getTripTimeline, getTripReminders, getTripReport } = require("../controllers/tripController.js");
 
 /**
  * Future middleware (example)
@@ -33,6 +33,27 @@ router.get("/", getTrips);
  * Used in the Recent Trips page
  */
 router.delete("/:id", deleteTrip);
+
+/**
+ * Get structured trip timeline
+ * Endpoint: GET /trips/:id/timeline
+ * Converts itinerary text into structured day-by-day timeline
+ */
+router.get("/:id/timeline", getTripTimeline);
+
+/**
+ * Get smart reminders for a trip
+ * Endpoint: GET /trips/:id/reminders
+ * Provides travel reminders like packing, departure timing, etc.
+ */
+router.get("/:id/reminders", getTripReminders);
+
+/**
+ * Get trip intelligence report
+ * Endpoint: GET /trips/:id/report
+ * Returns summary insights about the trip
+ */
+router.get("/:id/report", getTripReport);
 
 /**
  * Future route (editing trips)

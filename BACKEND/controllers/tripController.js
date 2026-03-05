@@ -83,6 +83,102 @@ exports.getTrips = async (req, res) => {
   }
 };
 
+// Build a timeline from itinerary text
+exports.getTripTimeline = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const trip = await Trip.findById(id);
+    if (!trip) return res.status(404).json({ message: "Trip not found" });
+
+    const itinerary = trip.itinerary || "";
+
+    const timeline = {};
+    let currentDay = null;
+
+    itinerary.split("\n").forEach(line => {
+      const dayMatch = line.match(/^Day\s*(\d+)/i);
+
+      if (dayMatch) {
+        currentDay = `Day ${dayMatch[1]}`;
+        timeline[currentDay] = [];
+      } else if (currentDay && line.trim().startsWith("-")) {
+        timeline[currentDay].push(line.replace("-", "").trim());
+      }
+    });
+
+    // Save timeline to trip document
+    trip.timeline = timeline;
+    await trip.save();
+
+    res.json({ timeline });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Generate smart reminders for a trip
+exports.getTripReminders = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const trip = await Trip.findById(id);
+    if (!trip) return res.status(404).json({ message: "Trip not found" });
+
+    const reminders = [
+      "Pack essentials 24 hours before departure",
+      trip.mode === "Flight"
+        ? "Leave for airport at least 2 hours before departure"
+        : "Leave early to avoid traffic or delays",
+      "Check weather at your destination",
+      "Carry valid ID and travel documents"
+    ];
+
+    if (trip.destination && trip.destination.toLowerCase().includes("goa")) {
+      reminders.push("Carry sunscreen and beachwear");
+    }
+
+    if (trip.destination && trip.destination.toLowerCase().includes("jaipur")) {
+      reminders.push("Stay hydrated and prepare for warm weather");
+    }
+
+    // Save reminders to trip document
+    trip.reminders = reminders;
+    await trip.save();
+
+    res.json({ reminders });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Generate a simple trip intelligence report
+exports.getTripReport = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const trip = await Trip.findById(id);
+    if (!trip) return res.status(404).json({ message: "Trip not found" });
+
+    const report = {
+      destination: trip.destination,
+      durationDays: trip.days,
+      travelMode: trip.mode,
+      estimatedCarbon: trip.carbon,
+      budget: trip.budget,
+      summary: `Trip to ${trip.destination} for ${trip.days} days using ${trip.mode}. Estimated carbon footprint: ${trip.carbon}.`
+    };
+
+    // Save report to trip document
+    trip.report = report;
+    await trip.save();
+
+    res.json({ report });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Delete Trip
 exports.deleteTrip = async (req, res) => {
   try {
