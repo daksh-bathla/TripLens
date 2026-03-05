@@ -1,28 +1,31 @@
 require("dotenv").config();
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const fetch = global.fetch || require("node-fetch");
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
-if (!GEMINI_API_KEY) {
-  console.error("❌ GEMINI_API_KEY missing in .env file");
-  process.exit(1);
-}
+const fetch = require("node-fetch");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 /* ==============================
+   ENVIRONMENT VARIABLES
+============================== */
+
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/triplens";
+
+/* ==============================
    DATABASE CONNECTION
 ============================== */
 
-mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/triplens");
-
-mongoose.connection.on("connected", () => {
-  console.log("MongoDB connected");
-});
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => {
+    console.error("MongoDB connection failed:", err);
+    process.exit(1);
+  });
 
 /* ==============================
    TRIP MODEL
@@ -37,6 +40,7 @@ const TripSchema = new mongoose.Schema({
   style: String,
   carbon: Number,
   days: Number,
+  itinerary: String,
   createdAt: {
     type: Date,
     default: Date.now
@@ -46,6 +50,14 @@ const TripSchema = new mongoose.Schema({
 const Trip = mongoose.model("Trip", TripSchema);
 
 /* ==============================
+   HEALTH CHECK
+============================== */
+
+app.get("/", (req, res) => {
+  res.send("TripLens API running 🚀");
+});
+
+/* ==============================
    CREATE TRIP
 ============================== */
 
@@ -53,14 +65,15 @@ app.post("/trips", async (req, res) => {
   try {
     const { userId, source, destination, mode, budget, style } = req.body;
 
-    let days = 4;
+    if (!source || !destination || !mode) {
+      return res.status(400).send("Missing required trip fields");
+    }
 
+    let days = 4;
     if (mode === "Flight") days = 6;
     if (mode === "Train") days = 5;
-    if (mode === "Car") days = 4;
 
     let carbon = 0;
-
     if (mode === "Flight") carbon = 180;
     if (mode === "Train") carbon = 40;
     if (mode === "Car") carbon = 120;
@@ -77,11 +90,10 @@ app.post("/trips", async (req, res) => {
     });
 
     await trip.save();
-
     res.json(trip);
 
   } catch (err) {
-    console.error(err);
+    console.error("Trip creation failed:", err);
     res.status(500).send("Trip save failed");
   }
 });
@@ -93,9 +105,16 @@ app.post("/trips", async (req, res) => {
 app.get("/trips", async (req, res) => {
   try {
     const userId = req.query.userId;
-    const trips = await Trip.find({ userId });
+
+    if (!userId) {
+      return res.status(400).send("userId required");
+    }
+
+    const trips = await Trip.find({ userId }).sort({ createdAt: -1 });
+
     res.json(trips);
   } catch (err) {
+    console.error("Fetch trips failed:", err);
     res.status(500).send("Failed to fetch trips");
   }
 });
@@ -108,6 +127,10 @@ app.post("/generate-itinerary", async (req, res) => {
   try {
     const { tripId } = req.body;
 
+    if (!tripId) {
+      return res.status(400).send("tripId required");
+    }
+
     const trip = await Trip.findById(tripId);
 
     if (!trip) {
@@ -115,83 +138,71 @@ app.post("/generate-itinerary", async (req, res) => {
     }
 
     const prompt = `
-You are an expert travel planner.
+You are a professional travel planner.
 
-Create a ${trip.days}-day travel itinerary for a trip from ${trip.source} to ${trip.destination}.
+Generate a ${trip.days}-day travel itinerary for a trip from ${trip.source} to ${trip.destination}.
 
 Trip Details:
-- Travel Style: ${trip.style || "balanced"}
-- Budget: ${trip.budget || "not specified"}
-- Transport Mode: ${trip.mode}
+Transport: ${trip.mode}
+Travel Style: ${trip.style || "balanced"}
+Budget: ${trip.budget || "moderate"}
 
-Requirements:
-1. Break the itinerary into Day 1, Day 2, etc.
-2. Include 3–5 activities per day.
-3. Suggest famous landmarks, hidden gems, and local food experiences.
-4. Mention approximate best time of day (morning/afternoon/evening).
-5. Keep descriptions concise but useful.
-6. Make the plan realistic and geographically sensible.
+Strict Instructions:
+- Start directly with "Day 1"
+- Do NOT repeat the instructions
+- Do NOT include explanations before or after the itinerary
+- Each day must contain: Morning, Afternoon, Evening
+- Include 3–4 realistic activities per day
+- Mention real landmarks or neighborhoods when possible
 
-Format Example:
+Required Output Format:
 
-Day 1 – Arrival & City Introduction
-- Morning: ...
-- Afternoon: ...
-- Evening: ...
+Day 1
+Morning: ...
+Afternoon: ...
+Evening: ...
 
-Day 2 – Culture & Landmarks
-- ...
+Day 2
+Morning: ...
+Afternoon: ...
+Evening: ...
 
-Only return the itinerary text.
+Continue until Day ${trip.days}.
+Only output the itinerary.
 `;
 
-    const aiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: prompt }]
-            }
-          ]
-        })
-      }
-    );
-
-    if (!aiRes.ok) {
-      const text = await aiRes.text();
-      console.error("Gemini API error:", text);
-      return res.status(500).send("AI service failed");
-    }
-
-    const aiData = await aiRes.json();
-
-    let itinerary = "";
-
-    try {
-      itinerary =
-        aiData.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "AI failed to generate itinerary.";
-    } catch {
-      itinerary = "AI response parsing failed.";
-    }
-
-    res.json({
-      itinerary
+    const response = await fetch("http://localhost:11434/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "phi3",
+        prompt: prompt,
+        stream: false
+      })
     });
 
+    if (!response.ok) {
+      const text = await response.text();
+      console.error("Ollama AI error:", text);
+      return res.status(500).send("Local AI service failed");
+    }
+
+    const data = await response.json();
+
+    const itinerary =
+      data?.response || "Local AI could not generate itinerary.";
+
+    trip.itinerary = itinerary;
+    await trip.save();
+
+    res.json({ itinerary });
+
   } catch (err) {
-    console.error(err);
+    console.error("Itinerary generation failed:", err);
     res.status(500).send("Failed to generate itinerary");
   }
-});
-
-app.get("/", (req, res) => {
-  res.send("TripLens API running 🚀");
 });
 
 /* ==============================

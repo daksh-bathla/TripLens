@@ -143,8 +143,10 @@ async function plotTripsOnMap(trips) {
 
 async function loadTrips() {
   try {
-    const response = await fetch("http://localhost:5000/trips");
-    const trips = await response.json();
+    const userId = localStorage.getItem("triplensUser") || "demo";
+    const response = await fetch(`http://localhost:5000/trips?userId=${encodeURIComponent(userId)}`);
+    const data = await response.json();
+    const trips = Array.isArray(data) ? data : (data.trips || []);
     allTrips = trips;
 
     plotTripsOnMap(trips);

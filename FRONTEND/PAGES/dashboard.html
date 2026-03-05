@@ -219,6 +219,17 @@
     const srcLatLng = [src.lat, src.lon];
     const dstLatLng = [dst.lat, dst.lon];
 
+    // add source marker
+    L.marker(srcLatLng)
+      .addTo(travelMap)
+      .bindPopup(`Start: ${source}`)
+      .openPopup();
+
+    // add destination marker
+    L.marker(dstLatLng)
+      .addTo(travelMap)
+      .bindPopup(`Destination: ${destination}`);
+
     // zoom map to route
     const bounds = L.latLngBounds([srcLatLng, dstLatLng]);
     travelMap.fitBounds(bounds, { padding: [40, 40] });
@@ -359,11 +370,12 @@
       } catch {}
 
       const res = await fetch(`http://localhost:5000/trips?userId=${encodeURIComponent(userId)}`);
-      const trips = await res.json();
+      const data = await res.json();
+      const trips = Array.isArray(data) ? data : (data.trips || []);
 
       const totalTrips = trips.length;
-      const totalSpending = trips.reduce((sum, t) => sum + Number(t.budget || 0), 0);
-      const totalCarbon = trips.reduce((sum, t) => sum + Number(t.carbon || 0), 0);
+      const totalSpending = trips.reduce((sum, t) => sum + Number(t?.budget || 0), 0);
+      const totalCarbon = trips.reduce((sum, t) => sum + Number(t?.carbon || 0), 0);
 
       document.getElementById("summaryTrips").textContent = totalTrips;
       document.getElementById("summarySpending").textContent = `₹${totalSpending.toLocaleString()}`;
@@ -371,12 +383,13 @@
 
       // Current Year Trips
       const currentYear = new Date().getFullYear();
-      const yearTrips = trips.filter(t => new Date(t.createdAt).getFullYear() === currentYear).length;
+      const yearTrips = trips.filter(t => t.createdAt && new Date(t.createdAt).getFullYear() === currentYear).length;
       document.getElementById("yearTrips").textContent = yearTrips;
 
       // Top Destination
       const destinationCounts = {};
       trips.forEach(t => {
+        if (!t || !t.destination) return;
         destinationCounts[t.destination] = (destinationCounts[t.destination] || 0) + 1;
       });
       const top = Object.entries(destinationCounts).sort((a,b)=>b[1]-a[1])[0];
@@ -386,8 +399,11 @@
       // Mini Streak
       const months = new Set();
       trips.forEach(t => {
+        if (!t || !t.createdAt) return;
         const d = new Date(t.createdAt);
-        months.add(`${d.getFullYear()}-${d.getMonth()+1}`);
+        if (!isNaN(d)) {
+          months.add(`${d.getFullYear()}-${d.getMonth()+1}`);
+        }
       });
       const sortedMonths = Array.from(months).sort();
       let streak = 0;
@@ -522,8 +538,15 @@ form.addEventListener("submit", async function(e){
 
       if (!aiRes.ok) {
         const errText = await aiRes.text();
-        itineraryContainer.textContent =
-          "AI request failed: " + errText;
+
+        if (typeof thinkingInterval !== "undefined") {
+          clearInterval(thinkingInterval);
+        }
+
+        itineraryContainer.innerHTML =
+          "<p class='text-red-500'>AI request failed. Please try again in a moment.</p>";
+
+        console.error("AI itinerary error:", errText);
         return;
       }
 
@@ -544,11 +567,42 @@ form.addEventListener("submit", async function(e){
     }
     itineraryContainer.innerHTML = "";
 
-    const textBlock = document.createElement("div");
-    textBlock.className = "text-sm text-gray-700 whitespace-pre-line";
-    textBlock.textContent = finalItinerary;
+    // split itinerary into day sections
+    const days = finalItinerary.split(/Day\s*\d+/i).filter(d => d.trim() !== "");
 
-    itineraryContainer.appendChild(textBlock);
+    if (days.length === 0) {
+      const textBlock = document.createElement("div");
+      textBlock.className = "text-sm text-gray-700 whitespace-pre-line";
+      textBlock.textContent = finalItinerary;
+      itineraryContainer.appendChild(textBlock);
+    } else {
+      days.forEach((content, index) => {
+        const card = document.createElement("div");
+
+        card.className =
+          "bg-white border border-gray-200 rounded-xl p-4 shadow-sm";
+
+        const title = document.createElement("h3");
+        title.className = "font-semibold text-sm mb-2 accent-teal";
+        title.textContent = `Day ${index + 1}`;
+
+        const body = document.createElement("p");
+        body.className = "text-sm text-gray-700 whitespace-pre-line";
+        // clean AI formatting artifacts
+        let cleaned = content
+          .replace(/\*\*/g, "")       // remove ** markdown
+          .replace(/^:/, "")           // remove leading colon
+          .replace(/^-\s*/gm, "• ")   // convert dash lists to bullets
+          .trim();
+
+        body.textContent = cleaned;
+
+        card.appendChild(title);
+        card.appendChild(body);
+
+        itineraryContainer.appendChild(card);
+      });
+    }
 
     if (typeof animateRoute === "function") {
       animateRoute("source", "destination", "routeOutput");
