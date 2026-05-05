@@ -5,7 +5,7 @@ import { BarChart3, TrendingUp, Leaf, Map, Globe, Calendar, Target } from 'lucid
 const ChartPlaceholder = ({ label }: { label: string }) => (
   <div className="flex-1 flex flex-col items-center justify-center gap-4 text-white/10 group cursor-default">
     <div className="w-full aspect-[2/1] bg-white/5 rounded-3xl border border-white/5 relative overflow-hidden flex items-end px-10 gap-2 pb-6">
-       {[40, 70, 45, 90, 65, 30, 85].map((h, i) => (
+       {[40, 70, 45, 90, 65, 30, 85].map((h: number, i: number) => (
          <motion.div 
            key={i}
            initial={{ height: 0 }}
@@ -72,7 +72,7 @@ export default function Analytics() {
           { label: 'Most Visited', val: 'Goa', icon: Map },
           { label: 'Upcoming', val: '2 Missions', icon: Calendar },
           { label: 'Goal Progress', val: '72%', icon: Target },
-        ].map((stat, i) => (
+        ].map((stat: { label: string; val: string; icon: React.ElementType }, i: number) => (
           <motion.div 
             key={i}
             initial={{ opacity: 0, y: 20 }}

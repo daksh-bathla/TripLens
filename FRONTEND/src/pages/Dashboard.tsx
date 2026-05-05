@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plane, Train, Car, Calendar, MapPin, TrendingUp, Leaf, Sparkles, ArrowRight } from 'lucide-react';
+import { Plane, Train, Car, Calendar, MapPin, TrendingUp, Leaf, Sparkles, ArrowRight, Plus, History } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const StatCard = ({ label, value, icon: Icon, trend }: any) => (
@@ -165,7 +165,7 @@ export default function Dashboard() {
                 { label: 'AI Stability', value: '98.2%', color: 'bg-green-400' },
                 { label: 'Sync Status', value: 'NOMINAL', color: 'bg-primary' },
                 { label: 'DB Integrity', value: 'SECURED', color: 'bg-primary' },
-              ].map(m => (
+              ].map((m: { label: string; value: string; color: string }) => (
                 <div key={m.label} className="flex justify-between items-center">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">{m.label}</span>
                   <span className={`text-[10px] font-bold uppercase tracking-widest ${m.color.replace('bg-', 'text-')}`}>{m.value}</span>

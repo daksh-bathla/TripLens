@@ -96,7 +96,7 @@ export default function TripDetails() {
                      </div>
                      <h3 className="text-lg font-black uppercase tracking-tight text-primary mb-4">{title}</h3>
                      <div className="space-y-4">
-                       {points.map((p, pidx) => (
+                       {points.map((p: string, pidx: number) => (
                          <div key={pidx} className="bg-white/5 border border-white/10 p-4 rounded-2xl hover:bg-white/10 transition-colors">
                            <p className="text-sm font-medium leading-relaxed text-white/80">{p.replace(/^- /, '')}</p>
                          </div>

@@ -18,10 +18,10 @@ const Sidebar = () => (
     </Link>
     
     <div className="flex md:flex-col items-center gap-6 md:gap-6 flex-1 md:flex-initial justify-center">
-      <NavLink to="/" title="Dashboard" className={({ isActive }) => `nav-link-icon ${isActive ? 'text-primary bg-primary/10 border-primary/20' : ''}`}><BarChart3 className="w-5 h-5" /></NavLink>
-      <NavLink to="/new" title="New Trip" className={({ isActive }) => `nav-link-icon ${isActive ? 'text-primary bg-primary/10 border-primary/20' : 'bg-primary/20 text-primary p-3 rounded-xl'}`}><Plus className="w-5 h-5" /></NavLink>
-      <NavLink to="/history" title="History" className={({ isActive }) => `nav-link-icon ${isActive ? 'text-primary bg-primary/10 border-primary/20' : ''}`}><History className="w-5 h-5" /></NavLink>
-      <NavLink to="/settings" title="Settings" className={({ isActive }) => `nav-link-icon ${isActive ? 'text-primary bg-primary/10 border-primary/20' : ''}`}><Settings className="w-5 h-5" /></NavLink>
+      <NavLink to="/" title="Dashboard" className={({ isActive }: { isActive: boolean }) => `nav-link-icon ${isActive ? 'text-primary bg-primary/10 border-primary/20' : ''}`}><BarChart3 className="w-5 h-5" /></NavLink>
+      <NavLink to="/new" title="New Trip" className={({ isActive }: { isActive: boolean }) => `nav-link-icon ${isActive ? 'text-primary bg-primary/10 border-primary/20' : 'bg-primary/20 text-primary p-3 rounded-xl'}`}><Plus className="w-5 h-5" /></NavLink>
+      <NavLink to="/history" title="History" className={({ isActive }: { isActive: boolean }) => `nav-link-icon ${isActive ? 'text-primary bg-primary/10 border-primary/20' : ''}`}><History className="w-5 h-5" /></NavLink>
+      <NavLink to="/settings" title="Settings" className={({ isActive }: { isActive: boolean }) => `nav-link-icon ${isActive ? 'text-primary bg-primary/10 border-primary/20' : ''}`}><Settings className="w-5 h-5" /></NavLink>
     </div>
   </nav>
 );
