@@ -57,7 +57,7 @@ export default function History() {
           {loading ? (
             <div className="p-20 text-center text-white/20 uppercase font-black tracking-widest animate-pulse">Syncing_Records...</div>
           ) : trips.length > 0 ? (
-            trips.map((trip: any, i) => (
+            trips.map((trip: any, i: number) => (
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -63,7 +63,7 @@ export default function NewTrip() {
         <span className="text-primary font-bold text-[10px] uppercase tracking-[0.4em] mb-4 block">Initialization_Sequence</span>
         <h1 className="text-6xl font-display font-black tracking-tighter uppercase mb-4">PLAN_NEW_MISSION</h1>
         <div className="flex justify-center gap-2">
-          {STEPS.map((s, i) => (
+          {STEPS.map((s: string, i: number) => (
             <div key={s} className="flex items-center gap-2">
               <div className={`w-2 h-2 rounded-full transition-all ${i === step ? 'bg-primary w-8' : i < step ? 'bg-primary' : 'bg-white/10'}`} />
             </div>
@@ -88,7 +88,7 @@ export default function NewTrip() {
                     <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
                     <input 
                       value={formData.source}
-                      onChange={e => setFormData({...formData, source: e.target.value})}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, source: e.target.value})}
                       placeholder="ENTER_SOURCE_..."
                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 pl-16 pr-8 text-xl font-bold focus:border-primary outline-none transition-all placeholder:text-white/10"
                     />
@@ -100,7 +100,7 @@ export default function NewTrip() {
                     <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
                     <input 
                       value={formData.destination}
-                      onChange={e => setFormData({...formData, destination: e.target.value})}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, destination: e.target.value})}
                       placeholder="ENTER_DESTINATION_..."
                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 pl-16 pr-8 text-xl font-bold focus:border-primary outline-none transition-all placeholder:text-white/10"
                     />
@@ -132,7 +132,7 @@ export default function NewTrip() {
                     { id: 'Flight', icon: Plane },
                     { id: 'Train', icon: Train },
                     { id: 'Car', icon: Car }
-                  ].map(m => (
+                  ].map((m: { id: string; icon: React.ElementType }) => (
                     <button 
                       key={m.id}
                       onClick={() => setFormData({...formData, mode: m.id})}
@@ -156,7 +156,7 @@ export default function NewTrip() {
                   max="200000" 
                   step="5000"
                   value={formData.budget}
-                  onChange={e => setFormData({...formData, budget: parseInt(e.target.value)})}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, budget: parseInt(e.target.value)})}
                   className="w-full h-2 bg-white/5 rounded-lg appearance-none cursor-pointer accent-primary"
                 />
                 <div className="flex justify-between text-[10px] font-bold text-white/20 uppercase tracking-widest">
@@ -178,7 +178,7 @@ export default function NewTrip() {
             >
               <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4 block mb-8 text-center">SELECT_TRIP_VIBE</label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {VIBES.map(v => (
+                {VIBES.map((v: { id: string; label: string; desc: string }) => (
                   <button 
                     key={v.id}
                     onClick={() => setFormData({...formData, style: v.id})}
@@ -200,7 +200,7 @@ export default function NewTrip() {
 
         <div className="mt-auto pt-12 flex justify-between items-center">
           <button 
-            onClick={() => setStep(s => Math.max(0, s-1))}
+            onClick={() => setStep((s: number) => Math.max(0, s-1))}
             className={`text-[10px] font-black uppercase tracking-widest py-4 px-8 rounded-2xl border border-white/10 hover:bg-white/5 transition-all ${step === 0 ? 'opacity-0 pointer-events-none' : ''}`}
           >
             BACK_STAGE
@@ -208,7 +208,7 @@ export default function NewTrip() {
           
           {step < 2 ? (
             <button 
-              onClick={() => setStep(s => Math.min(2, s+1))}
+              onClick={() => setStep((s: number) => Math.min(2, s+1))}
               disabled={step === 0 && (!formData.source || !formData.destination)}
               className="glass-button bg-primary text-white border-none py-4 px-10 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:grayscale"
             >

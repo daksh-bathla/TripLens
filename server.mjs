@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import fetch from 'node-fetch';
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 

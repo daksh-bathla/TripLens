@@ -74,6 +74,6 @@ export default function Settings() {
       <footer className="p-8 border-2 border-dashed border-white/5 rounded-[40px] text-center">
          <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/10">Build_Version: TRIPLENS_REVAMP_2.0.0_PRODUCTION</p>
       </footer>
-    </div>
+    </motion.div>
   );
 }
