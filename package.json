@@ -2,10 +2,12 @@
   "name": "triplens",
   "version": "1.0.0",
   "description": "TripLens AI travel planner",
-  "main": "Backend1.js",
+  "main": "server.mjs",
   "scripts": {
-    "start": "node Backend1.js",
-    "dev": "nodemon Backend1.js"
+    "start": "node server.mjs",
+    "dev:server": "nodemon server.mjs",
+    "dev:client": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\""
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",
