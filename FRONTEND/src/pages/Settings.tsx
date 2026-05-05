@@ -2,7 +2,14 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { User, Shield, Bell, Cpu, Moon, Globe, ChevronRight } from 'lucide-react';
 
-const SettingItem = ({ icon: Icon, label, desc, action }: any) => (
+interface SettingItemProps {
+  icon: React.ElementType;
+  label: string;
+  desc: string;
+  action?: React.ReactNode;
+}
+
+const SettingItem = ({ icon: Icon, label, desc, action }: SettingItemProps) => (
   <div className="flex items-center justify-between p-6 hover:bg-white/5 transition-all group">
     <div className="flex items-center gap-6">
       <div className="p-3 bg-white/5 rounded-2xl text-white/40 group-hover:text-primary group-hover:bg-primary/10 transition-all">
@@ -21,8 +28,15 @@ const SettingItem = ({ icon: Icon, label, desc, action }: any) => (
 );
 
 export default function Settings() {
+  const [darkMode, setDarkMode] = React.useState(true);
+  const [notifications, setNotifications] = React.useState(true);
+
   return (
-    <div className="max-w-4xl mx-auto py-10 space-y-12">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="max-w-4xl mx-auto py-10 space-y-12"
+    >
       <header>
         <span className="text-primary font-bold text-xs uppercase tracking-[0.3em] mb-2 block">System_Config // Preferences</span>
         <h1 className="text-5xl font-display font-black tracking-tighter uppercase">CORE_SETTINGS</h1>
@@ -40,15 +54,19 @@ export default function Settings() {
         <div className="divide-y divide-white/5">
           <SettingItem icon={User} label="Profile Control" desc="Update identity and visual presence." />
           <SettingItem icon={Shield} label="Mission Security" desc="Manage encryption and access protocols." />
-          <SettingItem icon={Bell} label="Comms Center" desc="Notification and alert synchronization." />
+          <SettingItem icon={Bell} label="Comms Center" desc="Notification and alert synchronization." action={
+            <button onClick={() => setNotifications(!notifications)} className={`w-10 h-5 rounded-full p-1 border transition-all ${notifications ? 'bg-primary/20 border-primary/30' : 'bg-white/5 border-white/10'}`}>
+               <div className={`w-3 h-3 rounded-full transition-all ${notifications ? 'bg-primary ml-auto' : 'bg-white/20'}`}></div>
+            </button>
+          } />
           <SettingItem icon={Cpu} label="AI Processing" desc="Model selection: Mistral-7B-Instruct (v0.2)" action={
             <span className="text-[8px] font-black bg-primary/20 text-primary px-2 py-0.5 rounded border border-primary/30 uppercase tracking-widest">LOCAL_LLM</span>
           } />
           <SettingItem icon={Globe} label="Language / Region" desc="System localization and time-sync." />
           <SettingItem icon={Moon} label="Visual Interface" desc="Dark mode is currently locked." action={
-            <div className="w-10 h-5 bg-primary/20 rounded-full p-1 border border-primary/30">
-               <div className="w-3 h-3 bg-primary rounded-full ml-auto"></div>
-            </div>
+            <button onClick={() => setDarkMode(!darkMode)} className={`w-10 h-5 rounded-full p-1 border transition-all ${darkMode ? 'bg-primary/20 border-primary/30' : 'bg-white/5 border-white/10'}`}>
+               <div className={`w-3 h-3 rounded-full transition-all ${darkMode ? 'bg-primary ml-auto' : 'bg-white/20'}`}></div>
+            </button>
           } />
         </div>
       </section>
