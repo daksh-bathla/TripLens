@@ -45,9 +45,9 @@ const TripRow = ({ trip }: any) => (
       </p>
     </div>
     <div className="text-right hidden md:block">
-      <p className="text-white font-bold text-sm">₹{trip.budget?.toLocaleString()}</p>
+      <p className="text-white font-bold text-sm">₹{(trip.budget || 0).toLocaleString()}</p>
       <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1 flex items-center justify-end gap-1">
-        <Leaf className="w-3 h-3 text-green-500" /> {trip.carbon}kg CO2
+        <Leaf className="w-3 h-3 text-green-500" /> {(trip.carbon || 0)}kg CO2
       </p>
     </div>
     <div className="p-2 bg-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">

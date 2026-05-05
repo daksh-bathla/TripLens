@@ -26,6 +26,7 @@ export default function NewTrip() {
   });
 
   const handleCreate = async () => {
+    if (!formData.source || !formData.destination) return;
     setLoading(true);
     try {
       const res = await fetch('/api/trips', {
@@ -33,18 +34,24 @@ export default function NewTrip() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
+      if (!res.ok) throw new Error('Failed to create trip record');
       const data = await res.json();
       
       // Now generate itinerary
-      await fetch('/api/generate-itinerary', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tripId: data._id })
-      });
+      try {
+        await fetch('/api/generate-itinerary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tripId: data._id })
+        });
+      } catch (aiErr) {
+        console.warn("AI generation delayed:", aiErr);
+      }
       
       navigate(`/trip/${data._id}`);
     } catch (err) {
-      console.error("Failed to create trip:", err);
+      console.error("Critical mission failure:", err);
+      alert("System error during mission initialization. Please check logs.");
     } finally {
       setLoading(false);
     }
