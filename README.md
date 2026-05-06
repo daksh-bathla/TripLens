@@ -59,3 +59,18 @@ TripLens helps you understand your travel.
 It’s not just about where you go — it’s about how you explore, how often you move, and what kind of traveler you’re becoming.
 
 ⸻
+
+⸻
+
+🚀 Getting Started
+
+1. Start the platform (Backend + Frontend):
+   ```bash
+   npm run dev
+   ```
+
+2. Access the Intelligence Hub:
+   - Frontend: http://localhost:5174
+   - Backend API: http://localhost:5001
+
+Note: Port 5001 is used for the backend to avoid common conflicts with macOS AirPlay Receiver on port 5000.
