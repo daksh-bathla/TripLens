@@ -23,81 +23,92 @@ export default function History() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto py-10 space-y-12">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <span className="text-primary font-bold text-xs uppercase tracking-[0.3em] mb-2 block">Mission_Logs // Archives</span>
-          <h1 className="text-5xl font-display font-black tracking-tighter uppercase">JOURNEY_HISTORY</h1>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="max-w-7xl mx-auto py-12 px-4 space-y-16"
+    >
+      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10">
+        <div className="relative">
+          <div className="absolute -left-8 top-0 bottom-0 w-1 bg-primary/20" />
+          <span className="text-primary font-black text-xs uppercase tracking-[0.4em] mb-4 block">Archive_Management // Historical_Logs</span>
+          <h1 className="text-7xl font-display uppercase leading-none">Mission_Archive</h1>
         </div>
         
-        <div className="flex gap-4 w-full md:w-auto">
-          <div className="relative flex-1 md:w-64">
-             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+        <div className="flex gap-4 w-full lg:w-auto">
+          <div className="relative flex-1 lg:w-80">
+             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary/40" />
              <input 
-               placeholder="SEARCH_LOGS_..." 
-               className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-xs font-bold uppercase tracking-widest outline-none focus:border-primary transition-all"
+               placeholder="QUERY_HISTORY_DATABASE..." 
+               className="w-full bg-card border border-white/10 py-4 pl-12 pr-4 text-[10px] font-black uppercase tracking-[0.2em] outline-none focus:border-primary transition-all text-white placeholder:text-white/10"
              />
           </div>
-          <button className="glass-card p-3 rounded-xl border-white/10 hover:bg-white/10 transition-all text-white/40 hover:text-white">
-            <Filter className="w-5 h-5" />
+          <button className="bg-card border border-white/10 p-4 hover:border-primary transition-all text-white/40 hover:text-primary">
+            <Filter className="w-6 h-6" />
           </button>
         </div>
       </header>
 
-      <div className="glass-card rounded-[40px] overflow-hidden">
-        <div className="bg-white/5 p-6 border-b border-white/10 grid grid-cols-12 gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
-           <div className="col-span-1">ICON</div>
-           <div className="col-span-5">DESTINATION</div>
-           <div className="col-span-2">BUDGET</div>
-           <div className="col-span-2 text-center">CARBON</div>
-           <div className="col-span-2 text-right">DATE</div>
+      <div className="glass-card overflow-hidden">
+        <div className="bg-primary/5 p-8 border-b border-white/10 grid grid-cols-12 gap-8 text-[11px] font-black uppercase tracking-[0.3em] text-primary">
+           <div className="col-span-1">TAG</div>
+           <div className="col-span-5">DESTINATION_OBJECTIVE</div>
+           <div className="col-span-2">RESOURCE_VALUE</div>
+           <div className="col-span-2 text-center">EMISSIONS_KG</div>
+           <div className="col-span-2 text-right">TIMESTAMP</div>
         </div>
 
-        <div className="divide-y divide-white/5">
+        <div className="divide-y divide-white/5 bg-card/20">
           {loading ? (
-            <div className="p-20 text-center text-white/20 uppercase font-black tracking-widest animate-pulse">Syncing_Records...</div>
+            <div className="p-32 text-center">
+              <div className="w-10 h-10 border-2 border-primary border-t-transparent animate-spin mx-auto mb-6" />
+              <p className="text-primary font-black text-xs uppercase tracking-[0.3em]">Querying_Database...</p>
+            </div>
           ) : trips.length > 0 ? (
             trips.map((trip: any, i: number) => (
               <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
                 key={trip._id}
               >
-                <Link to={`/trip/${trip._id}`} className="p-6 grid grid-cols-12 gap-4 items-center hover:bg-white/5 transition-all group">
+                <Link to={`/trip/${trip._id}`} className="p-8 grid grid-cols-12 gap-8 items-center hover:bg-white/5 transition-all group relative">
+                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                    <div className="col-span-1">
-                      <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-primary/50 transition-colors">
-                        {trip.mode === 'Flight' ? <Plane className="w-4 h-4 text-white/40 group-hover:text-primary" /> : 
-                         trip.mode === 'Train' ? <Train className="w-4 h-4 text-white/40 group-hover:text-primary" /> : 
-                         <Car className="w-4 h-4 text-white/40 group-hover:text-primary" />}
+                      <div className="w-12 h-12 bg-card border border-white/5 flex items-center justify-center group-hover:border-primary/50 transition-colors">
+                        {trip.mode === 'Flight' ? <Plane className="w-5 h-5 text-white/20 group-hover:text-primary transition-colors" /> : 
+                         trip.mode === 'Train' ? <Train className="w-5 h-5 text-white/20 group-hover:text-primary transition-colors" /> : 
+                         <Car className="w-5 h-5 text-white/20 group-hover:text-primary transition-colors" />}
                       </div>
                    </div>
-                   <div className="col-span-5 flex flex-col gap-1">
-                      <h4 className="text-sm font-bold uppercase tracking-tight">{trip.destination}</h4>
-                      <p className="text-[10px] font-medium text-white/20 uppercase tracking-widest flex items-center gap-2 italic">
-                        <MapPin className="w-2.5 h-2.5" /> {trip.source}
+                   <div className="col-span-5 flex flex-col gap-2">
+                      <h4 className="text-2xl font-display uppercase tracking-tight group-hover:text-primary transition-colors">{trip.destination}</h4>
+                      <p className="text-[10px] font-black text-white/20 uppercase tracking-widest flex items-center gap-2 italic">
+                        <MapPin className="w-3 h-3 text-primary/40" /> {trip.source} &rarr; {trip.destination}
                       </p>
                    </div>
                    <div className="col-span-2">
-                      <span className="text-xs font-bold font-mono">₹{trip.budget?.toLocaleString()}</span>
+                      <span className="text-xl font-display uppercase">₹{trip.budget?.toLocaleString()}</span>
                    </div>
                    <div className="col-span-2 text-center">
-                      <span className="text-[10px] font-bold text-green-400 bg-green-400/10 px-2 py-1 rounded-full uppercase tracking-tighter">{trip.carbon}kg</span>
+                      <span className="text-[10px] font-black text-accent bg-accent/5 border border-accent/20 px-3 py-1 uppercase tracking-tighter italic">{trip.carbon}KG_CO2</span>
                    </div>
                    <div className="col-span-2 text-right">
-                      <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">{new Date(trip.createdAt).toLocaleDateString()}</span>
+                      <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">{new Date(trip.createdAt).toLocaleDateString()}</span>
                    </div>
                 </Link>
               </motion.div>
             ))
           ) : (
             <div className="p-40 text-center">
-               <HistoryIcon className="w-12 h-12 text-white/5 mx-auto mb-4" />
-               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Empty_Archive // Start_New_Journey</p>
+               <HistoryIcon className="w-16 h-16 text-white/5 mx-auto mb-8" />
+               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">GRID_EMPTY // READY_FOR_INITIAL_MISSION</p>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
+  );
+}
   );
 }
