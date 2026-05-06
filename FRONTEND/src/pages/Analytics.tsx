@@ -91,7 +91,7 @@ export default function Analytics() {
           { label: 'Primary Node', val: 'GOA_NORTH', icon: Map },
           { label: 'Pending Ops', val: '02 MISSIONS', icon: Calendar },
           { label: 'Quota Reached', val: '72_PERCENT', icon: Target },
-        ].map((stat: { label: string; val: string; icon: React.ElementType }, i: number) => (
+        ].map(({ label, val, icon: Icon }: { label: string; val: string; icon: any }, i: number) => (
           <motion.div 
             key={i}
             initial={{ opacity: 0, y: 30 }}
@@ -100,18 +100,16 @@ export default function Analytics() {
             className="bg-card border border-white/5 p-10 hover:border-primary/40 transition-all group relative"
           >
             <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
-               <stat.icon className="w-16 h-16" />
+               <Icon className="w-16 h-16" />
             </div>
             <div className="w-12 h-12 bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-8 group-hover:bg-primary group-hover:text-white transition-all">
-               <stat.icon className="w-5 h-5" />
+               <Icon className="w-5 h-5" />
             </div>
-            <p className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em] mb-4">{stat.label}</p>
-            <h4 className="text-4xl font-display uppercase tracking-tight group-hover:text-primary transition-colors">{stat.val}</h4>
+            <p className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em] mb-4">{label}</p>
+            <h4 className="text-4xl font-display uppercase tracking-tight group-hover:text-primary transition-colors">{val}</h4>
           </motion.div>
         ))}
       </div>
     </motion.div>
-  );
-}
   );
 }

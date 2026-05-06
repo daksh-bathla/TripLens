@@ -103,7 +103,7 @@ export default function Dashboard() {
           >
             <span className="w-2 h-2 bg-primary animate-pulse" />
             <span className="text-primary font-black text-xs uppercase tracking-[0.4em]">
-              Operational_Interface // v2.0.4
+              Operational_Interface // V4.0
             </span>
           </motion.div>
           <h1 className="text-7xl md:text-8xl font-display leading-[0.85] uppercase -ml-1">

@@ -143,16 +143,19 @@ export default function NewTrip() {
                     { id: 'Flight', icon: Plane, label: 'AERIAL_DEEP_LINK' },
                     { id: 'Train', icon: Train, label: 'TERRESTRIAL_GRID' },
                     { id: 'Car', icon: Car, label: 'URBAN_MANEUVER' }
-                  ].map((m: { id: string; icon: React.ElementType; label: string }) => (
-                    <button 
-                      key={m.id}
-                      onClick={() => setFormData({...formData, mode: m.id})}
-                      className={`p-10 border transition-all flex flex-col items-center gap-6 group ${formData.mode === m.id ? 'bg-primary/20 border-primary shadow-2xl shadow-primary/20' : 'bg-card border-white/5 text-white/20 hover:bg-white/5'}`}
-                    >
-                      <m.icon className={`w-10 h-10 transition-transform ${formData.mode === m.id ? 'text-primary scale-110' : 'group-hover:text-white'}`} />
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em]">{m.label}</span>
-                    </button>
-                  ))}
+                  ].map((m: { id: string; icon: any; label: string }) => {
+                    const Icon = m.icon;
+                    return (
+                      <button 
+                        key={m.id}
+                        onClick={() => setFormData({...formData, mode: m.id})}
+                        className={`p-10 border transition-all flex flex-col items-center gap-6 group ${formData.mode === m.id ? 'bg-primary/20 border-primary shadow-2xl shadow-primary/20' : 'bg-card border-white/5 text-white/20 hover:bg-white/5'}`}
+                      >
+                        <Icon className={`w-10 h-10 transition-transform ${formData.mode === m.id ? 'text-primary scale-110' : 'group-hover:text-white'}`} />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">{m.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -242,7 +245,5 @@ export default function NewTrip() {
         </div>
       </div>
     </motion.div>
-  );
-}
   );
 }

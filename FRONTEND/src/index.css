@@ -30,7 +30,7 @@
   }
   
   .glass-button {
-    @apply relative overflow-hidden bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary-foreground transition-all duration-300 px-8 py-4 rounded-none font-display text-xl tracking-widest flex items-center justify-center gap-3 uppercase;
+    @apply relative overflow-hidden bg-primary/20 hover:bg-primary/30 border border-primary/40 text-white transition-all duration-300 px-8 py-4 rounded-none font-display text-xl tracking-widest flex items-center justify-center gap-3 uppercase;
   }
 
   .nav-link-icon {

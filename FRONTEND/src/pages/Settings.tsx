@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { User, Shield, Bell, Cpu, Moon, Globe, ChevronRight } from 'lucide-react';
 
 interface SettingItemProps {
-  icon: React.ElementType;
+  icon: any;
   label: string;
   desc: string;
   action?: React.ReactNode;
@@ -76,7 +76,7 @@ export default function Settings() {
       </section>
 
       <footer className="p-12 border-2 border-dashed border-white/5 text-center">
-         <p className="text-[10px] font-black uppercase tracking-[0.6em] text-white/10">TRIPLENS_OS_v2.0.4_BETA_SECURED</p>
+         <p className="text-[10px] font-black uppercase tracking-[0.6em] text-white/10">TRIPLENS_OS_V4.0_BETA_SECURED</p>
       </footer>
     </motion.div>
   );

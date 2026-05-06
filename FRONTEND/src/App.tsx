@@ -15,7 +15,7 @@ const NavIcon = ({ to, Icon, title }: { to: string; Icon: React.FC<any>; title: 
   <NavLink
     to={to}
     title={title}
-    className={({ isActive }) =>
+    className={({ isActive }: { isActive: boolean }) =>
       `nav-link-icon group ${isActive ? 'nav-link-active' : ''}`
     }
   >
