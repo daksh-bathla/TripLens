@@ -1,27 +1,36 @@
 declare module 'react' {
-  export type ReactNode = any;
-  export type ElementType = any;
-  export type ChangeEvent<T> = any;
-  export type SetStateAction<S> = S | ((prevState: S) => S);
-  export type Dispatch<A> = (value: A) => void;
-  
-  export function useState<S>(initialState: S | (() => S)): [S, Dispatch<SetStateAction<S>>];
-  export function useEffect(effect: () => void | (() => void), deps?: any[]): void;
-  export function lazy<T>(factory: () => Promise<{ default: T }>): T;
-  export const Suspense: any;
-
-  export { ReactNode as Node, ElementType as Type };
+    export = React;
+    export as namespace React;
 }
 
-// Global namespace for React.ReactNode etc.
 declare namespace React {
-  type ReactNode = any;
-  type ElementType = any;
-  type ChangeEvent<T> = any;
-  function useState<S>(initialState: S | (() => S)): [S, any];
-  function useEffect(effect: any, deps?: any[]): void;
-  function lazy<T>(factory: any): T;
-  const Suspense: any;
+    type ReactNode = any;
+    type ElementType = any;
+    type ChangeEvent<T> = any;
+    type SetStateAction<S> = S | ((prevState: S) => S);
+    type Dispatch<A> = (value: A) => void;
+    
+    function useState<S>(initialState: S | (() => S)): [S, Dispatch<SetStateAction<S>>];
+    function useEffect(effect: () => void | (() => void), deps?: any[]): void;
+    function lazy<T>(factory: () => Promise<{ default: T }>): T;
+    const Suspense: any;
+    const StrictMode: any;
+
+    interface IntrinsicElements {
+        [elemName: string]: any;
+    }
+}
+
+declare module 'react-dom' {
+  export const createRoot: any;
+}
+
+declare module 'react-dom/client' {
+  export const createRoot: any;
+  const ReactDOM: {
+    createRoot: any;
+  };
+  export default ReactDOM;
 }
 
 declare module 'react/jsx-runtime' {
@@ -30,7 +39,6 @@ declare module 'react/jsx-runtime' {
   export const Fragment: any;
 }
 
-declare module 'react-dom';
 declare module 'react-router-dom' {
   export const BrowserRouter: any;
   export const Routes: any;
