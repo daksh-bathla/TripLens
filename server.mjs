@@ -158,4 +158,4 @@ if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'frontend/dist/index.html')));
 }
 
-app.listen(PORT, () => console.log(`🛰️ TripLens Intelligence Hub Active on port ${PORT}`));
+app.listen(PORT, '127.0.0.1', () => console.log(`🛰️ TripLens Intelligence Hub Active on port ${PORT}`));
