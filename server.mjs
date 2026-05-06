@@ -158,4 +158,9 @@ if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'frontend/dist/index.html')));
 }
 
-app.listen(PORT, '127.0.0.1', () => console.log(`🛰️ TripLens Intelligence Hub Active on port ${PORT}`));
+const isDirectRun = fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (isDirectRun) {
+  app.listen(PORT, () => console.log(`🛰️ TripLens Intelligence Hub Active on port ${PORT}`));
+}
+
+export default app;
