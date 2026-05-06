@@ -11,17 +11,39 @@ const Analytics = React.lazy(() => import('./pages/Analytics'));
 const HistoryPage = React.lazy(() => import('./pages/History'));
 const SettingsPage = React.lazy(() => import('./pages/Settings'));
 
+const NavIcon = ({ to, Icon, title }: { to: string; Icon: React.FC<any>; title: string }) => (
+  <NavLink
+    to={to}
+    title={title}
+    className={({ isActive }) =>
+      `nav-link-icon group ${isActive ? 'nav-link-active' : ''}`
+    }
+  >
+    <div className="relative">
+      <Icon className="w-6 h-6 transition-transform group-hover:scale-110" />
+      <div className="absolute -inset-2 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+    </div>
+  </NavLink>
+);
+
 const Sidebar = () => (
-  <nav className="fixed bottom-0 left-0 w-full h-20 md:h-full md:w-20 md:left-0 md:top-0 glass-card border-t md:border-t-0 md:border-l-0 flex md:flex-col items-center py-4 md:py-10 justify-around md:justify-start gap-4 md:gap-10 z-50">
-    <Link to="/" className="w-10 h-10 md:w-12 md:h-12 bg-primary rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-[0_0_20px_rgba(59,130,246,0.5)]">
-      <Compass className="w-5 h-5 md:w-6 md:h-6" />
+  <nav className="fixed bottom-0 left-0 w-full h-20 md:h-full md:w-20 md:left-0 md:top-0 glass-card border-t md:border-t-0 md:border-r border-white/5 flex md:flex-col items-center py-4 md:py-10 justify-around md:justify-start gap-4 md:gap-10 z-50">
+    <Link to="/" className="relative group mb-4">
+      <div className="absolute inset-0 bg-primary/40 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
+      <motion.div 
+        animate={{ rotate: 360 }}
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        className="w-12 h-12 bg-primary flex items-center justify-center text-white relative z-10"
+      >
+        <Compass className="w-7 h-7" />
+      </motion.div>
     </Link>
     
-    <div className="flex md:flex-col items-center gap-6 md:gap-6 flex-1 md:flex-initial justify-center">
-      <NavLink to="/" title="Dashboard" className={({ isActive }: { isActive: boolean }) => `nav-link-icon ${isActive ? 'text-primary bg-primary/10 border-primary/20' : ''}`}><BarChart3 className="w-5 h-5" /></NavLink>
-      <NavLink to="/new" title="New Trip" className={({ isActive }: { isActive: boolean }) => `nav-link-icon ${isActive ? 'text-primary bg-primary/10 border-primary/20' : 'bg-primary/20 text-primary p-3 rounded-xl'}`}><Plus className="w-5 h-5" /></NavLink>
-      <NavLink to="/history" title="History" className={({ isActive }: { isActive: boolean }) => `nav-link-icon ${isActive ? 'text-primary bg-primary/10 border-primary/20' : ''}`}><History className="w-5 h-5" /></NavLink>
-      <NavLink to="/settings" title="Settings" className={({ isActive }: { isActive: boolean }) => `nav-link-icon ${isActive ? 'text-primary bg-primary/10 border-primary/20' : ''}`}><Settings className="w-5 h-5" /></NavLink>
+    <div className="flex md:flex-col items-center gap-2 md:gap-4 flex-1 md:flex-initial justify-center">
+      <NavIcon to="/" title="Dashboard" Icon={BarChart3} />
+      <NavIcon to="/new" title="New Trip" Icon={Plus} />
+      <NavIcon to="/history" title="History" Icon={History} />
+      <NavIcon to="/settings" title="Settings" Icon={Settings} />
     </div>
   </nav>
 );
