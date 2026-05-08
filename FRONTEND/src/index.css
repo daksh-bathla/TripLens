@@ -3,52 +3,29 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --color-primary: #0e7a8c;
-    --color-accent: #d4af37;
-    --color-surface: #111827;
-    --color-card: hsla(210, 10%, 12%, 0.85);
-  }
-
   body {
-    @apply bg-surface text-[#f5f5f5] selection:bg-primary/30 antialiased overflow-x-hidden font-body;
+    @apply bg-surface text-slate-800 antialiased font-body;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-wider;
+    @apply font-display tracking-tight text-slate-900;
   }
 }
 
 @layer components {
-  .glass-card {
-    @apply bg-card backdrop-blur-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden;
-  }
-
-  .glass-card::before {
-    content: '';
-    @apply absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none;
+  .premium-card {
+    @apply bg-card border border-slate-200/60 shadow-sm rounded-2xl relative overflow-hidden transition-shadow hover:shadow-md;
   }
   
-  .glass-button {
-    @apply relative overflow-hidden bg-primary/20 hover:bg-primary/30 border border-primary/40 text-white transition-all duration-300 px-8 py-4 rounded-none font-display text-xl tracking-widest flex items-center justify-center gap-3 uppercase;
+  .premium-button {
+    @apply relative overflow-hidden bg-primary hover:bg-slate-800 text-white transition-all duration-300 px-6 py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2;
   }
 
   .nav-link-icon {
-    @apply text-white/40 hover:text-primary p-4 transition-all duration-300 flex items-center justify-center;
+    @apply text-slate-400 hover:text-primary p-4 transition-all duration-300 flex items-center justify-center rounded-xl hover:bg-slate-100;
   }
 
   .nav-link-active {
-    @apply text-primary bg-primary/5 border-r-2 border-primary;
+    @apply text-primary bg-slate-100;
   }
-}
-
-.noise {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  opacity: 0.05;
-}
-
-.gradient-bg {
-  background: radial-gradient(circle at 10% 10%, #0e7a8c20 0%, transparent 40%),
-              radial-gradient(circle at 90% 90%, #d4af3710 0%, transparent 40%),
-              #111827;
 }

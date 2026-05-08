@@ -1,60 +1,58 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plane, Train, Car, Calendar, MapPin, TrendingUp, Leaf, Sparkles, ArrowRight, Plus, History } from 'lucide-react';
+import { Plane, Train, Car, Calendar, MapPin, TrendingUp, Leaf, Sparkles, ArrowRight, Plus, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const StatCard = ({ label, value, icon: Icon, trend }: any) => (
   <motion.div 
-    initial={{ opacity: 0, y: 20 }}
+    initial={{ opacity: 0, y: 10 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    className="glass-card p-8 group hover:border-primary/40 transition-all cursor-default"
+    className="premium-card p-6"
   >
-    <div className="flex justify-between items-start mb-6">
-      <div className="p-4 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500">
-        <Icon className="w-6 h-6" />
+    <div className="flex justify-between items-start mb-4">
+      <div className="p-3 bg-slate-50 text-slate-600 rounded-lg border border-slate-100">
+        <Icon className="w-5 h-5" />
       </div>
       {trend && (
-        <span className="text-[10px] font-black text-accent bg-accent/10 px-3 py-1 uppercase tracking-tighter">
+        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
           {trend}
         </span>
       )}
     </div>
     <div>
-      <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] mb-2">{label}</p>
-      <h3 className="text-4xl font-display leading-none">{value}</h3>
+      <h3 className="text-2xl font-bold text-slate-900 mb-1">{value}</h3>
+      <p className="text-sm font-medium text-slate-500">{label}</p>
     </div>
   </motion.div>
 );
 
 const TripRow = ({ trip }: any) => (
-  <Link to={`/trip/${trip._id}`} className="group flex items-center gap-8 p-6 hover:bg-white/5 transition-all border-b border-white/5 last:border-0">
-    <div className="relative w-16 h-16 bg-card flex items-center justify-center border border-white/10 group-hover:border-primary/50 transition-colors">
-      <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-      {trip.mode === 'Flight' ? <Plane className="w-6 h-6 text-white/20 group-hover:text-primary transition-colors z-10" /> :
-       trip.mode === 'Train' ? <Train className="w-6 h-6 text-white/20 group-hover:text-primary transition-colors z-10" /> :
-       <Car className="w-6 h-6 text-white/20 group-hover:text-primary transition-colors z-10" />}
+  <Link to={`/trip/${trip._id}`} className="group flex items-center gap-6 p-4 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0">
+    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:border-slate-300 transition-colors">
+      {trip.mode === 'Flight' ? <Plane className="w-5 h-5 text-slate-500 group-hover:text-primary transition-colors" /> :
+       trip.mode === 'Train' ? <Train className="w-5 h-5 text-slate-500 group-hover:text-primary transition-colors" /> :
+       <Car className="w-5 h-5 text-slate-500 group-hover:text-primary transition-colors" />}
     </div>
     <div className="flex-1">
-      <div className="flex items-center gap-3 mb-2">
-        <h4 className="font-display text-2xl uppercase tracking-tight">{trip.destination}</h4>
-        <div className="h-[1px] flex-1 bg-white/5 group-hover:bg-primary/20 transition-colors" />
-        <span className="text-[10px] text-accent/60 font-black uppercase tracking-widest italic">
-          #{trip.userId?.slice(0, 4) || 'GUEST'}
+      <div className="flex items-center gap-2 mb-1">
+        <h4 className="font-semibold text-slate-900">{trip.destination}</h4>
+        <span className="text-xs text-slate-400 font-medium px-2 py-0.5 bg-slate-100 rounded-full">
+          ID: {trip.userId?.slice(0, 4) || 'GUEST'}
         </span>
       </div>
-      <p className="text-white/30 text-xs font-medium flex items-center gap-2 uppercase tracking-[0.15em] font-body">
-        <MapPin className="w-3 h-3 text-primary" /> {trip.source} <span className="text-primary/40">&mdash;</span> {trip.destination}
+      <p className="text-sm text-slate-500 flex items-center gap-1.5 font-medium">
+        <MapPin className="w-3.5 h-3.5 text-slate-400" /> {trip.source} &rarr; {trip.destination}
       </p>
     </div>
-    <div className="text-right hidden md:block px-8 border-l border-white/5">
-      <p className="text-white font-display text-2xl uppercase">₹{(trip.budget || 0).toLocaleString()}</p>
-      <p className="text-accent text-[10px] font-black uppercase tracking-widest mt-1">
-        {(trip.carbon || 0)}KG_EMISSIONS
+    <div className="text-right hidden md:block px-6">
+      <p className="text-lg font-semibold text-slate-900">₹{(trip.budget || 0).toLocaleString()}</p>
+      <p className="text-xs text-slate-500 font-medium flex items-center justify-end gap-1 mt-0.5">
+        <Leaf className="w-3 h-3 text-emerald-500" /> {(trip.carbon || 0)} kg CO₂
       </p>
     </div>
-    <div className="p-3 bg-primary/10 opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0">
-      <ArrowRight className="w-5 h-5 text-primary" />
+    <div className="p-2 text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all">
+      <ArrowRight className="w-5 h-5" />
     </div>
   </Link>
 );
@@ -91,103 +89,106 @@ export default function Dashboard() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="max-w-7xl mx-auto py-12 px-4"
+      className="max-w-6xl mx-auto py-8"
     >
-      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10 mb-20">
-        <div className="relative">
-          <div className="absolute -left-8 top-0 bottom-0 w-1 bg-primary/20" />
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 mb-4"
-          >
-            <span className="w-2 h-2 bg-primary animate-pulse" />
-            <span className="text-primary font-black text-xs uppercase tracking-[0.4em]">
-              Operational_Interface // V4.0
-            </span>
-          </motion.div>
-          <h1 className="text-7xl md:text-8xl font-display leading-[0.85] uppercase -ml-1">
-            Trip_Lens<br />
-            <span className="text-primary italic">Intelligence</span>
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span className="text-sm font-semibold text-slate-500 tracking-wide">Overview</span>
+          </div>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900">
+            Welcome back, Traveler
           </h1>
         </div>
-        <Link to="/new" className="glass-button group">
-          <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform" /> 
-          <span>PLAN_NEW_EXPEDITION</span>
+        <Link to="/new" className="premium-button">
+          <Plus className="w-4 h-4" /> 
+          <span>Plan New Trip</span>
         </Link>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-20">
-        <StatCard label="Completed_Expeditions" value={stats.total} icon={MapPin} trend="+12.4%" />
-        <StatCard label="Current_Year_Velocity" value={stats.year} icon={Calendar} trend="+24.8%" />
-        <StatCard label="Carbon_Environmental_Impact" value={`${stats.carbon}KG`} icon={Leaf} trend="-5.2%" />
-        <StatCard label="Total_Resource_Allocation" value={`₹${(stats.budget/1000).toFixed(1)}K`} icon={TrendingUp} trend="+8.1%" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <StatCard label="Total Trips" value={stats.total} icon={MapPin} trend="+12%" />
+        <StatCard label="Trips This Year" value={stats.year} icon={Calendar} trend="+24%" />
+        <StatCard label="Carbon Footprint" value={`${stats.carbon} kg`} icon={Leaf} trend="-5%" />
+        <StatCard label="Total Spent" value={`₹${(stats.budget/1000).toFixed(1)}k`} icon={TrendingUp} trend="+8%" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        <section className="lg:col-span-8">
-          <div className="flex justify-between items-end mb-10 pb-4 border-b border-white/10">
-            <h2 className="text-3xl font-display uppercase flex items-center gap-4">
-              <History className="w-7 h-7 text-primary" /> MISSION_HISTORY
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <section className="lg:col-span-2">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+               Recent Trips
             </h2>
-            <Link to="/history" className="text-accent text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors pb-1">
-              ARCHIVE_DATABASE &rarr;
+            <Link to="/history" className="text-sm font-semibold text-primary hover:text-slate-800 transition-colors">
+              View all &rarr;
             </Link>
           </div>
           
-          <div className="glass-card divide-y divide-white/5">
+          <div className="premium-card">
             {loading ? (
-              <div className="p-24 text-center">
-                <div className="w-12 h-12 border-2 border-primary border-t-transparent animate-spin mx-auto mb-6" />
-                <p className="text-primary font-black text-xs uppercase tracking-[0.3em]">Querying_Neural_Grid...</p>
+              <div className="p-12 text-center">
+                <div className="w-8 h-8 border-2 border-slate-200 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-sm font-medium text-slate-500">Loading your trips...</p>
               </div>
             ) : trips.length > 0 ? (
-              trips.slice(0, 5).map((trip: any) => <TripRow key={trip._id} trip={trip} />)
+              <div className="divide-y divide-slate-100">
+                {trips.slice(0, 5).map((trip: any) => <TripRow key={trip._id} trip={trip} />)}
+              </div>
             ) : (
-              <div className="p-32 text-center">
-                <Sparkles className="w-16 h-16 text-white/5 mx-auto mb-8" />
-                <p className="text-white/20 font-black text-xs uppercase tracking-[0.4em]">Grid_is_Empty. Initialize_Mission_Ready.</p>
+              <div className="p-16 text-center">
+                <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                  <MapPin className="w-6 h-6 text-slate-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-1">No trips yet</h3>
+                <p className="text-sm text-slate-500 mb-6">Start exploring the world by planning your first trip.</p>
+                <Link to="/new" className="premium-button inline-flex">
+                  <Plus className="w-4 h-4" /> Plan a Trip
+                </Link>
               </div>
             )}
           </div>
         </section>
 
-        <section className="lg:col-span-4 space-y-10">
-          <div className="glass-card p-10 bg-primary/5 border-primary/20 group cursor-pointer relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
-              <Sparkles className="w-12 h-12 text-primary" />
+        <section className="space-y-6">
+          <div className="premium-card p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white border-0 group relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-6 opacity-10 transform group-hover:scale-110 transition-transform duration-500">
+              <Sparkles className="w-24 h-24 text-white" />
             </div>
             <div className="relative z-10">
-              <div className="text-primary font-black text-[10px] uppercase tracking-[0.3em] mb-8">AI_LENS_INSIGHT</div>
-              <p className="text-2xl font-display uppercase leading-tight mb-8">
-                "HABIT_ANALYSIS: HIGH_ALTITUDE_PREFERENCE DETECTED. OPTIMIZING_UDAIPUR_FLIGHT_LOGS."
+              <div className="flex items-center gap-2 text-blue-300 font-semibold text-xs tracking-wider uppercase mb-4">
+                <Sparkles className="w-3.5 h-3.5" /> AI Insight
+              </div>
+              <p className="text-lg font-medium leading-relaxed mb-6 text-slate-100">
+                You frequently travel to high-altitude destinations. Consider reviewing our optimized flight paths for Udaipur.
               </p>
-              <div className="h-[1px] w-full bg-primary/20 mb-8" />
-              <button className="flex items-center gap-3 text-accent font-black text-[10px] uppercase tracking-widest group/btn">
-                EXECUTE_DEEP_SYNC <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-2 transition-transform" />
+              <button className="flex items-center gap-2 text-sm font-semibold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-colors group/btn">
+                View Recommendations <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </div>
           </div>
 
-          <div className="glass-card p-10 border-white/5">
-            <h3 className="text-primary font-black text-[10px] uppercase tracking-[0.3em] mb-10">SYS_TELEMETRY</h3>
-            <div className="space-y-8">
+          <div className="premium-card p-6">
+            <h3 className="text-sm font-bold text-slate-900 mb-6 flex items-center gap-2">
+              <Activity className="w-4 h-4 text-slate-400" /> System Status
+            </h3>
+            <div className="space-y-5">
               {[
-                { label: 'Core_Processing', value: '98.2%', status: 'OPTIMAL' },
-                { label: 'Sat_Link_Stability', value: 'NOMINAL', status: 'STABLE' },
-                { label: 'Crypt_Security', value: 'ACTIVE', status: 'SECURE' },
-              ].map((m: { label: string; value: string; status: string }) => (
-                <div key={m.label} className="group">
-                  <div className="flex justify-between items-end mb-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white/30">{m.label}</span>
-                    <span className="text-primary font-black text-[10px] uppercase">{m.value}</span>
+                { label: 'Data Sync', value: 'Updated just now' },
+                { label: 'Carbon API', value: 'Connected' },
+                { label: 'Cloud Storage', value: '45% used' },
+              ].map((m: { label: string; value: string }) => (
+                <div key={m.label}>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-slate-500">{m.label}</span>
+                    <span className="text-sm font-semibold text-slate-900">{m.value}</span>
                   </div>
-                  <div className="h-1 bg-white/5 w-full relative">
+                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                     <motion.div 
                       initial={{ width: 0 }}
                       whileInView={{ width: '100%' }}
-                      transition={{ duration: 1.5 }}
-                      className="absolute inset-0 bg-primary/40"
+                      transition={{ duration: 1 }}
+                      className="h-full bg-slate-300 rounded-full"
                     />
                   </div>
                 </div>
