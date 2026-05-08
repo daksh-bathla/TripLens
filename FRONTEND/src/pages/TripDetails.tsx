@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Plane, Train, Car, Calendar, Leaf, Share2, Download, ChevronLeft, Sparkles, Clock, Map as MapIcon } from 'lucide-react';
+import { MapPin, Plane, Train, Car, Calendar, Leaf, Share2, Download, ChevronLeft, Sparkles, Clock, Map as MapIcon, Info } from 'lucide-react';
 
 export default function TripDetails() {
   const { id } = useParams();
@@ -25,15 +25,17 @@ export default function TripDetails() {
   }, [id]);
 
   if (loading) return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh]">
-       <div className="w-16 h-16 border-2 border-primary border-t-transparent animate-spin mb-8" />
-       <p className="text-primary font-black text-xs uppercase tracking-[0.6em]">Querying_Deep_Intelligence_Grid...</p>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <div className="w-8 h-8 border-2 border-slate-200 border-t-primary rounded-full animate-spin" />
+      <span className="text-sm font-medium text-slate-500">Loading trip details...</span>
     </div>
   );
   if (!trip) return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-red-500">
-       <h2 className="text-5xl font-display uppercase mb-4">Access_Denied</h2>
-       <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">MISSION_LOG_NOT_FOUND_IN_ACTIVE_ARCHIVE</p>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] text-slate-500">
+       <Info className="w-12 h-12 mb-4 text-slate-400" />
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Trip Not Found</h2>
+       <p className="text-sm">We couldn't find the details for this trip.</p>
+       <Link to="/" className="premium-button mt-6 inline-flex">Return to Dashboard</Link>
     </div>
   );
 
@@ -41,150 +43,142 @@ export default function TripDetails() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-7xl mx-auto py-12 px-4 space-y-16"
+      className="max-w-6xl mx-auto py-8"
     >
-      <Link to="/" className="inline-flex items-center gap-4 text-white/30 hover:text-primary transition-colors text-[10px] font-black uppercase tracking-[0.4em] mb-4 group">
-        <ChevronLeft className="w-5 h-5 group-hover:-translate-x-2 transition-transform" /> BACK_TO_CONTROL_CENTER
+      <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors text-sm font-semibold mb-8 group">
+        <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
       </Link>
 
-      <header className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
-        <div className="lg:col-span-8 relative">
-          <div className="absolute -left-8 top-0 bottom-0 w-1 bg-primary/20" />
-          <div className="flex items-center gap-6 mb-8">
-            <span className="bg-primary/10 text-primary px-4 py-2 text-[10px] font-black uppercase tracking-[0.4em] border border-primary/20 flex items-center gap-3">
-              <span className="w-2 h-2 bg-primary animate-pulse" /> MISSION_PROTOCOL_ACTIVE
+      <header className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end mb-12">
+        <div className="lg:col-span-8">
+          <div className="flex items-center gap-4 mb-4">
+            <span className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 border border-emerald-100">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Active Trip
             </span>
-            <span className="text-white/10 font-mono text-[10px] uppercase tracking-widest">ENCRYPTED_ID: {trip._id.slice(-12)}</span>
+            <span className="text-slate-400 font-mono text-xs uppercase">ID: {trip._id.slice(-8)}</span>
           </div>
-          <h1 className="text-7xl md:text-9xl font-display leading-[0.8] uppercase mb-10 -ml-1">
-            {trip.source} <span className="text-primary italic">&rarr;</span><br />
+          <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-slate-900 mb-6 leading-tight">
+            {trip.source} <span className="text-slate-300">&rarr;</span><br />
             {trip.destination}
           </h1>
           <div className="flex flex-wrap gap-3">
-            <div className="bg-card border border-white/5 px-6 py-3 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 group hover:border-primary/40 transition-colors">
-              {trip.mode === 'Flight' ? <Plane className="w-4 h-4 text-primary" /> : trip.mode === 'Train' ? <Train className="w-4 h-4 text-primary" /> : <Car className="w-4 h-4 text-primary" />}
-              {trip.mode}_TRANSIT
+            <div className="bg-white border border-slate-200 shadow-sm rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 flex items-center gap-2">
+              {trip.mode === 'Flight' ? <Plane className="w-4 h-4 text-slate-400" /> : trip.mode === 'Train' ? <Train className="w-4 h-4 text-slate-400" /> : <Car className="w-4 h-4 text-slate-400" />}
+              {trip.mode} Travel
             </div>
-            <div className="bg-card border border-white/5 px-6 py-3 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 group hover:border-primary/40 transition-colors">
-              <Calendar className="w-4 h-4 text-primary" /> {trip.days}_CYCLE_DURATION
+            <div className="bg-white border border-slate-200 shadow-sm rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-slate-400" /> {trip.days} Days
             </div>
-            <div className="bg-card border border-white/5 px-6 py-3 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 group hover:border-accent transition-colors text-accent">
-              <Leaf className="w-4 h-4" /> {trip.carbon}KG_EMISSIONS
+            <div className="bg-emerald-50 border border-emerald-100 shadow-sm rounded-lg px-4 py-2 text-sm font-semibold text-emerald-700 flex items-center gap-2">
+              <Leaf className="w-4 h-4" /> {trip.carbon} kg CO₂
             </div>
           </div>
         </div>
-        <div className="lg:col-span-4 flex flex-col gap-4">
-          <button className="glass-button w-full shadow-2xl shadow-primary/20 group">
-            <Share2 className="w-6 h-6 group-hover:scale-110 transition-transform" /> 
-            <span>BROADCAST_INTEL</span>
+        <div className="lg:col-span-4 flex flex-col gap-3">
+          <button className="premium-button w-full shadow-md">
+            <Share2 className="w-5 h-5" /> 
+            <span>Share Trip Plan</span>
           </button>
-          <button className="w-full bg-card border border-white/5 p-5 text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white/5 hover:border-white/20 transition-all flex items-center justify-center gap-4">
-            <Download className="w-5 h-5 opacity-40" /> EXPORT_MISSION_BRIEF
+          <button className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 p-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 shadow-sm">
+            <Download className="w-4 h-4 text-slate-400" /> Download Itinerary
           </button>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        <div className="lg:col-span-8">
-          <div className="glass-card p-12 relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
-                <MapIcon className="w-96 h-96" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+          <div className="premium-card p-8">
+             <div className="flex items-center gap-3 mb-8">
+               <div className="p-2.5 bg-slate-50 text-slate-600 rounded-lg border border-slate-100">
+                 <Clock className="w-5 h-5" />
+               </div>
+               <h2 className="text-2xl font-bold text-slate-900">
+                 Daily Itinerary
+               </h2>
              </div>
-             
-             <h2 className="text-4xl font-display uppercase mb-16 flex items-center gap-6">
-               <Clock className="w-8 h-8 text-primary" /> EXPEDITION_CHRONOLOGY
-             </h2>
 
-             <div className="space-y-16 relative">
-               <div className="absolute left-[13px] top-4 bottom-4 w-[1px] bg-primary/20"></div>
+             <div className="space-y-12 relative">
+               <div className="absolute left-3 top-4 bottom-4 w-px bg-slate-100"></div>
                
                {trip.itinerary ? trip.itinerary.split('\n\n').map((day: string, idx: number) => {
                  const [title, ...points] = day.split('\n');
                  return (
-                   <motion.div 
-                     initial={{ opacity: 0, x: -20 }}
-                     whileInView={{ opacity: 1, x: 0 }}
-                     viewport={{ once: true }}
-                     key={idx} 
-                     className="relative pl-12 group"
-                   >
-                     <div className="absolute left-0 top-1.5 w-7 h-7 bg-card border border-primary/40 flex items-center justify-center z-10 transition-all group-hover:bg-primary group-hover:border-primary">
-                        <div className="w-2 h-2 bg-primary group-hover:bg-white transition-colors"></div>
+                   <div key={idx} className="relative pl-10">
+                     <div className="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-white border-2 border-primary flex items-center justify-center z-10">
+                        <div className="w-2 h-2 rounded-full bg-primary"></div>
                      </div>
-                     <h3 className="text-3xl font-display uppercase tracking-tight text-primary mb-8 group-hover:text-white transition-colors">
-                        {title.replace(/^Day \d+: /, '') || `EXPEDITION_STAGE_${idx + 1}`}
+                     <h3 className="text-xl font-bold text-slate-900 mb-4">
+                        {title.replace(/^Day \d+: /, '') || `Day ${idx + 1}`}
                      </h3>
-                     <div className="space-y-6">
+                     <div className="space-y-3">
                        {points.map((p: string, pidx: number) => (
-                         <div key={pidx} className="bg-white/[0.02] border border-white/5 p-6 relative group/point hover:bg-primary/[0.03] hover:border-primary/20 transition-all">
-                           <p className="text-sm font-body leading-relaxed text-white/50 group-hover/point:text-white transition-colors">{p.replace(/^- /, '')}</p>
-                           <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover/point:opacity-100 transition-opacity" />
+                         <div key={pidx} className="bg-slate-50 border border-slate-100 rounded-xl p-4">
+                           <p className="text-sm font-medium text-slate-600 leading-relaxed">{p.replace(/^- /, '')}</p>
                          </div>
                        ))}
                      </div>
-                   </motion.div>
+                   </div>
                  );
                }) : (
-                 <div className="p-20 text-center border-2 border-dashed border-white/5">
-                    <Sparkles className="w-12 h-12 text-white/5 mx-auto mb-6" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">AI_ITINERARY_GENERATION_PENDING...</p>
+                 <div className="p-12 text-center bg-slate-50 rounded-2xl border border-slate-100 border-dashed">
+                    <Sparkles className="w-10 h-10 text-slate-300 mx-auto mb-4" />
+                    <p className="text-sm font-medium text-slate-500">AI is generating your itinerary...</p>
                  </div>
                )}
              </div>
           </div>
         </div>
 
-        <div className="lg:col-span-4 space-y-12">
-          <div className="glass-card p-10 bg-accent/5 border-accent/20 relative overflow-hidden">
-            <div className="absolute -top-4 -right-4">
-               <Leaf className="w-24 h-24 text-accent opacity-5" />
-            </div>
-            <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-accent mb-8 flex items-center gap-3">
-              <Leaf className="w-5 h-5" /> ECO_TELEMETRY
+        <div className="space-y-6">
+          <div className="premium-card p-6 bg-emerald-50 border-emerald-100 text-emerald-900">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-6 flex items-center gap-2">
+              <Leaf className="w-4 h-4" /> Eco Impact
             </h3>
-            <p className="text-lg font-display uppercase leading-tight text-white mb-10">
-              "MISSION_IMPACT: {trip.carbon}KG_CO2. TRANSITION_TO_RAIL_GRID_REDUCES_EMISSIONS_BY_84%."
+            <p className="text-sm font-medium leading-relaxed mb-6">
+              Your flight to {trip.destination} emits {trip.carbon} kg CO₂. Taking a train would reduce this by up to 84%.
             </p>
-            <div className="w-full h-1 bg-white/5 relative overflow-hidden mb-4">
+            <div className="w-full h-1.5 bg-emerald-200 rounded-full overflow-hidden mb-3">
                <motion.div 
                  initial={{ width: 0 }}
                  whileInView={{ width: '65%' }}
-                 transition={{ duration: 1.5, delay: 0.5 }}
-                 className="h-full bg-accent shadow-[0_0_20px_rgba(212,175,55,0.4)]" 
+                 transition={{ duration: 1, delay: 0.2 }}
+                 className="h-full bg-emerald-500 rounded-full" 
                />
             </div>
-            <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-accent/50">
-               <span>IMPACT_STATUS</span>
-               <span>MODERATE_RELIANCE</span>
+            <div className="flex justify-between items-center text-xs font-semibold text-emerald-700">
+               <span>Impact Level</span>
+               <span>Moderate</span>
             </div>
           </div>
 
-          <div className="glass-card p-10">
-            <h3 className="text-primary font-black text-[10px] uppercase tracking-[0.4em] mb-10">RESOURCE_ALLOCATION</h3>
-            <div className="space-y-10">
-              <div className="flex justify-between items-end border-b border-white/5 pb-8">
+          <div className="premium-card p-6">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-6 flex items-center gap-2">
+               Budget Overview
+            </h3>
+            <div className="space-y-6">
+              <div className="flex justify-between items-end border-b border-slate-100 pb-6">
                 <div>
-                  <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-3">TOTAL_CREDITS</p>
-                  <p className="text-5xl font-display uppercase tracking-tight text-white">₹{trip.budget?.toLocaleString()}</p>
+                  <p className="text-xs font-semibold text-slate-500 mb-1">Total Budget</p>
+                  <p className="text-3xl font-bold text-slate-900">₹{trip.budget?.toLocaleString()}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-3">CYCLE_CAP</p>
-                  <p className="text-2xl font-display uppercase text-primary tracking-tight">₹{(trip.budget / trip.days).toFixed(0)}</p>
+                  <p className="text-xs font-semibold text-slate-500 mb-1">Per Day</p>
+                  <p className="text-lg font-bold text-slate-700">₹{(trip.budget / trip.days).toFixed(0)}</p>
                 </div>
               </div>
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {[
-                  { label: 'TRANSIT_LOGISTICS', val: '42%' },
-                  { label: 'OPERATIONAL_EXPENSE', val: '33%' },
-                  { label: 'CONTINGENCY_RESERVE', val: '25%' },
+                  { label: 'Travel & Transport', val: '42%' },
+                  { label: 'Accommodation', val: '33%' },
+                  { label: 'Food & Activities', val: '25%' },
                 ].map(b => (
-                  <div key={b.label} className="group">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-white/30 group-hover:text-white transition-colors">{b.label}</span>
-                      <span className="text-[9px] font-black text-primary">{b.val}</span>
+                  <div key={b.label}>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-xs font-medium text-slate-500">{b.label}</span>
+                      <span className="text-xs font-bold text-slate-900">{b.val}</span>
                     </div>
-                    <div className="h-[2px] bg-white/5 w-full">
-                       <div className="h-full bg-primary/40" style={{ width: b.val }} />
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                       <div className="h-full bg-primary" style={{ width: b.val }} />
                     </div>
                   </div>
                 ))}

@@ -3,13 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plane, Train, Car, MapPin, Sparkles, ArrowRight, Camera, Upload, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const STEPS = ['DESTINATION', 'LOGISTICS', 'VIBE'];
+const STEPS = ['DESTINATION', 'LOGISTICS', 'STYLE'];
 
 const VIBES = [
-  { id: 'budget', label: 'BUDGET', desc: 'Max value, minimum cost.' },
-  { id: 'luxury', label: 'LUXURY', desc: 'Premium comfort & style.' },
-  { id: 'adventure', label: 'ADVENTURE', desc: 'Off-grid & adrenaline.' },
-  { id: 'balanced', label: 'BALANCED', desc: 'Best of both worlds.' }
+  { id: 'budget', label: 'Budget', desc: 'Maximum value, minimum cost.' },
+  { id: 'luxury', label: 'Luxury', desc: 'Premium comfort & style.' },
+  { id: 'adventure', label: 'Adventure', desc: 'Off-grid & adrenaline.' },
+  { id: 'balanced', label: 'Balanced', desc: 'Best of both worlds.' }
 ];
 
 export default function NewTrip() {
@@ -49,8 +49,8 @@ export default function NewTrip() {
       
       navigate(`/trip/${data._id}`);
     } catch (err) {
-      console.error("Critical mission failure:", err);
-      alert("System error during mission initialization. Please check logs.");
+      console.error("Trip creation failure:", err);
+      alert("Error generating trip. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -60,28 +60,23 @@ export default function NewTrip() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-5xl mx-auto py-16 px-4"
+      className="max-w-4xl mx-auto py-12 px-4"
     >
-      <header className="mb-24 relative">
-        <div className="absolute -left-8 top-0 bottom-0 w-1 bg-primary/20" />
-        <span className="text-primary font-black text-xs uppercase tracking-[0.4em] mb-4 block">Deployment_Sequence // Initializing...</span>
-        <h1 className="text-7xl font-display uppercase leading-none">Plan_Expedition</h1>
+      <header className="mb-16">
+        <span className="text-primary font-semibold text-sm tracking-wide mb-2 block">Trip Planner</span>
+        <h1 className="text-4xl font-bold tracking-tight text-slate-900">Plan New Trip</h1>
         
-        <div className="flex gap-1 mt-12">
+        <div className="flex gap-2 mt-8">
           {STEPS.map((s: string, i: number) => (
             <div key={s} className="flex-1">
-              <div className={`h-1 transition-all duration-500 ${i <= step ? 'bg-primary' : 'bg-white/5'}`} />
-              <p className={`text-[9px] font-black uppercase tracking-widest mt-3 ${i === step ? 'text-primary' : 'text-white/20'}`}>{s}</p>
+              <div className={`h-1.5 rounded-full transition-all duration-500 ${i <= step ? 'bg-primary' : 'bg-slate-200'}`} />
+              <p className={`text-[10px] font-bold uppercase tracking-wider mt-2 ${i === step ? 'text-primary' : 'text-slate-400'}`}>{s}</p>
             </div>
           ))}
         </div>
       </header>
 
-      <div className="glass-card p-12 min-h-[600px] flex flex-col relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-5">
-           <Sparkles className="w-32 h-32 text-primary" />
-        </div>
-
+      <div className="premium-card p-8 md:p-12 min-h-[500px] flex flex-col relative overflow-hidden bg-white shadow-sm border border-slate-200 rounded-3xl">
         <AnimatePresence mode="wait">
           {step === 0 && (
             <motion.div 
@@ -89,41 +84,41 @@ export default function NewTrip() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-16 relative z-10"
+              className="space-y-12 relative z-10"
             >
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <div className="space-y-6">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">01_ORIGIN_NODE</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Origin City</label>
                   <div className="relative">
-                    <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-primary/40" />
+                    <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                     <input 
                       value={formData.source}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, source: e.target.value})}
-                      placeholder="SCAN_LOCATION_..."
-                      className="w-full bg-card border border-white/10 py-8 pl-16 pr-8 text-2xl font-display uppercase tracking-wider focus:border-primary outline-none transition-all placeholder:text-white/5"
+                      placeholder="e.g. New York"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-5 pl-14 pr-6 text-lg font-semibold text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400"
                     />
                   </div>
                 </div>
-                <div className="space-y-6">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">02_TARGET_DESTINATION</label>
+                <div className="space-y-4">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Destination</label>
                   <div className="relative">
-                    <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-primary/40" />
+                    <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                     <input 
                       value={formData.destination}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, destination: e.target.value})}
-                      placeholder="SET_COORDINATES_..."
-                      className="w-full bg-card border border-white/10 py-8 pl-16 pr-8 text-2xl font-display uppercase tracking-wider focus:border-primary outline-none transition-all placeholder:text-white/5"
+                      placeholder="e.g. Paris"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-5 pl-14 pr-6 text-lg font-semibold text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400"
                     />
                   </div>
                 </div>
               </div>
               
-              <div className="p-12 border-2 border-dashed border-white/5 flex flex-col items-center justify-center text-center group hover:bg-primary/5 hover:border-primary/20 transition-all cursor-pointer">
-                <div className="w-20 h-20 bg-card border border-white/5 flex items-center justify-center mb-6 text-white/10 group-hover:text-primary group-hover:border-primary transition-all">
-                  <Upload className="w-8 h-8" />
+              <div className="p-10 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-center group hover:bg-slate-50 hover:border-primary/50 transition-all cursor-pointer">
+                <div className="w-16 h-16 bg-white shadow-sm rounded-full flex items-center justify-center mb-4 text-slate-400 group-hover:text-primary group-hover:shadow-md transition-all">
+                  <Upload className="w-6 h-6" />
                 </div>
-                <h4 className="text-xl font-display uppercase mb-2 tracking-tight group-hover:text-white">SCAN_MISSION_TICKET</h4>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">AUTOMATED_INTEL_EXTRACTION_ENABLED</p>
+                <h4 className="text-lg font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">Import Tickets</h4>
+                <p className="text-xs font-medium text-slate-500">PDFs or Images supported</p>
               </div>
             </motion.div>
           )}
@@ -134,37 +129,37 @@ export default function NewTrip() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-16 relative z-10"
+              className="space-y-12 relative z-10"
             >
-              <div className="space-y-10">
-                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">03_LOGISTICS_MODE</label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-6">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Travel Mode</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {[
-                    { id: 'Flight', icon: Plane, label: 'AERIAL_DEEP_LINK' },
-                    { id: 'Train', icon: Train, label: 'TERRESTRIAL_GRID' },
-                    { id: 'Car', icon: Car, label: 'URBAN_MANEUVER' }
+                    { id: 'Flight', icon: Plane, label: 'Flight' },
+                    { id: 'Train', icon: Train, label: 'Train' },
+                    { id: 'Car', icon: Car, label: 'Car/Road' }
                   ].map((m: { id: string; icon: any; label: string }) => {
                     const Icon = m.icon;
                     return (
                       <button 
                         key={m.id}
                         onClick={() => setFormData({...formData, mode: m.id})}
-                        className={`p-10 border transition-all flex flex-col items-center gap-6 group ${formData.mode === m.id ? 'bg-primary/20 border-primary shadow-2xl shadow-primary/20' : 'bg-card border-white/5 text-white/20 hover:bg-white/5'}`}
+                        className={`p-6 rounded-xl border-2 transition-all flex flex-col items-center gap-4 group ${formData.mode === m.id ? 'bg-blue-50 border-primary text-primary shadow-sm' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-300'}`}
                       >
-                        <Icon className={`w-10 h-10 transition-transform ${formData.mode === m.id ? 'text-primary scale-110' : 'group-hover:text-white'}`} />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">{m.label}</span>
+                        <Icon className={`w-8 h-8 transition-transform ${formData.mode === m.id ? 'scale-110' : 'group-hover:text-slate-700'}`} />
+                        <span className="text-sm font-bold">{m.label}</span>
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              <div className="space-y-10">
+              <div className="space-y-8">
                 <div className="flex justify-between items-end">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">04_RESOURCE_CREDITS</label>
-                  <span className="text-4xl font-display uppercase tracking-tight text-white">₹{formData.budget.toLocaleString()}</span>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Budget</label>
+                  <span className="text-3xl font-bold text-slate-900">₹{formData.budget.toLocaleString()}</span>
                 </div>
-                <div className="relative pt-4 pb-8">
+                <div className="relative pt-2 pb-6">
                   <input 
                     type="range" 
                     min="5000" 
@@ -172,12 +167,12 @@ export default function NewTrip() {
                     step="5000"
                     value={formData.budget}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, budget: parseInt(e.target.value)})}
-                    className="w-full h-[2px] bg-white/10 appearance-none cursor-pointer accent-primary"
+                    className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer accent-primary"
                   />
-                  <div className="flex justify-between mt-6 text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">
-                    <span className={formData.budget < 50000 ? 'text-primary' : ''}>ECON_NOMINAL</span>
-                    <span className={formData.budget >= 50000 && formData.budget < 120000 ? 'text-primary' : ''}>PREMIUM_STABLE</span>
-                    <span className={formData.budget >= 120000 ? 'text-primary' : ''}>ELITE_OVERRIDE</span>
+                  <div className="flex justify-between mt-4 text-xs font-semibold text-slate-400">
+                    <span className={formData.budget < 50000 ? 'text-primary' : ''}>Economy</span>
+                    <span className={formData.budget >= 50000 && formData.budget < 120000 ? 'text-primary' : ''}>Standard</span>
+                    <span className={formData.budget >= 120000 ? 'text-primary' : ''}>Luxury</span>
                   </div>
                 </div>
               </div>
@@ -190,23 +185,23 @@ export default function NewTrip() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-12 relative z-10"
+              className="space-y-8 relative z-10"
             >
-              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block mb-12">05_OPERATIONAL_VIBE</label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-2">Trip Style</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {VIBES.map((v: { id: string; label: string; desc: string }) => (
                   <button 
                     key={v.id}
                     onClick={() => setFormData({...formData, style: v.id})}
-                    className={`p-10 border transition-all text-left relative group ${formData.style === v.id ? 'bg-primary/20 border-primary shadow-2xl shadow-primary/20' : 'bg-card border-white/5 hover:bg-white/5'}`}
+                    className={`p-6 rounded-xl border-2 transition-all text-left relative group ${formData.style === v.id ? 'bg-blue-50 border-primary shadow-sm' : 'bg-white border-slate-100 hover:border-slate-300'}`}
                   >
                     <div className="relative z-10">
-                      <h4 className="font-display text-3xl uppercase mb-3 tracking-tight group-hover:text-primary transition-colors">{v.label}</h4>
-                      <p className={`text-[10px] font-black uppercase tracking-widest leading-loose ${formData.style === v.id ? 'text-white' : 'text-white/20'}`}>{v.desc}</p>
+                      <h4 className={`font-bold text-lg mb-1 transition-colors ${formData.style === v.id ? 'text-primary' : 'text-slate-900 group-hover:text-primary'}`}>{v.label}</h4>
+                      <p className={`text-sm font-medium ${formData.style === v.id ? 'text-slate-700' : 'text-slate-500'}`}>{v.desc}</p>
                     </div>
                     {formData.style === v.id && (
-                      <div className="absolute right-8 top-1/2 -translate-y-1/2">
-                        <Check className="w-12 h-12 text-primary/30" />
+                      <div className="absolute right-6 top-1/2 -translate-y-1/2">
+                        <Check className="w-6 h-6 text-primary" />
                       </div>
                     )}
                   </button>
@@ -216,30 +211,30 @@ export default function NewTrip() {
           )}
         </AnimatePresence>
 
-        <div className="mt-auto pt-20 flex justify-between items-center relative z-10">
+        <div className="mt-auto pt-12 flex justify-between items-center relative z-10">
           <button 
             onClick={() => setStep((s: number) => Math.max(0, s-1))}
-            className={`text-[10px] font-black uppercase tracking-[0.4em] py-5 px-10 border border-white/10 hover:border-white/30 transition-all ${step === 0 ? 'opacity-0 pointer-events-none' : ''}`}
+            className={`text-sm font-bold text-slate-500 py-3 px-6 rounded-xl hover:bg-slate-50 transition-all ${step === 0 ? 'opacity-0 pointer-events-none' : ''}`}
           >
-            &larr; ABORT_PREVIOUS
+            Back
           </button>
           
           {step < 2 ? (
             <button 
               onClick={() => setStep((s: number) => Math.min(2, s+1))}
               disabled={step === 0 && (!formData.source || !formData.destination)}
-              className="glass-button bg-primary border-none shadow-2xl shadow-primary/20 disabled:opacity-30 disabled:grayscale"
+              className="premium-button bg-primary text-white hover:bg-slate-800 border-none shadow-md disabled:opacity-50 disabled:cursor-not-allowed px-8 py-3 rounded-xl flex items-center gap-2"
             >
-              <span>COMMIT_PROTOCOL</span> <ArrowRight className="w-6 h-6" />
+              <span className="font-bold">Next</span> <ArrowRight className="w-5 h-5" />
             </button>
           ) : (
             <button 
               onClick={handleCreate}
               disabled={loading}
-              className={`glass-button border-none shadow-2xl transition-all ${loading ? 'bg-primary/50' : 'bg-accent text-black hover:bg-accent/80 shadow-accent/20'}`}
+              className={`premium-button shadow-md transition-all px-8 py-3 rounded-xl flex items-center gap-2 ${loading ? 'bg-blue-300 text-white cursor-not-allowed' : 'bg-primary text-white hover:bg-slate-800'}`}
             >
-              <Sparkles className={`w-6 h-6 ${loading ? 'animate-spin' : ''}`} /> 
-              <span>{loading ? 'CALCULATING_TRAJECTORY...' : 'EXECUTE_DEPLOYMENT'}</span>
+              <Sparkles className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} /> 
+              <span className="font-bold">{loading ? 'Generating...' : 'Generate Trip'}</span>
             </button>
           )}
         </div>
