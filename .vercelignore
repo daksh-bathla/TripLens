@@ -2,7 +2,7 @@ mongodb_data
 node_modules
 .npm-cache
 dist
-frontend/dist
+FRONTEND/dist
 .vscode
 *.log
 .DS_Store
