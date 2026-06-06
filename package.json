@@ -2,20 +2,24 @@
   "name": "triplens",
   "version": "1.0.0",
   "description": "TripLens AI travel planner",
-  "main": "Backend1.js",
+  "main": "server.mjs",
   "scripts": {
-    "start": "node Backend1.js",
-    "dev": "nodemon Backend1.js"
+    "start": "node server.mjs",
+    "dev:server": "nodemon server.mjs",
+    "dev:client": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build": "cd frontend && npm install && npm run build && cd .. && rm -rf dist && cp -r frontend/dist dist"
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",
     "@capacitor/cli": "^8.1.0",
     "@capacitor/core": "^8.1.0",
+    "concurrently": "^8.2.2",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^4.22.1",
     "mongoose": "^9.2.3",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.27",
