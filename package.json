@@ -6,9 +6,9 @@
   "scripts": {
     "start": "node server.mjs",
     "dev:server": "nodemon server.mjs",
-    "dev:client": "cd frontend && npm run dev",
+    "dev:client": "cd FRONTEND && npm run dev",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "build": "cd frontend && npm install && npm run build && cd .. && rm -rf dist && cp -r frontend/dist dist"
+    "build": "cd FRONTEND && npm install && npm run build && cd .. && rm -rf dist && cp -r FRONTEND/dist dist"
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",
