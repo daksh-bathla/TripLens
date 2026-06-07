@@ -57,6 +57,29 @@ async function generateWithOllama(prompt) {
   }
 }
 
+async function generateWithGroq(prompt) {
+  try {
+    if (!process.env.GROQ_API_KEY) return null;
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "mixtral-8x7b-32768",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 1024
+      })
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.choices?.[0]?.message?.content || null;
+  } catch {
+    return null;
+  }
+}
+
 async function generateWithHuggingFace(prompt) {
   try {
     if (!process.env.HF_API_KEY) return null;
@@ -122,14 +145,15 @@ app.post('/api/generate-itinerary', async (req, res) => {
     const trip = await Trip.findById(tripId);
     if (!trip) return res.status(404).json({ error: 'Mission log not found.' });
 
-    const prompt = `Create a ${trip.days}-day itinerary from ${trip.source} to ${trip.destination}. 
-    Mode: ${trip.mode}, Budget: ₹${trip.budget}, Style: ${trip.style}. 
+    const prompt = `Create a ${trip.days}-day itinerary from ${trip.source} to ${trip.destination}.
+    Mode: ${trip.mode}, Budget: ₹${trip.budget}, Style: ${trip.style}.
     Format: Day X\nMorning: ...\nAfternoon: ...\nEvening: ...`;
 
-    // Try Local AI first, then fallback to HF
-    let itinerary = await generateWithOllama(prompt);
+    // Try Groq first (fast & free), then fallback to HF, then Ollama
+    let itinerary = await generateWithGroq(prompt);
     if (!itinerary) itinerary = await generateWithHuggingFace(prompt);
-    if (!itinerary) itinerary = "AI synthesis failed. System operating in manual mode.";
+    if (!itinerary) itinerary = await generateWithOllama(prompt);
+    if (!itinerary) itinerary = "Unable to generate itinerary at this time. Please try again.";
 
     trip.itinerary = itinerary;
     await trip.save();
