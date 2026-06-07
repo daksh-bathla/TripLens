@@ -36,17 +36,21 @@ AI-generated plans are stored and attached to each trip for future reference.
 🏗 Tech Stack
 
 Frontend:
-	•	HTML
+	•	React 18
+	•	TypeScript
+	•	Vite
 	•	Tailwind CSS
-	•	Vanilla JavaScript
+	•	Framer Motion
 
 Backend:
 	•	Node.js
 	•	Express
-	•	(MongoDB or MySQL depending on environment)
+	•	MongoDB (local or Atlas)
 
 AI:
-	•	Hugging Face Inference API
+	•	Groq API (primary - fast & free tier)
+	•	Hugging Face Inference API (fallback)
+	•	Ollama (optional local)
 
 ⸻
 
@@ -64,13 +68,32 @@ It’s not just about where you go — it’s about how you explore, how often y
 
 🚀 Getting Started
 
-1. Start the platform (Backend + Frontend):
-   ```bash
-   npm run dev
+Local Development:
+```bash
+npm install
+npm run dev
+```
+
+Access:
+- Frontend: http://localhost:5174
+- Backend API: http://localhost:4000
+
+Production Deployment:
+
+1. Set environment variables:
+   ```
+   MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/triplens
+   GROQ_API_KEY=your_groq_key
+   NODE_ENV=production
    ```
 
-2. Access the Intelligence Hub:
-   - Frontend: http://localhost:5174
-   - Backend API: http://localhost:5001
+2. Build and deploy:
+   ```bash
+   npm run build
+   # Deploy to Vercel or your hosting platform
+   ```
 
-Note: Port 5001 is used for the backend to avoid common conflicts with macOS AirPlay Receiver on port 5000.
+Required API Keys:
+- **Groq** (free tier): https://console.groq.com
+- **MongoDB Atlas** (free tier): https://www.mongodb.com/cloud/atlas
+- **HuggingFace** (optional backup): https://huggingface.co/settings/tokens
