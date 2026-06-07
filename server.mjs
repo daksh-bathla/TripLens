@@ -14,11 +14,21 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Database Connection
+// Database Connection (optional for demo)
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/triplens";
+let dbConnected = false;
+
 mongoose.connect(MONGO_URI)
-  .then(() => console.log('🚀 TripLens Data Engine Connected'))
-  .catch(err => console.error('❌ Data Engine Connection Failure:', err));
+  .then(() => {
+    dbConnected = true;
+    console.log('🚀 TripLens Data Engine Connected');
+  })
+  .catch(err => {
+    console.log('⚠️  Running in demo mode (no database). Data will not persist.');
+  });
+
+// In-memory store for demo mode
+const demoTrips = new Map();
 
 // Models
 const TripSchema = new mongoose.Schema({
@@ -110,7 +120,7 @@ app.get('/api/health', (req, res) => res.json({ status: 'operational', version: 
 app.post('/api/trips', async (req, res) => {
   try {
     const { userId, source, destination, mode, budget, style, pnr } = req.body;
-    
+
     // Heuristic Carbon calculation
     let carbon = 0;
     const days = mode === 'Flight' ? 5 : mode === 'Train' ? 4 : 3;
@@ -118,9 +128,18 @@ app.post('/api/trips', async (req, res) => {
     else if (mode === 'Train') carbon = days * 35;
     else if (mode === 'Car') carbon = days * 75;
 
-    const trip = new Trip({ userId, source, destination, mode, budget, style, carbon, days, pnr });
-    await trip.save();
-    res.status(201).json(trip);
+    if (dbConnected) {
+      const trip = new Trip({ userId, source, destination, mode, budget, style, carbon, days, pnr });
+      await trip.save();
+      res.status(201).json(trip);
+    } else {
+      // Demo mode: store in memory
+      const id = Math.random().toString(36).substr(2, 9);
+      const trip = { _id: id, userId, source, destination, mode, budget, style, carbon, days, pnr, createdAt: new Date() };
+      if (!demoTrips.has(userId)) demoTrips.set(userId, []);
+      demoTrips.get(userId).push(trip);
+      res.status(201).json(trip);
+    }
   } catch (err) {
     res.status(500).json({ error: 'Failed to initialize mission log.' });
   }
@@ -131,8 +150,15 @@ app.get('/api/trips', async (req, res) => {
   try {
     const { userId } = req.query;
     if (!userId) return res.status(400).json({ error: 'userId required' });
-    const trips = await Trip.find({ userId }).sort({ createdAt: -1 });
-    res.json(trips);
+
+    if (dbConnected) {
+      const trips = await Trip.find({ userId }).sort({ createdAt: -1 });
+      res.json(trips);
+    } else {
+      // Demo mode: return memory store
+      const trips = (demoTrips.get(userId) || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      res.json(trips);
+    }
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch mission logs.' });
   }
@@ -142,8 +168,19 @@ app.get('/api/trips', async (req, res) => {
 app.post('/api/generate-itinerary', async (req, res) => {
   try {
     const { tripId } = req.body;
-    const trip = await Trip.findById(tripId);
-    if (!trip) return res.status(404).json({ error: 'Mission log not found.' });
+    let trip = null;
+
+    if (dbConnected) {
+      trip = await Trip.findById(tripId);
+      if (!trip) return res.status(404).json({ error: 'Mission log not found.' });
+    } else {
+      // Demo mode: find in memory
+      for (const trips of demoTrips.values()) {
+        trip = trips.find(t => t._id === tripId);
+        if (trip) break;
+      }
+      if (!trip) return res.status(404).json({ error: 'Mission log not found.' });
+    }
 
     const prompt = `Create a ${trip.days}-day itinerary from ${trip.source} to ${trip.destination}.
     Mode: ${trip.mode}, Budget: ₹${trip.budget}, Style: ${trip.style}.
@@ -156,7 +193,13 @@ app.post('/api/generate-itinerary', async (req, res) => {
     if (!itinerary) itinerary = "Unable to generate itinerary at this time. Please try again.";
 
     trip.itinerary = itinerary;
-    await trip.save();
+
+    if (dbConnected) {
+      await trip.save();
+    } else {
+      // Demo mode: update in memory (no persistence on refresh)
+    }
+
     res.json({ itinerary });
   } catch (err) {
     res.status(500).json({ error: 'AI synthesis disruption.' });
