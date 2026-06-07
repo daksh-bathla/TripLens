@@ -44,11 +44,11 @@ export default function Settings() {
       <section className="premium-card mb-8">
         <div className="p-8 border-b border-slate-100 bg-slate-50 flex items-center gap-6">
            <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-2xl font-bold text-white shadow-md">
-              DB
+              TL
            </div>
            <div>
-              <h2 className="text-2xl font-bold text-slate-900">Daksh Bathla</h2>
-              <p className="text-emerald-600 font-semibold text-xs uppercase tracking-wider mt-2 bg-emerald-50 inline-block px-3 py-1 rounded-full border border-emerald-100">Pro Member</p>
+              <h2 className="text-2xl font-bold text-slate-900">Traveler</h2>
+              <p className="text-blue-600 font-semibold text-xs uppercase tracking-wider mt-2 bg-blue-50 inline-block px-3 py-1 rounded-full border border-blue-100">Free Plan</p>
            </div>
         </div>
 
@@ -61,7 +61,7 @@ export default function Settings() {
             </button>
           } />
           <SettingItem icon={Cpu} label="AI Features" desc="Customize TripLens AI behavior." action={
-            <span className="text-xs font-bold text-primary bg-slate-100 px-3 py-1 rounded-full">Advanced Model</span>
+            <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">Standard</span>
           } />
           <SettingItem icon={Globe} label="Localization" desc="Language, region, and currency." />
         </div>
