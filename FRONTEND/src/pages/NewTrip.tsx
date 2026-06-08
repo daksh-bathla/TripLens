@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plane, Train, Car, MapPin, Sparkles, ArrowRight, Camera, Upload, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Canvas } from '@react-three/fiber';
+import { Environment, Float, ContactShadows } from '@react-three/drei';
+import PaperAirplane from '../components/PaperAirplane';
 
 const STEPS = ['DESTINATION', 'LOGISTICS', 'STYLE'];
 
@@ -76,8 +79,23 @@ export default function NewTrip() {
         </div>
       </header>
 
-      <div className="premium-card p-8 md:p-12 min-h-[500px] flex flex-col relative overflow-hidden bg-white shadow-sm border border-slate-200 rounded-3xl">
-        <AnimatePresence mode="wait">
+      <div className="premium-card p-8 md:p-12 min-h-[650px] flex flex-col relative overflow-hidden bg-white shadow-sm border border-slate-200 rounded-3xl">
+        
+        {/* 3D Paper Airplane Header */}
+        <div className="absolute top-0 left-0 right-0 h-56 pointer-events-none z-0 bg-gradient-to-b from-sky-50 to-transparent">
+          <Canvas camera={{ position: [0, 2, 6], fov: 40 }}>
+            <ambientLight intensity={0.7} />
+            <directionalLight position={[5, 10, 5]} intensity={1.5} color="#ffffff" />
+            <Environment preset="city" />
+            <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
+              <PaperAirplane step={step} />
+            </Float>
+            <ContactShadows position={[0, -1.5, 0]} opacity={0.4} scale={10} blur={2} far={4} />
+          </Canvas>
+        </div>
+
+        <div className="pt-40 relative z-10 flex-1 flex flex-col">
+          <AnimatePresence mode="wait">
           {step === 0 && (
             <motion.div 
               key="step0"
@@ -209,9 +227,10 @@ export default function NewTrip() {
               </div>
             </motion.div>
           )}
-        </AnimatePresence>
+          </AnimatePresence>
+        </div>
 
-        <div className="mt-auto pt-12 flex justify-between items-center relative z-10">
+        <div className="mt-8 pt-8 border-t border-slate-100 flex justify-between items-center relative z-10">
           <button 
             onClick={() => setStep((s: number) => Math.max(0, s-1))}
             className={`text-sm font-bold text-slate-500 py-3 px-6 rounded-xl hover:bg-slate-50 transition-all ${step === 0 ? 'opacity-0 pointer-events-none' : ''}`}

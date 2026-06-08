@@ -5,13 +5,45 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {
-      colors: {
-        primary: '#0F172A',        /* Slate 900 - Premium dark */
-        accent: '#3B82F6',         /* Blue 500 */
-        surface: '#F8FAFC',        /* Slate 50 - Premium light bg */
-        card: '#FFFFFF',           /* White card */
+    colors: {
+      transparent: 'transparent',
+      current: 'currentColor',
+      white: '#ffffff',
+      primary: '#0058be',
+      accent: '#0058be',
+      surface: '#f8f9ff',
+      card: '#ffffff',
+      // Map all used tailwind colors to the 4 requested hex codes
+      slate: {
+        50: '#f8f9ff',
+        100: '#f8f9ff',
+        200: '#f8f9ff',
+        300: '#f8f9ff',
+        400: '#0058be',
+        500: '#0b1c30',
+        600: '#0b1c30',
+        700: '#0b1c30',
+        800: '#0b1c30',
+        900: '#0b1c30',
       },
+      blue: {
+        50: '#f8f9ff',
+        100: '#f8f9ff',
+        200: '#f8f9ff',
+        300: '#0058be',
+        400: '#0058be',
+        500: '#0058be',
+        600: '#0058be',
+        700: '#0058be',
+        800: '#0058be',
+        900: '#0b1c30',
+      },
+      sky: {
+        50: '#f8f9ff',
+        100: '#f8f9ff',
+      }
+    },
+    extend: {
       fontFamily: {
         display: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
         body: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
