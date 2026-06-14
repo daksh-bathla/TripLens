@@ -12,33 +12,33 @@ const StatCard = ({ label, value, icon: Icon }: any) => (
     className="premium-card p-6"
   >
     <div className="flex justify-between items-start mb-4">
-      <div className="p-3 bg-white/10 text-slate-400 rounded-lg border border-white/10">
+      <div className="p-3 bg-slate-100 dark:bg-white/10 text-slate-400 rounded-lg border border-slate-200 dark:border-white/10">
         <Icon className="w-5 h-5" />
       </div>
     </div>
     <div>
-      <h3 className="text-2xl font-bold text-white mb-1">{value}</h3>
+      <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">{value}</h3>
       <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">{label}</p>
     </div>
   </motion.div>
 );
 
 const STATUS_COLORS: Record<string, string> = {
-  draft: 'bg-white/10 text-slate-300',
-  proposed: 'bg-blue-500/20 text-blue-300',
+  draft: 'bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300',
+  proposed: 'bg-blue-500/20 text-blue-700 dark:text-blue-300',
   confirmed: 'bg-emerald-500/20 text-emerald-300',
 };
 
 const TripRow = ({ trip }: any) => (
-  <Link to={`/trip/${trip._id}`} className="group flex items-center gap-4 p-4 hover:bg-white/5 transition-colors border-b border-white/[0.06] last:border-0">
-    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/10 group-hover:border-white/20 transition-colors flex-shrink-0">
+  <Link to={`/trip/${trip._id}`} className="group flex items-center gap-4 p-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-b border-slate-100 dark:border-white/[0.06] last:border-0">
+    <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/10 flex items-center justify-center border border-slate-200 dark:border-white/10 group-hover:border-slate-300 dark:group-hover:border-white/20 transition-colors flex-shrink-0">
       {trip.mode === 'Flight' ? <Plane className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" /> :
        trip.mode === 'Train' ? <Train className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" /> :
        <Car className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />}
     </div>
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-2 mb-0.5">
-        <h4 className="font-semibold text-white truncate">{trip.source} → {trip.destination}</h4>
+        <h4 className="font-semibold text-slate-900 dark:text-white truncate">{trip.source} → {trip.destination}</h4>
       </div>
       <p className="text-sm text-slate-500 truncate">{trip.clientName || 'No client'} · {trip.days}d</p>
     </div>
@@ -46,7 +46,7 @@ const TripRow = ({ trip }: any) => (
       <span className={`text-xs font-semibold px-2 py-1 rounded-full ${STATUS_COLORS[trip.status] || STATUS_COLORS.draft}`}>
         {trip.status || 'draft'}
       </span>
-      <span className="text-sm font-semibold text-slate-200">₹{(trip.budget || 0).toLocaleString()}</span>
+      <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">₹{(trip.budget || 0).toLocaleString()}</span>
       <span className="text-xs text-slate-500">{trip.carbon} kg CO₂</span>
     </div>
     <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0" />
@@ -98,7 +98,7 @@ export default function Dashboard({ token }: DashboardProps) {
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
             <span className="text-sm font-semibold text-slate-500 tracking-wide uppercase">Dashboard</span>
           </div>
-          <h1 className="text-4xl font-display font-bold tracking-tight text-white mb-1">
+          <h1 className="text-4xl font-display font-bold tracking-tight text-slate-900 dark:text-white mb-1">
             Trip Management
           </h1>
           <p className="text-slate-400 font-medium">Manage client trips and carbon tracking.</p>
@@ -117,7 +117,7 @@ export default function Dashboard({ token }: DashboardProps) {
 
       <section>
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-display font-bold text-white flex items-center gap-2">
+          <h2 className="text-xl font-display font-bold text-slate-900 dark:text-white flex items-center gap-2">
             Recent Trips
           </h2>
           <Link to="/history" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors tracking-wide">
@@ -128,7 +128,7 @@ export default function Dashboard({ token }: DashboardProps) {
         <div className="premium-card p-2">
           {loading ? (
             <div className="p-12 text-center">
-              <div className="w-8 h-8 border-2 border-white/10 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+              <div className="w-8 h-8 border-2 border-slate-200 dark:border-white/10 border-t-primary rounded-full animate-spin mx-auto mb-4" />
               <p className="text-sm font-bold text-slate-500 tracking-widest uppercase">Syncing Data...</p>
             </div>
           ) : trips.length > 0 ? (
@@ -137,11 +137,11 @@ export default function Dashboard({ token }: DashboardProps) {
             </div>
           ) : (
             <div className="p-16 text-center">
-              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-white/10">
+              <div className="w-16 h-16 bg-slate-100 dark:bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-slate-200 dark:border-white/10">
                 <MapPin className="w-8 h-8 text-slate-500" />
               </div>
-              <h3 className="text-xl font-display font-bold text-white mb-2">No trips yet</h3>
-              <p className="text-slate-400 mb-8 font-medium">Start exploring the world by planning your first journey.</p>
+              <h3 className="text-xl font-display font-bold text-slate-900 dark:text-white mb-2">No trips yet</h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-8 font-medium">Start exploring the world by planning your first journey.</p>
               <Link to="/new" className="premium-button inline-flex">
                 <Plus className="w-4 h-4" /> Plan a Trip
               </Link>

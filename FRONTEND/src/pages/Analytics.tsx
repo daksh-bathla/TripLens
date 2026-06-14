@@ -4,7 +4,7 @@ import { TrendingUp, Leaf, Map, Globe, Calendar, Target } from 'lucide-react';
 
 const ChartPlaceholder = ({ label }: { label: string }) => (
   <div className="flex-1 flex flex-col gap-6 text-slate-300 group cursor-default">
-    <div className="w-full aspect-[2.5/1] bg-slate-50 rounded-xl border border-slate-100 relative overflow-hidden flex items-end px-6 gap-2 pb-6">
+    <div className="w-full aspect-[2.5/1] bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/10 relative overflow-hidden flex items-end px-6 gap-2 pb-6">
        {[40, 70, 45, 90, 65, 30, 85, 55, 95, 40].map((h: number, i: number) => (
          <motion.div 
            key={i}
@@ -33,38 +33,38 @@ export default function Analytics() {
     >
       <header className="mb-12">
         <span className="text-primary font-semibold text-sm tracking-wide mb-2 block">Data & Insights</span>
-        <h1 className="text-4xl font-bold tracking-tight text-slate-900">Trip Analytics</h1>
+        <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">Trip Analytics</h1>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         <div className="lg:col-span-2 premium-card p-8 flex flex-col">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
               <TrendingUp className="w-5 h-5 text-primary" /> Travel Frequency
             </h2>
-            <div className="flex bg-slate-100 p-1 rounded-lg">
-              <button className="px-4 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors rounded-md">7 Days</button>
-              <button className="bg-white px-4 py-1.5 text-xs font-bold text-slate-900 rounded-md shadow-sm">30 Days</button>
+            <div className="flex bg-slate-100 dark:bg-white/10 p-1 rounded-lg">
+              <button className="px-4 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors rounded-md">7 Days</button>
+              <button className="bg-white dark:bg-slate-800 px-4 py-1.5 text-xs font-bold text-slate-900 dark:text-white rounded-md shadow-sm">30 Days</button>
             </div>
           </div>
           <ChartPlaceholder label="Trips per month" />
         </div>
 
-        <div className="lg:col-span-1 premium-card p-8 bg-emerald-50 border-emerald-100 relative overflow-hidden">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-8 flex items-center gap-2">
+        <div className="lg:col-span-1 premium-card p-8 bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30 relative overflow-hidden">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-8 flex items-center gap-2">
             <Leaf className="w-4 h-4" /> Eco Impact Overview
           </h2>
           <div className="space-y-10">
-            <div className="text-center py-6 border-y border-emerald-100">
-               <h3 className="text-6xl font-bold text-emerald-600 mb-2">412<span className="text-xl text-emerald-400 ml-1">kg</span></h3>
-               <p className="text-xs font-semibold uppercase tracking-wider text-emerald-500">Total Carbon Emissions</p>
+            <div className="text-center py-6 border-y border-emerald-100 dark:border-emerald-900/30">
+               <h3 className="text-6xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">412<span className="text-xl text-emerald-400 ml-1">kg</span></h3>
+               <p className="text-xs font-semibold uppercase tracking-wider text-emerald-500 dark:text-emerald-400">Total Carbon Emissions</p>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider">
-                 <span className="text-emerald-700/60">Efficiency Score</span>
-                 <span className="text-emerald-700">Level A</span>
+                 <span className="text-emerald-700/60 dark:text-emerald-400/60">Efficiency Score</span>
+                 <span className="text-emerald-700 dark:text-emerald-400">Level A</span>
               </div>
-              <div className="w-full h-1.5 bg-emerald-200 rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-emerald-200 dark:bg-emerald-900/50 rounded-full overflow-hidden">
                  <motion.div 
                    initial={{ width: 0 }}
                    whileInView={{ width: '85%' }}
@@ -94,11 +94,11 @@ export default function Analytics() {
             transition={{ delay: i * 0.1 }}
             className="premium-card p-6 group"
           >
-            <div className="w-10 h-10 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center text-slate-400 mb-6 group-hover:text-primary group-hover:border-slate-300 transition-colors">
+            <div className="w-10 h-10 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-lg flex items-center justify-center text-slate-400 mb-6 group-hover:text-primary group-hover:border-slate-300 dark:group-hover:border-white/20 transition-colors">
                <Icon className="w-5 h-5" />
             </div>
             <p className="text-xs font-semibold text-slate-500 mb-1">{label}</p>
-            <h4 className="text-xl font-bold text-slate-900 group-hover:text-primary transition-colors">{val}</h4>
+            <h4 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{val}</h4>
           </motion.div>
         ))}
       </div>

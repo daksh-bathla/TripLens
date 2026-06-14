@@ -48,12 +48,12 @@ export default function AuthPage({ onSuccess }: AuthPageProps) {
           <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center">
             <Compass className="w-5 h-5 text-white" />
           </div>
-          <span className="text-white font-bold text-xl tracking-tight">TripLens</span>
+          <span className="text-slate-900 dark:text-white font-bold text-xl tracking-tight">TripLens</span>
         </div>
 
         <div className="relative">
           <p className="text-primary font-semibold text-sm tracking-widest uppercase mb-6">Agency Workspace</p>
-          <h1 className="text-5xl xl:text-6xl font-bold text-white leading-[1.1] tracking-tight mb-6">
+          <h1 className="text-5xl xl:text-6xl font-bold text-slate-900 dark:text-white leading-[1.1] tracking-tight mb-6">
             The modern travel workspace for agencies.
           </h1>
           <p className="text-slate-400 text-lg leading-relaxed max-w-lg">
@@ -63,15 +63,15 @@ export default function AuthPage({ onSuccess }: AuthPageProps) {
 
         <div className="flex gap-12 relative">
           <div>
-            <p className="text-3xl font-bold text-white">2 min</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white">2 min</p>
             <p className="text-slate-500 text-sm mt-1">avg itinerary creation</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-white">50%</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white">50%</p>
             <p className="text-slate-500 text-sm mt-1">less client back-and-forth</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-white">∞</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white">∞</p>
             <p className="text-slate-500 text-sm mt-1">trips on Pro plan</p>
           </div>
         </div>
@@ -92,11 +92,11 @@ export default function AuthPage({ onSuccess }: AuthPageProps) {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <Compass className="w-4 h-4 text-white" />
             </div>
-            <span className="text-white font-bold text-lg">TripLens</span>
+            <span className="text-slate-900 dark:text-white font-bold text-lg">TripLens</span>
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-1">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
               {mode === 'login' ? 'Welcome back' : 'Create your workspace'}
             </h2>
             <p className="text-slate-500 text-sm">
@@ -104,14 +104,14 @@ export default function AuthPage({ onSuccess }: AuthPageProps) {
             </p>
           </div>
 
-          <div className="bg-card border border-white/10 rounded-2xl p-8">
-            <div className="flex gap-1.5 mb-6 bg-white/5 rounded-xl p-1">
+          <div className="bg-card border border-slate-200 dark:border-white/10 rounded-2xl p-8 shadow-sm dark:shadow-none">
+            <div className="flex gap-1.5 mb-6 bg-slate-100 dark:bg-white/5 rounded-xl p-1">
               <button
                 onClick={() => { setMode('login'); setError(''); }}
                 className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
                   mode === 'login'
                     ? 'bg-primary text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                 }`}
               >
                 Login
@@ -121,7 +121,7 @@ export default function AuthPage({ onSuccess }: AuthPageProps) {
                 className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
                   mode === 'signup'
                     ? 'bg-primary text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                 }`}
               >
                 Sign Up

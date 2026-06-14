@@ -4,13 +4,14 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        primary: '#0058be',
-        accent: '#0058be',
-        surface: '#0b1c30',
-        card: '#0f2847',
+        primary: 'var(--color-primary)',
+        accent: 'var(--color-accent)',
+        surface: 'var(--color-surface)',
+        card: 'var(--color-card)',
         emerald: {
           50: '#f0fdf4',
           100: '#dcfce7',

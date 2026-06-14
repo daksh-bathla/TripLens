@@ -3,18 +3,32 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-primary: #0058be;
+    --color-accent: #0058be;
+    --color-surface: #f8fafc;
+    --color-card: #ffffff;
+  }
+
+  .dark {
+    --color-primary: #0058be;
+    --color-accent: #0058be;
+    --color-surface: #0b1c30;
+    --color-card: #0f2847;
+  }
+
   body {
-    @apply bg-surface text-white antialiased font-body min-h-screen;
+    @apply bg-surface text-slate-900 dark:text-white antialiased font-body min-h-screen transition-colors duration-300;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight text-white;
+    @apply font-display tracking-tight text-slate-900 dark:text-white;
   }
 }
 
 @layer components {
   .premium-card {
-    @apply bg-card border border-white/10 shadow-sm rounded-2xl relative overflow-hidden transition-all hover:border-white/20 hover:shadow-lg hover:shadow-black/30;
+    @apply bg-card border border-slate-200 dark:border-white/10 shadow-sm rounded-2xl relative overflow-hidden transition-all hover:border-slate-300 dark:hover:border-white/20 hover:shadow-lg dark:hover:shadow-black/30;
   }
 
   .premium-button {
@@ -22,18 +36,18 @@
   }
 
   .nav-link-icon {
-    @apply text-slate-500 hover:text-white p-4 transition-all duration-300 flex items-center justify-center rounded-xl hover:bg-white/10;
+    @apply text-slate-500 hover:text-slate-900 dark:hover:text-white p-4 transition-all duration-300 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-white/10;
   }
 
   .nav-link-active {
-    @apply text-white bg-white/10;
+    @apply text-primary dark:text-white bg-primary/10 dark:bg-white/10;
   }
 
   .dark-input {
-    @apply w-full bg-white/5 border border-white/10 rounded-xl py-3.5 px-4 font-medium text-white placeholder:text-slate-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/30 outline-none transition-all;
+    @apply w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3.5 px-4 font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/30 outline-none transition-all shadow-sm dark:shadow-none;
   }
 
   .dark-input-icon {
-    @apply w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-11 pr-4 font-medium text-white placeholder:text-slate-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/30 outline-none transition-all;
+    @apply w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3.5 pl-11 pr-4 font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/30 outline-none transition-all shadow-sm dark:shadow-none;
   }
 }
