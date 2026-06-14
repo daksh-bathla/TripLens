@@ -51,7 +51,12 @@ export default function LoginPage() {
             value={form.email} onChange={e => set('email', e.target.value)} required />
         </div>
         <div>
-          <label className="label">Password</label>
+          <label className="label">
+            Password
+            <Link href="/forgot-password" className="float-right text-xs text-slate-500 hover:text-brand font-normal">
+              Forgot password?
+            </Link>
+          </label>
           <input className="input" type="password" placeholder="••••••••"
             value={form.password} onChange={e => set('password', e.target.value)} required />
         </div>

@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { Check } from 'lucide-react'
+import TeamSection from '@/components/settings/TeamSection'
 
 const PLANS = [
   { id: 'starter', name: 'Starter', price: '₹0', period: '/mo', features: ['10 trips/month', '1 agent seat', 'Client portals', 'Manual itinerary builder'] },
@@ -9,15 +11,31 @@ const PLANS = [
 
 export default async function SettingsPage() {
   const supabase = createClient()
+  const admin = createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, role, agencies(name, plan)')
+    .select('full_name, role, agency_id, agencies(name, plan)')
     .eq('id', user!.id)
     .single()
 
   const agency = profile?.agencies as { name?: string; plan?: string } | null
   const currentPlan = agency?.plan ?? 'starter'
+  const agencyId = profile?.agency_id
+
+  // Fetch team members + pending invites (service role to bypass RLS cross-agency)
+  const [membersRes, invitesRes] = await Promise.all([
+    agencyId
+      ? admin.from('profiles').select('id, full_name, role').eq('agency_id', agencyId)
+      : Promise.resolve({ data: [] }),
+    agencyId
+      ? admin.from('team_invites').select('id, email, role, token, created_at')
+          .eq('agency_id', agencyId).is('accepted_at', null)
+      : Promise.resolve({ data: [] }),
+  ])
+
+  const members = (membersRes.data ?? []) as { id: string; full_name: string | null; role: string }[]
+  const invites = (invitesRes.data ?? []) as { id: string; email: string; role: string; token: string; created_at: string }[]
 
   return (
     <div className="animate-slide-up max-w-3xl">
@@ -38,6 +56,10 @@ export default async function SettingsPage() {
           </div>
         </div>
       </section>
+
+      <div className="mb-10">
+        <TeamSection members={members} invites={invites} />
+      </div>
 
       <h2 className="font-semibold mb-4">Plan & Billing</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
