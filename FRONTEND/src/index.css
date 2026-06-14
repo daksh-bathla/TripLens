@@ -24,6 +24,10 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-display tracking-tight text-slate-900 dark:text-white;
   }
+
+  button, [role="button"], select, a {
+    @apply cursor-pointer;
+  }
 }
 
 @layer components {
@@ -32,7 +36,7 @@
   }
 
   .premium-button {
-    @apply relative overflow-hidden bg-primary hover:bg-primary/90 text-white transition-all duration-300 px-6 py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2;
+    @apply relative overflow-hidden bg-primary hover:brightness-90 text-white transition-all duration-300 px-6 py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2;
   }
 
   .nav-link-icon {
@@ -40,14 +44,30 @@
   }
 
   .nav-link-active {
-    @apply text-primary dark:text-white bg-primary/10 dark:bg-white/10;
+    @apply text-primary dark:text-white bg-primary bg-opacity-10 dark:bg-white dark:bg-opacity-10;
   }
 
   .dark-input {
-    @apply w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3.5 px-4 font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/30 outline-none transition-all shadow-sm dark:shadow-none;
+    @apply w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3.5 px-4 font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary focus:border-opacity-60 focus:ring-1 focus:ring-primary focus:ring-opacity-30 outline-none transition-all shadow-sm dark:shadow-none;
   }
 
   .dark-input-icon {
     @apply w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3.5 pl-11 pr-4 font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/30 outline-none transition-all shadow-sm dark:shadow-none;
+  }
+
+  .glass-card {
+    background: linear-gradient(135deg, rgba(15, 40, 71, 0.8) 0%, rgba(15, 40, 71, 0.4) 100%);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .timeline-line::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 24px;
+    bottom: -24px;
+    width: 1px;
+    background-color: rgba(255, 255, 255, 0.1);
   }
 }

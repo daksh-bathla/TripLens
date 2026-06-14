@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink, Link } from 'react-router-dom';
-import { Compass, BarChart3, History, Settings, Plus, LogOut, Sun, Moon } from 'lucide-react';
+import { Compass, BarChart3, History, Settings, Plus, LogOut, Sun, Moon, Users } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -9,6 +9,8 @@ const TripDetails = React.lazy(() => import('./pages/TripDetails'));
 const HistoryPage = React.lazy(() => import('./pages/History'));
 const SettingsPage = React.lazy(() => import('./pages/Settings'));
 const AuthPage = React.lazy(() => import('./pages/Auth'));
+const SharedTripPage = React.lazy(() => import('./pages/SharedTrip'));
+const ClientsPage = React.lazy(() => import('./pages/Clients'));
 
 const NavIcon = ({ to, Icon, title }: { to: string; Icon: React.FC<any>; title: string }) => (
   <NavLink
@@ -24,7 +26,7 @@ const NavIcon = ({ to, Icon, title }: { to: string; Icon: React.FC<any>; title: 
 
 interface AuthState {
   token: string | null;
-  agency: { id: string; name: string; plan: string } | null;
+  agency: { id: string; name: string; plan: string; logoUrl?: string; primaryColor?: string } | null;
 }
 
 const Sidebar = ({ onLogout, toggleTheme, isDark }: { onLogout: () => void, toggleTheme: () => void, isDark: boolean }) => (
@@ -36,6 +38,7 @@ const Sidebar = ({ onLogout, toggleTheme, isDark }: { onLogout: () => void, togg
     <div className="flex md:flex-col items-center gap-2 md:gap-4 flex-1 md:flex-none justify-center w-full px-4 md:px-0">
       <NavIcon to="/" title="Dashboard" Icon={BarChart3} />
       <NavIcon to="/new" title="New Trip" Icon={Plus} />
+      <NavIcon to="/clients" title="Clients" Icon={Users} />
       <NavIcon to="/history" title="Archive" Icon={History} />
       <NavIcon to="/settings" title="Settings" Icon={Settings} />
     </div>
@@ -100,10 +103,16 @@ export default function App() {
     setAuth({ token: null, agency: null });
   };
 
+  const handleUpdateAgency = (newAgency: any) => {
+    setAuth(prev => ({ ...prev, agency: newAgency }));
+    localStorage.setItem('agency', JSON.stringify(newAgency));
+  };
+
   if (!auth.token) {
     return (
       <Router>
         <Routes>
+          <Route path="/shared/:id" element={<React.Suspense fallback={<Loading />}><SharedTripPage /></React.Suspense>} />
           <Route path="*" element={<AuthPage onSuccess={(token, agency) => {
             setAuth({ token, agency });
             localStorage.setItem('token', token);
@@ -124,10 +133,12 @@ export default function App() {
             <AnimatePresence mode="wait">
               <Routes>
                 <Route path="/" element={<Dashboard token={auth.token!} />} />
-                <Route path="/new" element={<NewTrip token={auth.token!} />} />
+                <Route path="/new" element={<NewTrip token={auth.token!} agency={auth.agency} />} />
                 <Route path="/trip/:id" element={<TripDetails token={auth.token!} />} />
+                <Route path="/shared/:id" element={<SharedTripPage />} />
+                <Route path="/clients" element={<ClientsPage token={auth.token!} agency={auth.agency} />} />
                 <Route path="/history" element={<HistoryPage token={auth.token!} />} />
-                <Route path="/settings" element={<SettingsPage agency={auth.agency} />} />
+                <Route path="/settings" element={<SettingsPage agency={auth.agency} onUpdateAgency={handleUpdateAgency} />} />
               </Routes>
             </AnimatePresence>
           </React.Suspense>

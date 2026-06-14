@@ -15,13 +15,11 @@ const VIBES = [
 
 interface NewTripProps {
   token: string;
+  agency: { id: string; name: string; logoUrl?: string; primaryColor?: string } | null;
 }
 
-export default function NewTrip({ token }: NewTripProps) {
+export default function NewTrip({ token, agency }: NewTripProps) {
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     clientName: '',
     source: '',
@@ -30,12 +28,54 @@ export default function NewTrip({ token }: NewTripProps) {
     budget: 20000,
     days: 5,
     style: 'balanced',
+    itinerary: undefined as any
   });
+  
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState('');
+  const [clients, setClients] = useState<any[]>([]);
+  const [clientSearch, setClientSearch] = useState('');
+  const [showClientDropdown, setShowClientDropdown] = useState(false);
+
+  React.useEffect(() => {
+    document.title = 'Plan New Trip | TripLens';
+  }, []);
+
+  React.useEffect(() => {
+    const fetchTemplates = async () => {
+      if (!agency?.id) return;
+      try {
+        const res = await axios.get(`/api/templates?userId=${agency.id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setTemplates(res.data);
+      } catch {
+        // silently fail
+      }
+    };
+    const fetchClients = async () => {
+      if (!agency?.id) return;
+      try {
+        const res = await axios.get(`/api/clients?userId=${agency.id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setClients(res.data);
+      } catch {
+        // silently fail
+      }
+    };
+    fetchTemplates();
+    fetchClients();
+  }, [agency?.id, token]);
+
+  const [step, setStep] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const set = (field: string, value: any) => setFormData(prev => ({ ...prev, [field]: value }));
 
   const canProceed = [
-    formData.source.trim() && formData.destination.trim(),
+    formData.clientName.trim() && formData.source.trim() && formData.destination.trim(),
     formData.budget > 0 && formData.days > 0,
     true,
   ][step];
@@ -44,7 +84,13 @@ export default function NewTrip({ token }: NewTripProps) {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.post('/api/trips', formData, {
+      const payload = {
+        ...formData,
+        agencyName: agency?.name || '',
+        agencyLogo: agency?.logoUrl || '',
+        agencyColor: agency?.primaryColor || '',
+      };
+      const res = await axios.post('/api/trips', payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
       navigate(`/trip/${res.data._id}`);
@@ -85,18 +131,90 @@ export default function NewTrip({ token }: NewTripProps) {
               exit={{ opacity: 0, x: -16 }}
               className="space-y-6"
             >
-              <div>
+              <div className="relative">
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Client Name</label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
-                    value={formData.clientName}
-                    onChange={e => set('clientName', e.target.value)}
-                    placeholder="e.g. Rahul Sharma"
-                    className="dark-input-icon"
+                    value={clientSearch}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setClientSearch(val);
+                      set('clientName', val);
+                      setShowClientDropdown(true);
+                    }}
+                    onFocus={() => setShowClientDropdown(true)}
+                    onBlur={() => {
+                      setTimeout(() => setShowClientDropdown(false), 200);
+                    }}
+                    placeholder="Search traveler or enter name..."
+                    className="dark-input-icon w-full"
                   />
                 </div>
+
+                {showClientDropdown && (
+                  <div className="absolute z-50 left-0 right-0 mt-1.5 bg-card border border-slate-200 dark:border-white/10 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                    {clients.filter(c => 
+                      c.name.toLowerCase().includes(clientSearch.toLowerCase()) ||
+                      (c.email && c.email.toLowerCase().includes(clientSearch.toLowerCase()))
+                    ).map(c => (
+                      <button
+                        key={c._id}
+                        type="button"
+                        onClick={() => {
+                          setClientSearch(c.name);
+                          set('clientName', c.name);
+                          setShowClientDropdown(false);
+                        }}
+                        className="w-full text-left px-4 py-2.5 hover:bg-slate-100 dark:hover:bg-white/5 text-sm transition-colors border-b last:border-0 border-slate-100 dark:border-white/[0.05]"
+                      >
+                        <div className="font-bold text-slate-900 dark:text-white">{c.name}</div>
+                        {c.email && <div className="text-xs text-slate-400 mt-0.5">{c.email}</div>}
+                      </button>
+                    ))}
+                    {clients.filter(c => 
+                      c.name.toLowerCase().includes(clientSearch.toLowerCase()) ||
+                      (c.email && c.email.toLowerCase().includes(clientSearch.toLowerCase()))
+                    ).length === 0 && (
+                      <div className="px-4 py-3 text-xs text-slate-500 italic">
+                        {clientSearch ? `No matching client. Creating new client: "${clientSearch}"` : 'Type to search clients...'}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
+
+              {templates.length > 0 && (
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Start from Template (Optional)</label>
+                  <select
+                    value={selectedTemplateId}
+                    onChange={e => {
+                      const templateId = e.target.value;
+                      setSelectedTemplateId(templateId);
+                      if (!templateId) {
+                        setFormData(prev => ({ ...prev, days: 5, style: 'balanced', itinerary: undefined }));
+                        return;
+                      }
+                      const template = templates.find(t => t._id === templateId);
+                      if (template) {
+                        setFormData(prev => ({
+                          ...prev,
+                          days: template.days,
+                          style: template.style,
+                          itinerary: template.itinerary
+                        }));
+                      }
+                    }}
+                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary text-slate-900 dark:text-white"
+                  >
+                    <option value="">Start from Scratch</option>
+                    {templates.map(t => (
+                      <option key={t._id} value={t._id}>{t.title} ({t.days} Days)</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>

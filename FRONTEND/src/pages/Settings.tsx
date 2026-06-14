@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Shield, Bell, ChevronRight, Check } from 'lucide-react';
+import { Building2, Shield, Bell, ChevronRight, Check, Save } from 'lucide-react';
 
 interface SettingsProps {
-  agency: { id: string; name: string; plan: string } | null;
+  agency: { id: string; name: string; plan: string; logoUrl?: string; primaryColor?: string } | null;
+  onUpdateAgency: (agency: any) => void;
 }
 
 const PLANS = [
@@ -27,7 +28,29 @@ const PLANS = [
   },
 ];
 
-export default function Settings({ agency }: SettingsProps) {
+export default function Settings({ agency, onUpdateAgency }: SettingsProps) {
+  React.useEffect(() => {
+    document.title = 'Agency Settings | TripLens';
+  }, []);
+
+  const [name, setName] = useState(agency?.name || '');
+  const [logoUrl, setLogoUrl] = useState(agency?.logoUrl || '');
+  const [primaryColor, setPrimaryColor] = useState(agency?.primaryColor || '#3b82f6');
+  const [saved, setSaved] = useState(false);
+
+  const handleSaveBranding = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!agency) return;
+    onUpdateAgency({
+      ...agency,
+      name,
+      logoUrl,
+      primaryColor
+    });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -42,9 +65,16 @@ export default function Settings({ agency }: SettingsProps) {
       <div className="space-y-8">
         <section className="bg-card border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none rounded-2xl overflow-hidden">
           <div className="p-6 border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex items-center gap-5">
-            <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-lg">
-              {agency?.name?.slice(0, 2).toUpperCase() || 'TL'}
-            </div>
+            {agency?.logoUrl ? (
+              <img src={agency.logoUrl} alt="Logo" className="w-14 h-14 object-contain bg-slate-100 rounded-xl" />
+            ) : (
+              <div 
+                className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-lg"
+                style={{ backgroundColor: agency?.primaryColor || '#3b82f6' }}
+              >
+                {agency?.name?.slice(0, 2).toUpperCase() || 'TL'}
+              </div>
+            )}
             <div>
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">{agency?.name || 'Your Agency'}</h2>
               <span className={`text-xs font-bold px-2.5 py-1 rounded-full mt-1 inline-block border ${
@@ -57,45 +87,52 @@ export default function Settings({ agency }: SettingsProps) {
             </div>
           </div>
 
-          <div className="divide-y divide-slate-100 dark:divide-white/[0.06]">
-            <div className="flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="p-2.5 bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 rounded-xl text-slate-400 group-hover:text-primary transition-colors">
-                  <Building2 className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Agency Details</p>
-                  <p className="text-xs text-slate-500 mt-0.5">Name, address, branding</p>
+          <div className="p-6">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-primary" /> Agency Branding
+            </h3>
+            <form onSubmit={handleSaveBranding} className="space-y-4 max-w-lg">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Agency Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary text-slate-900 dark:text-white"
+                  placeholder="e.g. Luxe Voyages"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Agency Logo URL</label>
+                <input
+                  type="url"
+                  value={logoUrl}
+                  onChange={e => setLogoUrl(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary text-slate-900 dark:text-white"
+                  placeholder="https://example.com/logo.png"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Primary Color</label>
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="color"
+                    value={primaryColor}
+                    onChange={e => setPrimaryColor(e.target.value)}
+                    className="w-10 h-10 border border-slate-200 dark:border-white/10 rounded-lg cursor-pointer bg-transparent"
+                  />
+                  <span className="text-sm font-mono text-slate-500">{primaryColor}</span>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
-            </div>
-
-            <div className="flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="p-2.5 bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 rounded-xl text-slate-400 group-hover:text-primary transition-colors">
-                  <Shield className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Security</p>
-                  <p className="text-xs text-slate-500 mt-0.5">Password, 2FA, active sessions</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
-            </div>
-
-            <div className="flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="p-2.5 bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 rounded-xl text-slate-400 group-hover:text-primary transition-colors">
-                  <Bell className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Notifications</p>
-                  <p className="text-xs text-slate-500 mt-0.5">Email alerts for trip status changes</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
-            </div>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 bg-primary hover:bg-primary/95 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-all"
+              >
+                <Save className="w-4 h-4" />
+                {saved ? 'Saved Successfully!' : 'Save Branding'}
+              </button>
+            </form>
           </div>
         </section>
 

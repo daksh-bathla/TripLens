@@ -2,29 +2,79 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Leaf, Map, Globe, Calendar, Target } from 'lucide-react';
 
-const ChartPlaceholder = ({ label }: { label: string }) => (
-  <div className="flex-1 flex flex-col gap-6 text-slate-300 group cursor-default">
-    <div className="w-full aspect-[2.5/1] bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/10 relative overflow-hidden flex items-end px-6 gap-2 pb-6">
-       {[40, 70, 45, 90, 65, 30, 85, 55, 95, 40].map((h: number, i: number) => (
-         <motion.div 
-           key={i}
-           initial={{ height: 0 }}
-           animate={{ height: `${h}%` }}
-           transition={{ delay: i * 0.05, duration: 1.5, ease: [0.23, 1, 0.32, 1] }}
-           className="flex-1 bg-blue-100 group-hover:bg-blue-200 transition-colors rounded-t-sm relative"
-         >
-            <div className="absolute top-0 left-0 right-0 h-1 bg-blue-500 rounded-t-sm opacity-0 group-hover:opacity-100 transition-opacity" />
-         </motion.div>
-       ))}
-    </div>
-    <div className="flex justify-between items-center px-2">
-       <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</span>
-       <span className="text-xs font-medium text-emerald-500 flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" /> Sync Active</span>
-    </div>
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
+} from 'recharts';
+
+const MOCK_DATA = [
+  { name: 'Jan', trips: 1 },
+  { name: 'Feb', trips: 2 },
+  { name: 'Mar', trips: 1 },
+  { name: 'Apr', trips: 4 },
+  { name: 'May', trips: 3 },
+  { name: 'Jun', trips: 5 },
+  { name: 'Jul', trips: 2 },
+];
+
+const InteractiveChart = () => (
+  <div className="flex-1 w-full h-[250px] mt-4">
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart data={MOCK_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+        <defs>
+          <linearGradient id="colorTrips" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148, 163, 184, 0.2)" />
+        <XAxis 
+          dataKey="name" 
+          axisLine={false} 
+          tickLine={false} 
+          tick={{ fontSize: 12, fill: '#94a3b8' }} 
+          dy={10}
+        />
+        <YAxis 
+          axisLine={false} 
+          tickLine={false} 
+          tick={{ fontSize: 12, fill: '#94a3b8' }} 
+        />
+        <Tooltip 
+          contentStyle={{ 
+            backgroundColor: 'rgba(15, 23, 42, 0.9)', 
+            borderRadius: '12px',
+            border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            color: '#fff',
+            fontSize: '13px',
+            fontWeight: '600'
+          }}
+          itemStyle={{ color: '#fff' }}
+        />
+        <Area 
+          type="monotone" 
+          dataKey="trips" 
+          stroke="#3b82f6" 
+          strokeWidth={3}
+          fillOpacity={1} 
+          fill="url(#colorTrips)" 
+        />
+      </AreaChart>
+    </ResponsiveContainer>
   </div>
 );
 
 export default function Analytics() {
+  React.useEffect(() => {
+    document.title = 'Workspace Analytics | TripLens';
+  }, []);
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -47,7 +97,7 @@ export default function Analytics() {
               <button className="bg-white dark:bg-slate-800 px-4 py-1.5 text-xs font-bold text-slate-900 dark:text-white rounded-md shadow-sm">30 Days</button>
             </div>
           </div>
-          <ChartPlaceholder label="Trips per month" />
+          <InteractiveChart />
         </div>
 
         <div className="lg:col-span-1 premium-card p-8 bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30 relative overflow-hidden">

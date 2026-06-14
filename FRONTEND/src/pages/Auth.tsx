@@ -9,6 +9,11 @@ interface AuthPageProps {
 
 export default function AuthPage({ onSuccess }: AuthPageProps) {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
+
+  React.useEffect(() => {
+    document.title = mode === 'login' ? 'Login | TripLens' : 'Create Agency Workspace | TripLens';
+  }, [mode]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({

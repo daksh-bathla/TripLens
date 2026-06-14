@@ -26,6 +26,7 @@ export default function History({ token }: HistoryProps) {
   const [query, setQuery] = useState('');
 
   useEffect(() => {
+    document.title = 'Trip Archive | TripLens';
     const fetchTrips = async () => {
       try {
         const res = await axios.get('/api/trips', {

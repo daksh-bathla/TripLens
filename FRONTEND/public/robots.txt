@@ -1,0 +1,29 @@
+# Allow search crawlers to access shared client itineraries, while protecting internal routes
+User-agent: GPTBot
+Allow: /shared/
+Disallow: /
+
+User-agent: ChatGPT-User
+Allow: /shared/
+Disallow: /
+
+User-agent: PerplexityBot
+Allow: /shared/
+Disallow: /
+
+User-agent: ClaudeBot
+Allow: /shared/
+Disallow: /
+
+User-agent: Google-Extended
+Allow: /shared/
+Disallow: /
+
+User-agent: Bingbot
+Allow: /shared/
+Disallow: /
+
+# General crawlers
+User-agent: *
+Allow: /shared/
+Disallow: /

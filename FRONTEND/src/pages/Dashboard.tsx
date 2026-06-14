@@ -63,6 +63,7 @@ export default function Dashboard({ token }: DashboardProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    document.title = 'Advisor Workspace | TripLens';
     const fetchTrips = async () => {
       try {
         const res = await axios.get('/api/trips', {
@@ -83,6 +84,20 @@ export default function Dashboard({ token }: DashboardProps) {
     };
     fetchTrips();
   }, [token]);
+
+  const [showBanner, setShowBanner] = useState(false);
+
+  useEffect(() => {
+    const hidden = localStorage.getItem('hideOnboardingBanner');
+    if (!hidden) {
+      setShowBanner(true);
+    }
+  }, []);
+
+  const handleDismissBanner = () => {
+    setShowBanner(false);
+    localStorage.setItem('hideOnboardingBanner', 'true');
+  };
 
   return (
     <motion.div
@@ -108,6 +123,38 @@ export default function Dashboard({ token }: DashboardProps) {
           <span>Plan New Trip</span>
         </Link>
       </header>
+
+      {showBanner && (
+        <div className="mb-10 bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-md">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="space-y-2 z-10 flex-1">
+            <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: '#c5a880' }}>
+              Advisor Guide
+            </span>
+            <h2 className="text-xl font-bold tracking-tight">Explore how modern agencies use TripLens</h2>
+            <p className="text-slate-400 text-sm max-w-2xl leading-relaxed">
+              Welcome to your workspace. We’ve seeded a premium Amalfi Coast showcase trip complete with client change requests, pre-saved templates, and traveler profiles. Use this seeded content as your demo sandbox.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 z-10 flex-shrink-0">
+            {trips.some((t: any) => t.destination?.toLowerCase().includes('amalfi')) ? (
+              <Link
+                to={`/trip/${(trips.find((t: any) => t.destination?.toLowerCase().includes('amalfi')) as any)?._id}`}
+                className="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all inline-flex items-center gap-1.5"
+              >
+                <span>Launch Demo Tour</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : null}
+            <button
+              onClick={handleDismissBanner}
+              className="text-xs text-slate-400 hover:text-white font-semibold transition-all px-3 py-2.5 rounded-xl hover:bg-white/5"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <StatCard label="Total Trips" value={stats.total} icon={MapPin} />
@@ -136,13 +183,13 @@ export default function Dashboard({ token }: DashboardProps) {
               {trips.slice(0, 5).map((trip: any) => <TripRow key={trip._id} trip={trip} />)}
             </div>
           ) : (
-            <div className="p-16 text-center">
-              <div className="w-16 h-16 bg-slate-100 dark:bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-slate-200 dark:border-white/10">
-                <MapPin className="w-8 h-8 text-slate-500" />
+            <div className="p-16 text-center max-w-sm mx-auto">
+              <div className="w-12 h-12 bg-slate-50 dark:bg-white/[0.04] rounded-full flex items-center justify-center mx-auto mb-5 border border-slate-100 dark:border-white/[0.08]">
+                <MapPin className="w-5 h-5 text-slate-400 dark:text-slate-500" />
               </div>
-              <h3 className="text-xl font-display font-bold text-slate-900 dark:text-white mb-2">No trips yet</h3>
-              <p className="text-slate-500 dark:text-slate-400 mb-8 font-medium">Start exploring the world by planning your first journey.</p>
-              <Link to="/new" className="premium-button inline-flex">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">No active itineraries</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">Start crafting tailored, high-end travel experiences by creating your first client trip.</p>
+              <Link to="/new" className="premium-button inline-flex text-xs font-semibold py-2.5 px-5">
                 <Plus className="w-4 h-4" /> Plan a Trip
               </Link>
             </div>
