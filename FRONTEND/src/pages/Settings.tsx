@@ -1,72 +1,144 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { User, Shield, Bell, Cpu, Moon, Globe, ChevronRight } from 'lucide-react';
+import { Building2, Shield, Bell, ChevronRight, Check } from 'lucide-react';
 
-interface SettingItemProps {
-  icon: any;
-  label: string;
-  desc: string;
-  action?: React.ReactNode;
+interface SettingsProps {
+  agency: { id: string; name: string; plan: string } | null;
 }
 
-const SettingItem = ({ icon: Icon, label, desc, action }: SettingItemProps) => (
-  <div className="flex items-center justify-between p-6 hover:bg-slate-50 transition-all group border-b border-slate-100 last:border-0">
-    <div className="flex items-center gap-6">
-      <div className="p-3 bg-white border border-slate-200 text-slate-400 group-hover:text-primary rounded-xl transition-all shadow-sm">
-        <Icon className="w-5 h-5" />
-      </div>
-      <div>
-        <h4 className="text-sm font-bold text-slate-900">{label}</h4>
-        <p className="text-xs font-medium text-slate-500 mt-1">{desc}</p>
-      </div>
-    </div>
-    <div className="flex items-center gap-4">
-       {action && action}
-       <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 group-hover:translate-x-1 transition-all" />
-    </div>
-  </div>
-);
+const PLANS = [
+  {
+    id: 'free',
+    name: 'Free',
+    price: '₹0/mo',
+    features: ['5 trips/month', '1 agent seat', 'AI itinerary (limited)'],
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: '₹2,999/mo',
+    features: ['Unlimited trips', '5 agent seats', 'AI itinerary + carbon reports', 'PDF export', 'Priority support'],
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: 'Custom',
+    features: ['Unlimited everything', 'Unlimited seats', 'White-label option', 'API access', 'Dedicated support'],
+  },
+];
 
-export default function Settings() {
-  const [notifications, setNotifications] = React.useState(true);
-
+export default function Settings({ agency }: SettingsProps) {
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="max-w-4xl mx-auto py-8"
     >
       <header className="mb-10">
-        <span className="text-primary font-semibold text-sm tracking-wide mb-2 block">System Configuration</span>
-        <h1 className="text-4xl font-bold tracking-tight text-slate-900">Settings</h1>
+        <span className="text-primary font-semibold text-sm tracking-wide mb-1 block">Configuration</span>
+        <h1 className="text-3xl font-bold tracking-tight text-white">Settings</h1>
       </header>
 
-      <section className="premium-card mb-8">
-        <div className="p-8 border-b border-slate-100 bg-slate-50 flex items-center gap-6">
-           <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-2xl font-bold text-white shadow-md">
-              TL
-           </div>
-           <div>
-              <h2 className="text-2xl font-bold text-slate-900">Traveler</h2>
-              <p className="text-blue-600 font-semibold text-xs uppercase tracking-wider mt-2 bg-blue-50 inline-block px-3 py-1 rounded-full border border-blue-100">Free Plan</p>
-           </div>
-        </div>
+      <div className="space-y-8">
+        <section className="bg-card border border-white/10 rounded-2xl overflow-hidden">
+          <div className="p-6 border-b border-white/10 bg-white/5 flex items-center gap-5">
+            <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-lg">
+              {agency?.name?.slice(0, 2).toUpperCase() || 'TL'}
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white">{agency?.name || 'Your Agency'}</h2>
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-full mt-1 inline-block border ${
+                agency?.plan === 'pro' ? 'bg-blue-500/15 text-blue-300 border-blue-500/20' :
+                agency?.plan === 'enterprise' ? 'bg-purple-500/15 text-purple-300 border-purple-500/20' :
+                'bg-white/10 text-slate-300 border-white/10'
+              }`}>
+                {agency?.plan?.toUpperCase() || 'FREE'} PLAN
+              </span>
+            </div>
+          </div>
 
-        <div className="bg-white">
-          <SettingItem icon={User} label="Account Details" desc="Manage your personal information and preferences." />
-          <SettingItem icon={Shield} label="Security" desc="Password, 2FA, and active sessions." />
-          <SettingItem icon={Bell} label="Notifications" desc="Email and push notification settings." action={
-            <button onClick={() => setNotifications(!notifications)} className={`w-11 h-6 rounded-full transition-all relative ${notifications ? 'bg-primary' : 'bg-slate-200'}`}>
-               <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-all shadow-sm ${notifications ? 'left-[22px]' : 'left-0.5'}`}></div>
-            </button>
-          } />
-          <SettingItem icon={Cpu} label="AI Features" desc="Customize TripLens AI behavior." action={
-            <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">Standard</span>
-          } />
-          <SettingItem icon={Globe} label="Localization" desc="Language, region, and currency." />
-        </div>
-      </section>
+          <div className="divide-y divide-white/[0.06]">
+            <div className="flex items-center justify-between p-5 hover:bg-white/5 transition-colors group cursor-pointer">
+              <div className="flex items-center gap-4">
+                <div className="p-2.5 bg-white/10 border border-white/10 rounded-xl text-slate-400 group-hover:text-primary transition-colors">
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Agency Details</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Name, address, branding</p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
+            </div>
 
+            <div className="flex items-center justify-between p-5 hover:bg-white/5 transition-colors group cursor-pointer">
+              <div className="flex items-center gap-4">
+                <div className="p-2.5 bg-white/10 border border-white/10 rounded-xl text-slate-400 group-hover:text-primary transition-colors">
+                  <Shield className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Security</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Password, 2FA, active sessions</p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
+            </div>
+
+            <div className="flex items-center justify-between p-5 hover:bg-white/5 transition-colors group cursor-pointer">
+              <div className="flex items-center gap-4">
+                <div className="p-2.5 bg-white/10 border border-white/10 rounded-xl text-slate-400 group-hover:text-primary transition-colors">
+                  <Bell className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Notifications</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Email alerts for trip status changes</p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-bold text-white mb-4">Plan & Billing</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {PLANS.map(plan => {
+              const isCurrent = agency?.plan === plan.id || (!agency?.plan && plan.id === 'free');
+              return (
+                <div
+                  key={plan.id}
+                  className={`bg-card border rounded-2xl p-6 relative ${
+                    isCurrent ? 'border-primary/60 ring-1 ring-primary/30' : 'border-white/10'
+                  }`}
+                >
+                  {isCurrent && (
+                    <span className="absolute -top-2.5 left-4 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                      CURRENT
+                    </span>
+                  )}
+                  <div className="mb-4">
+                    <h3 className="font-bold text-white">{plan.name}</h3>
+                    <p className="text-xl font-bold text-white mt-1">{plan.price}</p>
+                  </div>
+                  <ul className="space-y-2 mb-6">
+                    {plan.features.map(f => (
+                      <li key={f} className="flex items-start gap-2 text-sm text-slate-300">
+                        <Check className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  {!isCurrent && (
+                    <button className="w-full bg-primary text-white py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-all">
+                      Upgrade
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </div>
     </motion.div>
   );
 }
