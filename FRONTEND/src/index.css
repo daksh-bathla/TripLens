@@ -50,6 +50,7 @@
 
   .premium-button {
     @apply relative overflow-hidden bg-primary hover:brightness-110 active:scale-[0.97] text-white transition-all duration-150 px-6 py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 shadow-sm;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 4px 12px 0 color-mix(in srgb, var(--color-primary) 20%, transparent);
   }
 
   .nav-link-icon {

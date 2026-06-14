@@ -109,7 +109,12 @@ export default function NewTrip({ token, agency }: NewTripProps) {
       });
       navigate(`/trip/${res.data._id}`);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to create trip');
+      const errData = err.response?.data?.error;
+      if (errData && typeof errData === 'object') {
+        setError(errData.message || errData.error_description || JSON.stringify(errData));
+      } else {
+        setError(errData || 'Failed to create trip');
+      }
     } finally {
       setLoading(false);
     }

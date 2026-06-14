@@ -44,7 +44,12 @@ export default function TripDetails({ token }: TripDetailsProps) {
         });
         setTrip(res.data);
       } catch (err: any) {
-        setError(err.response?.data?.error || 'Failed to load trip');
+        const errData = err.response?.data?.error;
+        if (errData && typeof errData === 'object') {
+          setError(errData.message || errData.error_description || JSON.stringify(errData));
+        } else {
+          setError(errData || 'Failed to load trip');
+        }
       } finally {
         setLoading(false);
       }

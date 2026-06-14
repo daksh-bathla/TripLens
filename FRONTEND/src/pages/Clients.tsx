@@ -131,7 +131,12 @@ export default function Clients({ token, agency }: ClientsProps) {
       }
       setIsPanelOpen(false);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to save traveler profile.');
+      const errData = err.response?.data?.error;
+      if (errData && typeof errData === 'object') {
+        setError(errData.message || errData.error_description || JSON.stringify(errData));
+      } else {
+        setError(errData || 'Failed to save traveler profile.');
+      }
     } finally {
       setSubmitting(false);
     }

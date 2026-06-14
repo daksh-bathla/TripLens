@@ -36,7 +36,12 @@ export default function AuthPage({ onSuccess }: AuthPageProps) {
       const res = await axios.post(endpoint, payload);
       onSuccess(res.data.token, res.data.agency);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'An error occurred');
+      const errData = err.response?.data?.error;
+      if (errData && typeof errData === 'object') {
+        setError(errData.message || errData.error_description || JSON.stringify(errData));
+      } else {
+        setError(errData || 'An error occurred');
+      }
     } finally {
       setLoading(false);
     }

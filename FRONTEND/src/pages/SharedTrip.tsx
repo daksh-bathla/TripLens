@@ -45,7 +45,12 @@ export default function SharedTrip() {
         const res = await axios.get(`/api/trips/${id}`);
         setTrip(res.data);
       } catch (err: any) {
-        setError(err.response?.data?.error || 'Trip not found or expired.');
+        const errData = err.response?.data?.error;
+        if (errData && typeof errData === 'object') {
+          setError(errData.message || errData.error_description || JSON.stringify(errData));
+        } else {
+          setError(errData || 'Trip not found or expired.');
+        }
       } finally {
         setLoading(false);
       }
