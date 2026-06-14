@@ -669,6 +669,19 @@ async function generateWithHuggingFace(prompt) {
 // Routes
 app.get('/api/health', (req, res) => res.json({ status: 'operational', version: '2.0.0' }));
 
+// Robots.txt Search Crawler Directives
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send(`User-agent: *
+Allow: /shared/
+Disallow: /api/
+Disallow: /settings/
+Disallow: /clients/
+Disallow: /history/
+Disallow: /new/
+Disallow: /trip/`);
+});
+
 // Auth Routes
 app.post('/api/auth/register', authRateLimit, async (req, res) => {
   try {

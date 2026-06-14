@@ -71,6 +71,20 @@ export default function NewTrip({ token, agency }: NewTripProps) {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loadingStep, setLoadingStep] = useState(0);
+
+  React.useEffect(() => {
+    let interval: any;
+    if (loading) {
+      setLoadingStep(0);
+      interval = setInterval(() => {
+        setLoadingStep(prev => (prev < 2 ? prev + 1 : prev));
+      }, 2500);
+    } else {
+      setLoadingStep(0);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
 
   const set = (field: string, value: any) => setFormData(prev => ({ ...prev, [field]: value }));
 
@@ -206,7 +220,7 @@ export default function NewTrip({ token, agency }: NewTripProps) {
                         }));
                       }
                     }}
-                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary text-slate-900 dark:text-white"
+                    className="w-full bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-slate-900 dark:text-white font-medium"
                   >
                     <option value="">Start from Scratch</option>
                     {templates.map(t => (
@@ -264,13 +278,13 @@ export default function NewTrip({ token, agency }: NewTripProps) {
                     <button
                       key={m.id}
                       onClick={() => set('mode', m.id)}
-                      className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                      className={`p-4 rounded-xl border transition-all flex flex-col items-center gap-2 ${
                         formData.mode === m.id
-                          ? 'bg-primary/15 border-primary/60 text-primary'
-                          : 'border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/20 hover:text-slate-700 dark:hover:text-slate-300'
+                          ? 'bg-primary/5 dark:bg-primary/10 border-primary text-primary dark:text-white'
+                          : 'border-slate-200 dark:border-white/[0.08] text-slate-400 dark:text-slate-500 hover:border-slate-350 dark:hover:border-white/[0.15] hover:text-slate-700 dark:hover:text-slate-300'
                       }`}
                     >
-                      <m.icon className="w-6 h-6" />
+                      <m.icon className="w-5 h-5" />
                       <span className="text-xs font-bold">{m.label}</span>
                     </button>
                   ))}
@@ -322,14 +336,14 @@ export default function NewTrip({ token, agency }: NewTripProps) {
                   <button
                     key={v.id}
                     onClick={() => set('style', v.id)}
-                    className={`p-5 rounded-xl border-2 transition-all text-left relative ${
+                    className={`p-5 rounded-xl border transition-all text-left relative ${
                       formData.style === v.id
-                        ? 'bg-primary/15 border-primary/60'
-                        : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'
+                        ? 'bg-primary/5 dark:bg-primary/10 border-primary'
+                        : 'border-slate-200 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-white/[0.15]'
                     }`}
                   >
-                    <h4 className={`font-bold mb-1 ${formData.style === v.id ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{v.label}</h4>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">{v.desc}</p>
+                    <h4 className={`text-sm font-bold mb-1 ${formData.style === v.id ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{v.label}</h4>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 leading-relaxed">{v.desc}</p>
                     {formData.style === v.id && (
                       <Check className="absolute right-4 top-4 w-4 h-4 text-primary" />
                     )}
@@ -374,6 +388,34 @@ export default function NewTrip({ token, agency }: NewTripProps) {
           )}
         </div>
       </div>
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-[#070b13]/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center"
+          >
+            <div className="w-8 h-8 border-2 border-slate-700 border-t-primary rounded-full animate-spin mb-4" />
+            <AnimatePresence mode="wait">
+              <motion.h3 
+                key={loadingStep}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.2 }}
+                className="text-sm font-semibold text-slate-300 tracking-wide uppercase"
+              >
+                {[
+                  "Building your itinerary...",
+                  "Organizing transfers and activities...",
+                  "Finalizing travel timeline..."
+                ][loadingStep]}
+              </motion.h3>
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

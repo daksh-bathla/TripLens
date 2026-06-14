@@ -76,6 +76,18 @@ export default function SharedTrip() {
       // Standard Meta Description
       setMetaTag('name', 'description', description);
 
+      // Robots Tag for indexing
+      setMetaTag('name', 'robots', 'index, follow');
+
+      // Canonical Link
+      let canonicalLink = document.querySelector('link[rel="canonical"]');
+      if (!canonicalLink) {
+        canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonicalLink);
+      }
+      canonicalLink.setAttribute('href', pageUrl);
+
       // Open Graph Tags
       setMetaTag('property', 'og:title', title);
       setMetaTag('property', 'og:description', description);
@@ -132,6 +144,10 @@ export default function SharedTrip() {
         const script = document.getElementById('trip-schema');
         if (script) script.remove();
         
+        document.querySelector('link[rel="canonical"]')?.remove();
+        document.querySelector('meta[name="robots"]')?.remove();
+        document.querySelector('meta[name="description"]')?.remove();
+
         ['og:title', 'og:description', 'og:image', 'og:url', 'og:type'].forEach(prop => {
           document.querySelector(`meta[property="${prop}"]`)?.remove();
         });
@@ -199,8 +215,8 @@ export default function SharedTrip() {
               {trip.agencyName || 'TripLens Travel'}
             </span>
           </div>
-          <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 tracking-wider uppercase">
-            Client Travel command center
+          <span className="text-[10px] font-bold px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/[0.04] text-slate-650 dark:text-slate-350 border border-slate-200/50 dark:border-white/[0.06] tracking-wider uppercase">
+            Travel Command Center
           </span>
         </div>
       </header>
@@ -212,41 +228,41 @@ export default function SharedTrip() {
           className="space-y-8"
         >
           {/* Welcome Banner */}
-          <section className="relative overflow-hidden rounded-3xl glass-card p-6 md:p-10 min-h-[280px] flex flex-col justify-end shadow-sm dark:shadow-none">
-            {/* Background Image Layer */}
+          <section className="relative overflow-hidden rounded-3xl p-6 md:p-12 min-h-[300px] flex flex-col justify-end shadow-sm border border-slate-200 dark:border-white/[0.04] bg-slate-950">
+            {/* Background Image Layer - High-res Travel Photography */}
             <div className="absolute inset-0 z-0">
               <img 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWHe9PUon6_ig6UZxhXObD4JS0cQcQL0dBAZklm3R40pvBH1q3dWPS-7HfslD2RLRAxgO-Dy6diMqWwgmRbEdCMK8KwRskMshbLYwkh2oyRyEAqWSJK7zS8_oPvlipLEV73Szj9hlc8LE-eLbbUIc75za6SClNEkOH5clppRpUhhx-3bLeGCTSrRw_Z7_i0pRJ7TcO-RzDqw2h-QtMA17Inca79c3OU-LMPEX7NPqOm4Tm5tHh3BkVavJnDnrUv_VJbOPpwIO9GPLP" 
+                src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1800&q=80" 
                 alt={trip.destination} 
-                className="w-full h-full object-cover opacity-20 dark:opacity-40 mix-blend-luminosity" 
+                className="w-full h-full object-cover opacity-35 dark:opacity-50" 
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-50 via-slate-50/70 to-transparent dark:from-slate-950 dark:via-slate-950/40 dark:to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
             </div>
 
             <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 w-full">
-              <div className="space-y-3">
-                <span className="bg-primary/10 dark:bg-primary/25 text-primary dark:text-on-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm border border-primary/20 dark:border-white/10 inline-block">
-                  Prepared by {trip.agencyName || 'TravelCo'}
+              <div className="space-y-4">
+                <span className="border border-[#c5a880]/30 bg-[#c5a880]/10 text-[#c5a880] px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm inline-block">
+                  Prepared by {trip.agencyName || 'Wanderlust Travel'}
                 </span>
-                <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight uppercase">
+                <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight uppercase leading-none">
                   {trip.source} → {trip.destination}
                 </h1>
-                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-slate-300 font-semibold">
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400/80" />
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
                     Last updated: {new Date(trip.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                   </span>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-2 md:gap-3">
-                <span className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white/40 dark:bg-white/5 backdrop-blur-sm px-4 py-2 rounded-xl border border-slate-200/50 dark:border-white/10">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200 bg-white/[0.06] backdrop-blur-md px-4 py-2 rounded-xl border border-white/[0.08]">
                   {MODE_ICON[trip.mode]} {trip.mode}
                 </span>
-                <span className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white/40 dark:bg-white/5 backdrop-blur-sm px-4 py-2 rounded-xl border border-slate-200/50 dark:border-white/10">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200 bg-white/[0.06] backdrop-blur-md px-4 py-2 rounded-xl border border-white/[0.08]">
                   <Calendar className="w-4 h-4 text-slate-400" /> {trip.days} Days
                 </span>
-                <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 bg-emerald-500/10 dark:bg-emerald-500/15 backdrop-blur-sm px-4 py-2 rounded-xl border border-emerald-500/20">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 backdrop-blur-md px-4 py-2 rounded-xl border border-emerald-500/20">
                   <Leaf className="w-4 h-4" /> {trip.carbon} kg CO₂ Saved
                 </span>
               </div>
@@ -405,7 +421,7 @@ export default function SharedTrip() {
             {/* Sidebar Column */}
             <div className="space-y-6">
               {/* Weather Widget */}
-              <div className="glass-card p-6 rounded-2xl shadow-sm dark:shadow-none">
+              <div id="widget-weather" className="glass-card p-6 rounded-2xl shadow-sm dark:shadow-none">
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">{trip.destination}</p>
@@ -423,7 +439,7 @@ export default function SharedTrip() {
               </div>
 
               {/* PNR / Reference Card */}
-              <div className="glass-card p-6 rounded-2xl space-y-4 shadow-sm dark:shadow-none">
+              <div id="card-references" className="glass-card p-6 rounded-2xl space-y-4 shadow-sm dark:shadow-none">
                 <div className="flex items-center gap-2 mb-2">
                   <Compass className="w-4 h-4 text-primary" />
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Trip References</h3>
@@ -442,14 +458,14 @@ export default function SharedTrip() {
                     <span className="font-mono text-primary font-bold">T-LENS-94</span>
                   </div>
                 </div>
-                <button className="w-full flex items-center justify-center gap-2 py-3 bg-slate-100/50 hover:bg-slate-200/50 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200/50 dark:border-white/10 rounded-xl transition-colors text-xs font-bold text-slate-700 dark:text-white">
+                <button id="btn-download-pdf" className="w-full flex items-center justify-center gap-2 py-3 bg-slate-100/50 hover:bg-slate-200/50 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200/50 dark:border-white/10 rounded-xl transition-colors text-xs font-bold text-slate-700 dark:text-white">
                   <Compass className="w-4 h-4" />
                   <span>Download PDF Docs</span>
                 </button>
               </div>
 
               {/* Support Advisor Card */}
-              <div className="glass-card p-6 rounded-2xl border-primary/20 bg-primary/5 shadow-sm dark:shadow-none">
+              <div id="card-advisor" className="glass-card p-6 rounded-2xl border-primary/20 bg-primary/5 shadow-sm dark:shadow-none">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-6">Your Personal Advisor</h3>
                 <div className="flex items-center gap-4 mb-6">
                   <img 
@@ -463,11 +479,11 @@ export default function SharedTrip() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <button className="w-full flex items-center justify-center gap-2 py-3 bg-primary text-white font-bold rounded-xl hover:brightness-110 transition-all text-xs">
+                  <button id="btn-chat-advisor" className="w-full flex items-center justify-center gap-2 py-3 bg-primary text-white font-bold rounded-xl hover:brightness-110 transition-all text-xs">
                     <MessageSquare className="w-4 h-4" />
                     <span>Chat in Real-time</span>
                   </button>
-                  <button className="w-full flex items-center justify-center gap-2 py-3 border border-primary/40 text-primary rounded-xl hover:bg-primary/5 transition-all text-xs font-bold">
+                  <button id="btn-call-advisor" className="w-full flex items-center justify-center gap-2 py-3 border border-primary/40 text-primary rounded-xl hover:bg-primary/5 transition-all text-xs font-bold">
                     <Phone className="w-4 h-4" />
                     <span>Request Concierge Call</span>
                   </button>
@@ -494,7 +510,7 @@ export default function SharedTrip() {
           {/* Mobile Layout (Tabs-driven) */}
           <div className="md:hidden space-y-6">
             {activeTab === 'journey' && (
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none rounded-2xl p-5">
+              <div id="tab-content-journey" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none rounded-2xl p-5">
                 <h2 className="text-base font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2"><Clock className="w-4.5 h-4.5 text-primary" /> Daily Itinerary</h2>
                 {trip.itinerary && trip.itinerary.length > 0 ? (
                   <div className="space-y-6">
@@ -532,6 +548,7 @@ export default function SharedTrip() {
                               {/* Action Bar */}
                               <div className="flex justify-between items-center pt-2 border-t border-slate-200/50 dark:border-white/[0.04]">
                                 <button
+                                  id={`btn-request-change-mobile-${item._id}`}
                                   onClick={() => {
                                     setRequestingChangeItemId(requestingChangeItemId === item._id ? null : item._id);
                                     setChangeText('');
@@ -567,6 +584,7 @@ export default function SharedTrip() {
                               {requestingChangeItemId === item._id && (
                                 <div className="space-y-2 pt-2 border-t border-slate-150 dark:border-white/[0.06]">
                                   <textarea
+                                    id={`textarea-change-mobile-${item._id}`}
                                     value={changeText}
                                     onChange={(e) => setChangeText(e.target.value)}
                                     placeholder="Describe the change you'd like to request..."
@@ -574,12 +592,14 @@ export default function SharedTrip() {
                                   />
                                   <div className="flex justify-end gap-1.5">
                                     <button
+                                      id={`btn-cancel-change-mobile-${item._id}`}
                                       onClick={() => setRequestingChangeItemId(null)}
                                       className="px-2 py-0.5 text-[10px] text-slate-500 hover:text-slate-755 dark:hover:text-white transition-colors"
                                     >
                                       Cancel
                                     </button>
                                     <button
+                                      id={`btn-submit-change-mobile-${item._id}`}
                                       onClick={() => handleRequestChange(item._id)}
                                       disabled={submittingChange || !changeText.trim()}
                                       className="px-2.5 py-0.5 bg-primary text-white text-[10px] font-bold rounded-lg hover:bg-primary/95 transition-all disabled:opacity-50"
@@ -604,7 +624,7 @@ export default function SharedTrip() {
             )}
 
             {activeTab === 'documents' && (
-              <div className="space-y-4">
+              <div id="tab-content-documents" className="space-y-4">
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl p-5">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2"><Cloud className="w-4 h-4" /> Destination Weather</h3>
                   <div className="flex items-center justify-between">
@@ -631,7 +651,7 @@ export default function SharedTrip() {
             )}
 
             {activeTab === 'support' && (
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl p-5 space-y-4">
+              <div id="tab-content-support" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl p-5 space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2"><Phone className="w-4 h-4" /> Advisor Assistance</h3>
                 <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 space-y-3">
                   <p className="text-xs text-primary leading-relaxed">
@@ -648,8 +668,8 @@ export default function SharedTrip() {
         </motion.div>
       </main>
 
-      {/* Elegant, Mobile Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/95 border-t border-slate-200 dark:border-white/10 backdrop-blur-md py-2 px-6 flex justify-around items-center z-50 shadow-lg">
+      {/* Elegant, Floating Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-5 left-4 right-4 bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-white/[0.08] backdrop-blur-lg py-2.5 px-4 flex justify-around items-center z-50 shadow-lg dark:shadow-black/40 rounded-2xl">
         {[
           { id: 'journey', label: 'Journey', icon: Clock },
           { id: 'documents', label: 'Documents', icon: Compass },
@@ -660,13 +680,16 @@ export default function SharedTrip() {
           return (
             <button
               key={tab.id}
+              id={`tab-btn-${tab.id}`}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
-                isActive ? 'text-primary bg-primary/5' : 'text-slate-400'
+              className={`flex flex-col items-center gap-1 py-1 px-4 rounded-xl transition-all ${
+                isActive 
+                  ? 'text-primary dark:text-white bg-primary/5 dark:bg-white/10 font-bold' 
+                  : 'text-slate-450 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-350'
               }`}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-[10px] font-bold tracking-wide">{tab.label}</span>
+              <Icon className="w-4 h-4" />
+              <span className="text-[9px] font-bold tracking-wider uppercase">{tab.label}</span>
             </button>
           );
         })}

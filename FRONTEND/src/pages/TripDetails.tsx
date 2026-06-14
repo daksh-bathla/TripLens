@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Plane, Train, Car, Calendar, Leaf, Compass, ChevronLeft, Clock, Trash2, Sparkles, Share2, Copy, Save } from 'lucide-react';
+import { MapPin, Plane, Train, Car, Calendar, Leaf, Compass, ChevronLeft, Clock, Trash2, Sparkles, Share2, Copy, Save, GripVertical } from 'lucide-react';
 import axios from 'axios';
 
 interface TripDetailsProps {
@@ -369,16 +369,16 @@ export default function TripDetails({ token }: TripDetailsProps) {
                   {trip.source} → {trip.destination}
                 </h1>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1 bg-slate-100 dark:bg-white/[0.04] border border-transparent dark:border-white/[0.02] rounded-xl p-1">
                 {STATUS_OPTIONS.map(s => (
                   <button
                     key={s}
                     onClick={() => updateStatus(s)}
                     disabled={saving}
-                    className={`px-3 py-1.5 text-xs font-bold rounded-lg capitalize transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${
                       trip.status === s
-                        ? 'bg-primary text-white'
-                        : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/15'
+                        ? 'bg-white dark:bg-[#1f2937] text-slate-950 dark:text-white shadow-sm'
+                        : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                     }`}
                   >
                     {s}
@@ -432,8 +432,8 @@ export default function TripDetails({ token }: TripDetailsProps) {
                       onDragOver={(e) => handleDragOverDay(e, dIdx)}
                       onDragLeave={() => setDragOverDay(null)}
                       onDrop={(e) => handleDropDay(e, dIdx)}
-                      className={`border-l-2 pl-4 space-y-4 transition-all duration-200 ${
-                        isDayDraggedOver ? 'border-primary bg-primary/5 py-2 rounded-xl' : 'border-slate-200 dark:border-white/15'
+                      className={`border-l pl-6 space-y-4 transition-all duration-205 relative border-slate-200 dark:border-white/[0.06] ${
+                        isDayDraggedOver ? 'border-primary bg-primary/5 py-2 rounded-xl' : ''
                       }`}
                     >
                       <h3 className="font-extrabold text-slate-900 dark:text-white text-sm">{day.title || `Day ${day.day}`}</h3>
@@ -616,35 +616,37 @@ export default function TripDetails({ token }: TripDetailsProps) {
                               ) : (
                                 <div
                                   onClick={() => setEditingItemId(item._id)}
-                                  className="bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 hover:border-primary/30 dark:hover:border-primary/30 rounded-2xl p-4 flex justify-between items-start gap-4 transition-all cursor-pointer group"
+                                  className="bg-slate-50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/[0.05] hover:border-primary/20 dark:hover:border-primary/20 rounded-2xl p-4 flex gap-3.5 items-start transition-all cursor-pointer group"
                                 >
-                                  <div className="space-y-1">
+                                  <div className="text-slate-350 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 p-0.5 cursor-grab active:cursor-grabbing self-center">
+                                    <GripVertical className="w-3.5 h-3.5 flex-shrink-0" />
+                                  </div>
+                                  <div className="flex-1 min-w-0 space-y-1">
                                     <div className="flex items-center gap-2">
-                                      <span className="text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-md bg-primary/10 text-primary">{item.category}</span>
+                                      <span className="text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-md bg-primary/5 text-primary dark:text-primary border border-primary/10">{item.category}</span>
                                       <span className="text-xs text-slate-400 capitalize">{item.section}</span>
                                       {openCommentsCount > 0 && (
-                                        <span className="flex items-center gap-1 text-[9px] font-bold text-red-500 bg-red-500/10 dark:bg-red-500/20 px-2 py-0.5 rounded-full animate-pulse">
+                                        <span className="flex items-center gap-1 text-[9px] font-bold text-red-500 bg-red-500/10 dark:bg-red-500/20 px-2 py-0.5 rounded-full">
                                           <span className="w-1.5 h-1.5 bg-red-500 rounded-full" /> {openCommentsCount} {openCommentsCount === 1 ? 'request' : 'requests'}
                                         </span>
                                       )}
                                     </div>
                                     <h4 className="font-bold text-slate-900 dark:text-white text-sm">{item.title || 'Untitled Activity'}</h4>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{item.description || 'No description added yet.'}</p>
-                                  </div>
-                                  <div className="flex flex-col items-end text-xs text-slate-400 gap-1.5 flex-shrink-0">
-                                    {item.startTime && (
-                                      <span className="inline-flex items-center gap-1">
-                                        <Clock className="w-3.5 h-3.5 text-slate-400" />
-                                        <span>{item.startTime} {item.endTime && `- ${item.endTime}`}</span>
-                                      </span>
-                                    )}
-                                    {item.location && (
-                                      <span className="font-semibold text-primary inline-flex items-center gap-1">
-                                        <MapPin className="w-3.5 h-3.5 text-primary" />
-                                        <span>{item.location}</span>
-                                      </span>
-                                    )}
-                                    <span className="text-[9px] text-primary opacity-0 group-hover:opacity-100 transition-opacity mt-1">Click to edit / drag to reorder</span>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed truncate">{item.description || 'No description added yet.'}</p>
+                                    <div className="flex items-center gap-3 pt-1">
+                                      {item.startTime && (
+                                        <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+                                          <Clock className="w-3 h-3" />
+                                          <span>{item.startTime} {item.endTime && `- ${item.endTime}`}</span>
+                                        </span>
+                                      )}
+                                      {item.location && (
+                                        <span className="font-semibold text-primary text-[10px] inline-flex items-center gap-1">
+                                          <MapPin className="w-3 h-3" />
+                                          <span>{item.location}</span>
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               )}

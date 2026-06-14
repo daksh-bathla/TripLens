@@ -47,6 +47,7 @@ declare module 'react-router-dom' {
   export const Link: any;
   export const useParams: () => any;
   export const useNavigate: () => any;
+  export const useLocation: () => any;
 }
 
 declare module 'lucide-react';
